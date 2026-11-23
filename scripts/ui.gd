@@ -1,36 +1,41 @@
 extends CanvasLayer
 
-func _ready():
-	pass
+var wave_tween: Tween
+var energy_warning_tween: Tween
 
-func _process(_delta):
-	pass
+@onready var player: CharacterBody2D = $"../Player"
+@onready var wave_label: Label = $NextWaveMessage
 
-func update_energy_low(energy) -> void:
+func update_energy_low(energy: int) -> void:
 	$EnergyCount.text = "Energy: " + str(energy) + " Not Enough Energy"
-	await get_tree().create_timer(3).timeout
-	energy = get_node("../Player").energy
-	update_energy(energy)
+	if energy_warning_tween != null and energy_warning_tween.is_valid():
+		energy_warning_tween.kill()
+	energy_warning_tween = create_tween()
+	energy_warning_tween.tween_interval(3.0)
+	energy_warning_tween.tween_callback(_restore_energy_label)
 
-func update_wave(wave) -> void:
-	$NextWaveMessage.text = "Wave: " + str(wave)
-	await get_tree().create_timer(1).timeout
-	for i in 100:
-		await get_tree().create_timer(0.01).timeout
-		$NextWaveMessage.modulate.a += 0.01
-	await get_tree().create_timer(2).timeout
-	for i in 100:
-		await get_tree().create_timer(0.01).timeout
-		$NextWaveMessage.modulate.a -= 0.01
+func _restore_energy_label() -> void:
+	if is_instance_valid(player):
+		update_energy(int(player.get("energy")))
 
-func update_money(money) -> void:
+func update_wave(wave: int) -> void:
+	wave_label.text = "Wave: " + str(wave)
+	if wave_tween != null and wave_tween.is_valid():
+		wave_tween.kill()
+	wave_label.modulate.a = 0.0
+	wave_tween = create_tween()
+	wave_tween.tween_property(wave_label, "modulate:a", 1.0, 1.0)
+	wave_tween.tween_interval(2.0)
+	wave_tween.tween_property(wave_label, "modulate:a", 0.0, 1.0)
+
+func update_money(money: float) -> void:
 	$MoneyCount.text = "Money: $" + str(money)
 
-func update_energy(energy) -> void:
-	if energy == 0:
+func update_energy(energy: int) -> void:
+	if energy <= 0:
 		$EnergyCount.text = "Energy: Out of Energy"
-	elif energy > 0: 
+	else:
 		$EnergyCount.text = "Energy: " + str(energy)
 
-func update_score(score) -> void:
+func update_score(score: int) -> void:
 	$ScoreCount.text = "Score: " + str(score)

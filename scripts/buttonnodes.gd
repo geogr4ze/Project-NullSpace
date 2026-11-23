@@ -5,7 +5,10 @@ var pressed_button2 = true
 var auto_start = false 
 var click_scale := Vector2(0.005, 0.005)
 var shop_scene := "res://scenes/shop.tscn"
-var status
+var shop_loading := false
+var tab_targets: Dictionary = {}
+var tab_tweens: Dictionary = {}
+var click_tweens: Dictionary = {}
 var play = preload("res://assets/ui/buttons/Play + autoplay Skins-1.png.png")
 var pause = preload("res://assets/ui/buttons/Play + autoplay Skins-3.png.png")
 
@@ -14,8 +17,6 @@ func _ready():
 	Signalbus.test_mode.connect(on_test)
 
 func _process(_delta):
-	var progress = []
-	status = ResourceLoader.load_threaded_get_status(shop_scene, progress)
 	if Input.is_action_just_pressed("auto_next_wave") and pressed_button2:
 		extend($AutoPlayTab, 1)
 		autoplay_control()
@@ -59,13 +60,33 @@ func autoplay_control() -> void:
 	shophide()
 
 func shop_control() -> void:
+	if shop_loading:
+		return
+	shop_loading = true
 	clicked($%Button3)
 	Shopcontrol.shop_open = true
-	while true:
-		await get_tree().create_timer(0.5).timeout
-		if status == ResourceLoader.THREAD_LOAD_LOADED:
-			var scene = ResourceLoader.load_threaded_get(shop_scene)
+
+	var request_error := ResourceLoader.load_threaded_request(shop_scene)
+	if request_error != OK:
+		push_error("Shop scene loading failed: " + str(request_error))
+		Shopcontrol.shop_open = false
+		shop_loading = false
+		return
+
+	var load_status := ResourceLoader.load_threaded_get_status(shop_scene)
+	while load_status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+		load_status = ResourceLoader.load_threaded_get_status(shop_scene)
+
+	if load_status == ResourceLoader.THREAD_LOAD_LOADED:
+		var scene := ResourceLoader.load_threaded_get(shop_scene) as PackedScene
+		if scene != null:
 			get_tree().change_scene_to_packed(scene)
+			return
+
+	push_error("Shop scene could not be loaded.")
+	Shopcontrol.shop_open = false
+	shop_loading = false
 
 #Play/Pause functions-----------------------------------------------------------
 func _on_button_1_pressed() -> void:
@@ -73,14 +94,10 @@ func _on_button_1_pressed() -> void:
 		play_pause_control()
 
 func playshow() -> void:
-	for i in 50:
-		$Play_PauseTab.position -= Vector2(0, 1.0)
-		await get_tree().create_timer(0.01).timeout
+	_move_tab($Play_PauseTab, Vector2.UP * 50.0, 0.5)
 
 func playhide() -> void:
-	for i in 50:
-		$Play_PauseTab.position += Vector2(0, 1.0)
-		await get_tree().create_timer(0.01).timeout
+	_move_tab($Play_PauseTab, Vector2.DOWN * 50.0, 0.5)
 
 func _on_button_1_mouse_entered() -> void:
 	extend($Play_PauseTab, 1)
@@ -122,36 +139,49 @@ func _on_button_3_mouse_entered() -> void:
 func _on_button_3_mouse_exited() -> void:
 	retract($ShopTab, 0)
 
-#Helper functions----------------------------------------------------------------
-var vectors = [Vector2(1.0, 0), Vector2(0, -1.0)]
+# Helper functions — one tween per tab; no timer-per-pixel animation.
+const HOVER_DISTANCE := 10.0
+const TAB_DISTANCE := 100.0
+const HOVER_DURATION := 0.1
+const TAB_DURATION := 1.0
+var vectors := [Vector2.RIGHT, Vector2.UP]
 
-func extend(button, vector_type):
-	for i in 10:
-		button.position += vectors[vector_type]
-		await get_tree().create_timer(0.01).timeout
+func _move_tab(tab: Control, offset: Vector2, duration: float) -> void:
+	var key := tab.get_instance_id()
+	var target: Vector2 = tab_targets.get(key, tab.position)
+	target += offset
+	tab_targets[key] = target
+	if tab_tweens.has(key):
+		var previous: Tween = tab_tweens[key]
+		if previous.is_valid():
+			previous.kill()
+	var tween := create_tween()
+	tween.tween_property(tab, "position", target, duration)
+	tab_tweens[key] = tween
 
-func retract(button, vector_type):
-	for i in 10:
-		button.position -= vectors[vector_type]
-		await get_tree().create_timer(0.01).timeout
+func extend(tab: Control, vector_type: int) -> void:
+	_move_tab(tab, vectors[vector_type] * HOVER_DISTANCE, HOVER_DURATION)
 
-func show_button(button, vector_type):
-	for i in 100:
-		button.position += vectors[vector_type]
-		await get_tree().create_timer(0.01).timeout
+func retract(tab: Control, vector_type: int) -> void:
+	_move_tab(tab, -vectors[vector_type] * HOVER_DISTANCE, HOVER_DURATION)
 
-func hide_button(button, vector_type):
-	for i in 100:
-		button.position -= vectors[vector_type]
-		await get_tree().create_timer(0.01).timeout
+func show_button(tab: Control, vector_type: int) -> void:
+	_move_tab(tab, vectors[vector_type] * TAB_DISTANCE, TAB_DURATION)
 
-func clicked(button):
-	for i in 10:
-		button.scale -= click_scale
-		await get_tree().create_timer(0.01).timeout
-	for i in 10:
-		button.scale += click_scale
-		await get_tree().create_timer(0.01).timeout
+func hide_button(tab: Control, vector_type: int) -> void:
+	_move_tab(tab, -vectors[vector_type] * TAB_DISTANCE, TAB_DURATION)
+
+func clicked(button: Control) -> void:
+	var key := button.get_instance_id()
+	if click_tweens.has(key):
+		var previous: Tween = click_tweens[key]
+		if previous.is_valid():
+			previous.kill()
+	var original_scale: Vector2 = button.scale
+	var tween := create_tween()
+	tween.tween_property(button, "scale", original_scale - click_scale * 10.0, 0.1)
+	tween.tween_property(button, "scale", original_scale, 0.1)
+	click_tweens[key] = tween
 
 #Wave functions-----------------------------------------------------------------
 func on_wave_complete(wave) -> void:

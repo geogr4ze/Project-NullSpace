@@ -2,20 +2,21 @@ extends Node
 #Test System
 var test_enable = true
 var test_random = true
-var selection_T = 5
-var test_SN = 20
+var selection_T: int = 5
+var test_SN: int = 20
 const ENEMY_TYPE_COUNT := 6
 
 #Wave System
 var wave := 1
 var max_wave := 25
 var spawnrate := 0.01 # in seconds
-var enemy = BASIC
+# Enemy types must be declared before the initial value.
+enum {BASIC = 0, SPEED, SUPPORT, TANK, RAILGUN, MINESHIP}
+var enemy: int = BASIC
 var rng = RandomNumberGenerator.new()
 var file_index = 0
 
-#Enemy Dictionary(Speed, Score when killed, HP, Skin) and setting enemy
-enum{BASIC = 0, SPEED, SUPPORT, TANK, RAILGUN, MINESHIP}
+# Enemy dictionary: speed, score, reward, health, and animation.
 var enemies = {
 	BASIC: {"enemy_speed": 0.45, "score": 1, "reward": 1, "health": 3, "enemy_skin": "basic"}, 
 	SPEED: {"enemy_speed": 1.6, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
@@ -41,6 +42,7 @@ var enemy_per_round = {
 	"5": 0 
 }
 var selection: int
+var spawn_in_progress := false
 
 func _ready():
 	rng.randomize()
@@ -51,17 +53,7 @@ func _ready():
 		await get_tree().create_timer(1).timeout
 		Signalbus.test_mode.emit()
 
-# Game check for the next wave
-func _process(_delta):
-	if total_enemy_count > 0 and enemy_kc >= total_enemy_count and !test_enable:
-		Signalbus.wave_complete.emit(wave)
-		enemy_kc = 0
-		wave += 1
-		total_enemy_count = 0
-		if wave <= max_wave:
-			new_enemy_totals()
-		else: 
-			total_enemy_count = 10000 #temperary 
+# Wave completion is checked only when an enemy dies, not every frame.
 
 # Collects total number of enemies that are meant to spawn
 func new_enemy_totals() -> void:
@@ -70,17 +62,26 @@ func new_enemy_totals() -> void:
 		push_error("Could not open wave data: " + wave_file_path)
 		return
 	var line_content = ""
-	file_index = (wave - 1) * 6
+	total_enemy_count = 0
+	file_index = (wave - 1) * ENEMY_TYPE_COUNT
 	for i in file_index:
 		line_content = file.get_line()
-	for i in 6:
+	for i in ENEMY_TYPE_COUNT:
 		line_content = file.get_line()
 		enemy_per_round[str(i)] = int(line_content)
 		total_enemy_count += int(line_content)
 
-# Counter for total enemies that are meant to spawn
+# Counter for total enemies that are meant to spawn.
 func kill_count() -> void:
 	enemy_kc += 1
+	if test_enable or total_enemy_count <= 0 or enemy_kc < total_enemy_count:
+		return
+	Signalbus.wave_complete.emit(wave)
+	enemy_kc = 0
+	wave += 1
+	total_enemy_count = 0
+	if wave <= max_wave:
+		new_enemy_totals()
 
 # Choose only from enemy types that still have spawns remaining.
 func get_enemy() -> int:
@@ -89,29 +90,33 @@ func get_enemy() -> int:
 func get_next_wave_enemy() -> int:
 	var remaining := 0
 	for i in ENEMY_TYPE_COUNT:
-		remaining += enemy_per_round[str(i)]
+		remaining += int(enemy_per_round[str(i)])
 	if remaining <= 0:
 		return -1
-	var roll := rng.randi_range(0, remaining - 1)
+	var roll: int = rng.randi_range(0, remaining - 1)
 	for i in ENEMY_TYPE_COUNT:
-		roll -= enemy_per_round[str(i)]
+		roll -= int(enemy_per_round[str(i)])
 		if roll < 0:
 			return i
 	return -1
 
 func spawn_enemy() -> void:
+	if spawn_in_progress or test_enable:
+		return
+	spawn_in_progress = true
 	for i in total_enemy_count:
-		var enemy_type := get_next_wave_enemy()
+		var enemy_type: int = get_next_wave_enemy()
 		if enemy_type < 0:
 			break
-		enemy_per_round[str(enemy_type)] -= 1
+		enemy_per_round[str(enemy_type)] = int(enemy_per_round[str(enemy_type)]) - 1
 		await get_tree().create_timer(spawnrate).timeout
 		Signalbus.new_enemy.emit(enemy_type)
+	spawn_in_progress = false
 
 # Test enemy spawns retain their explicitly selected type.
 func test_spawn() -> void:
 	for i in test_SN:
-		var enemy_type := selection_T
+		var enemy_type: int = selection_T
 		if test_random:
 			enemy_type = get_enemy()
 		await get_tree().create_timer(0.01).timeout

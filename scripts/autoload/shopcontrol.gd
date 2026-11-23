@@ -18,20 +18,12 @@ var bought_mode2 := true #Default false
 var bought_shield := true #Default false
 var bought_dash := false #Default false
 
-func _process(_delta):
-	pass
-	#var progress = []
-	#status = ResourceLoader.load_threaded_get_status(main_scene, progress)
-
-
 func _on_button_pressed():
 	print("pressed")
 	clicked($Exitbutton)
 
-func clicked(button):
-	for i in 10:
-		button.scale -= click_scale
-		await get_tree().create_timer(0.01).timeout
-	for i in 10:
-		button.scale += click_scale
-		await get_tree().create_timer(0.01).timeout
+func clicked(button: Control) -> void:
+	var original_scale: Vector2 = button.scale
+	var tween := create_tween()
+	tween.tween_property(button, "scale", original_scale - click_scale * 10.0, 0.1)
+	tween.tween_property(button, "scale", original_scale, 0.1)
