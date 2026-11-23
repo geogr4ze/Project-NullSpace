@@ -1,0 +1,7 @@
+# Godot 4 generated editor state / imported resource cache
+.godot/
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+*.swp

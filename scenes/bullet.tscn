@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://bjf61g2uqeuvx"]
+
+[ext_resource type="Script" uid="uid://hd4pj1wfn1vb" path="res://scripts/bullet.gd" id="1_gjsl0"]
+[ext_resource type="Texture2D" uid="uid://c0nslxp1811gi" path="res://assets/projectiles/Bullet default.png" id="2_4728c"]
+[ext_resource type="Texture2D" uid="uid://cd8gedojq00gr" path="res://assets/projectiles/Laser.png" id="3_ninqg"]
+[ext_resource type="Texture2D" uid="uid://cyh3nhe8qtrqr" path="res://assets/projectiles/Bullet wave.png" id="4_0jsfh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_av2yl"]
+resource_name = "bullet"
+size = Vector2(4, 26.3289)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oieea"]
+radius = 58.5
+height = 186.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xioi7"]
+size = Vector2(17.7243, 378.942)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2dq5i"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_4728c")
+}],
+"loop": true,
+"name": &"bullet",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ninqg")
+}],
+"loop": true,
+"name": &"laser",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_0jsfh")
+}],
+"loop": true,
+"name": &"wave",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b5jmy"]
+size = Vector2(1, 1)
+
+[node name="Bullet" type="RigidBody2D" unique_id=451125160]
+process_mode = 1
+collision_layer = 4
+collision_mask = 0
+collision_priority = 3.0
+gravity_scale = 0.0
+script = ExtResource("1_gjsl0")
+
+[node name="BulletCollision" type="CollisionShape2D" parent="." unique_id=1132149428]
+position = Vector2(0, -0.5)
+scale = Vector2(1, 1.02549)
+shape = SubResource("RectangleShape2D_av2yl")
+disabled = true
+
+[node name="WaveCollision" type="CollisionShape2D" parent="." unique_id=643716321]
+position = Vector2(-0.000165983, 49.5)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_oieea")
+disabled = true
+
+[node name="LaserCollision" type="CollisionShape2D" parent="." unique_id=129364890]
+position = Vector2(2.1696e-05, -145)
+rotation = -3.14159
+scale = Vector2(2.03111, -0.775845)
+shape = SubResource("RectangleShape2D_xioi7")
+disabled = true
+
+[node name="Visibility" type="VisibleOnScreenNotifier2D" parent="." unique_id=542770244]
+position = Vector2(1.16825e-05, 45.5)
+scale = Vector2(0.2, 0.09)
+
+[node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1345641507]
+scale = Vector2(0.12, 0.12)
+sprite_frames = SubResource("SpriteFrames_2dq5i")
+animation = &"laser"
+offset = Vector2(-16, -16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1951768700]
+shape = SubResource("RectangleShape2D_b5jmy")
+one_way_collision_margin = 10.0
