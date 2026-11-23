@@ -11,3 +11,4 @@ func _on_area_2d_body_entered(body) -> void:
 	if body.name == "Player" and hit:
 		hit = false
 		Signalbus.enemy_bullet_hit.emit()
+		queue_free()

@@ -7,6 +7,12 @@ var energy_cost: int
 var screen_size: Vector2
 var delay: float
 var maxoverheat = 3.0
+const DASH_DURATION := 0.5
+const DASH_COOLDOWN := 3.0
+const DASH_SPEED := 600.0
+const LASER_CHARGE_TIME := 1.25
+const LASER_HEAT_PER_SECOND := 1.2
+const LASER_COOL_PER_SECOND := 0.2
 
 # Mobility Variables
 @export var acceleration := 1.5
@@ -20,9 +26,8 @@ var health := 50
 var hpbar
 var shieldbar
 var bar := [health, shield]
-var flag := [true, true]
 var modul := [hpbar, shieldbar] # Player Health = 0, Shield Health = 1
-var vis_time := [0, 0]
+var vis_time := [5.0, 5.0]
 
 # HP Variables
 var healdelay := 1.5
@@ -76,49 +81,55 @@ func _change_mode(mode) -> void:
 		$ShieldSkin.frame = 7
 	rotation_speed = Modecontrol.modes[mode]["player_movement"]
 
-func _process(delta):
+func _physics_process(delta: float) -> void:
+	if death:
+		return
 	handle_rotation(delta)
+	dash_control(delta)
 	handle_movement(delta)
 	$Node2D.global_rotation = 0
+	# Combat updates at the fixed physics tick, independent of render FPS.
+	shot_cooldown_remaining = maxf(0.0, shot_cooldown_remaining - delta)
+	bullet_cooldown = shot_cooldown_remaining <= 0.0
 	handle_fire_modes()
 	if Modecontrol.mode == 2:
-		mode2_control()
+		mode2_control(delta)
 	elif Modecontrol.mode == 1:
-		mode1_control()
+		mode1_control(delta)
 	else:
 		if Input.is_action_pressed("Fire") and Shopcontrol.autofire:
 			fire()
 		elif Input.is_action_just_pressed("Fire"):
 			fire()
-	for i in 1:
-		if modul[i].modulate.a == 1.0 and bar[i] > 10:
-			modul[i].modulate.a = 0.99
-			vis_time[i] = 5
-			bar_vis(i)
-	dash_control(delta)
+
+func _process(delta: float) -> void:
+	if death:
+		return
+	for i in modul.size():
+		if vis_time[i] > 0.0:
+			vis_time[i] = maxf(0.0, vis_time[i] - delta)
+		elif modul[i].modulate.a > 0.0:
+			modul[i].modulate.a = maxf(0.0, modul[i].modulate.a - delta)
 
 var dash_cooldown := false
-var dashing = false
+var dashing := false
+var dash_time_remaining := 0.0
+var dash_cooldown_remaining := 0.0
 
-func dash_control(delta):
+func dash_control(delta: float) -> void:
+	dash_time_remaining = maxf(0.0, dash_time_remaining - delta)
+	dash_cooldown_remaining = maxf(0.0, dash_cooldown_remaining - delta)
+	dashing = dash_time_remaining > 0.0
+	dash_cooldown = dash_cooldown_remaining > 0.0
+
 	if Input.is_action_just_pressed("dash") and !dash_cooldown:
 		if energy >= 2 and Modecontrol.mode == 0:
-			dashing = true
 			energy -= 2
+			dashing = true
 			dash_cooldown = true
+			dash_time_remaining = DASH_DURATION
+			dash_cooldown_remaining = DASH_COOLDOWN
 			Signalbus.dash.emit()
-			dash(delta)
-			await get_tree().create_timer(3).timeout
-			dash_cooldown = false
-
-func dash(delta):
-	var direction = Vector2(0, -1).rotated(rotation)
-	var target_velocity = direction * 600
-	velocity = velocity.lerp(target_velocity, 150 * delta)
-	position = position.clamp(Vector2.ZERO, screen_size)
-	move_and_slide()
-	await get_tree().create_timer(0.5).timeout
-	dashing = false
 
 func _on_shield() -> void:
 	if Shopcontrol.bought_shield and !shield_conf:
@@ -147,42 +158,32 @@ func _on_enemy_bullet_hit() -> void:
 func _on_mine() -> void:
 	damage_taken(EXPLOSIVE)
 
-func damage_taken(type) -> void:
+func damage_taken(type: int) -> void:
+	if death:
+		return
+	var damage: int = rdtype[type]["damage"]
 	if bar[1] > 0 and shield_act:
-		bar[1] -= rdtype[type]["damage"]
+		bar[1] = maxi(0, bar[1] - damage)
 		$ShieldRegen.start()
-		if bar[1] <= 0:
+		if bar[1] == 0:
+			shield_act = false
 			$ShieldSkin.play()
-			bar[1] = 0
 		hp_update(1)
 	else:
-		bar[0] -= rdtype[type]["damage"]
-		if hit_timer <= rdtype[type]["recov"]:
-			hit_timer = rdtype[type]["recov"]
-			$HealingTimer.start()
+		bar[0] = maxi(0, bar[0] - damage)
+		hit_timer = maxf(hit_timer, float(rdtype[type]["recov"]))
+		$HealingTimer.start()
 		hp_update(0)
 
-func hp_update(bar_type) -> void:
-	if bar_type == 1:
+func hp_update(bar_type: int) -> void:
+	modul[bar_type].modulate.a = 1.0
+	vis_time[bar_type] = 5.0
+	modul[bar_type].value = bar[bar_type]
+	if bar_type == 1 and bar[1] > 0:
 		_shield_act()
-	if bar[bar_type] >= 0:
-		modul[bar_type].modulate.a = 1.0
-		modul[bar_type].value = bar[bar_type]
-	elif bar[0] <= 0 and !death:
-		Signalbus.player_death.emit()
+	if bar[0] <= 0 and !death:
 		death = true
-
-func bar_vis(bar_type) -> void:
-	if flag[bar_type]:
-		flag[bar_type] = false
-		while vis_time[bar_type] > 0:
-			vis_time[bar_type] -= 1
-			await get_tree().create_timer(1.0).timeout
-		for i in 99:
-			if vis_time[bar_type] == 0:
-				await get_tree().create_timer(0.01).timeout
-				modul[bar_type].modulate.a -= 0.01
-		flag[bar_type] = true
+		Signalbus.player_death.emit()
 
 func _on_healing_timer_timeout() -> void:
 	if hit_timer > 0:
@@ -210,22 +211,16 @@ func handle_rotation(delta) -> void:
 	else:
 		rotation += rotation_speed * rotation_direction * delta
 
-func handle_movement(delta) -> void:
-	var move_forward = Input.is_action_pressed("move_forward")
-	var move_backward = Input.is_action_pressed("move_backward")
-	var movement_direction = 0
-	if move_forward:
-		movement_direction = 1
-	elif move_backward:
-		movement_direction = -1
-	var direction = Vector2(0, -1).rotated(rotation)
-	if movement_direction != 0:
-		var target_velocity = direction * max_speed * movement_direction
-		velocity = velocity.lerp(target_velocity, acceleration * delta)
+func handle_movement(delta: float) -> void:
+	var thrust := Input.get_axis("move_backward", "move_forward")
+	var direction := Vector2.UP.rotated(rotation)
+	if dashing:
+		velocity = direction * DASH_SPEED
 	else:
-		velocity = velocity.lerp(Vector2.ZERO, acceleration * delta)
-	position = position.clamp(Vector2.ZERO, screen_size)
+		var target_velocity := direction * thrust * max_speed
+		velocity = velocity.lerp(target_velocity, clampf(acceleration * delta, 0.0, 1.0))
 	move_and_slide()
+	position = position.clamp(Vector2.ZERO, screen_size)
 
 # Mode functions -------------------------------------------------------------------
 func handle_fire_modes() -> void:
@@ -245,100 +240,81 @@ func handle_fire_modes() -> void:
 				$%Overheatbar.visible = true
 
 var frameindex_m2 := 0
-var firedelay_m2 := false
 var firing_m2 := false
 var m2_kill := false
+var charge_time_m2 := 0.0
 
-func mode2_control() -> void:
+func mode2_control(delta: float) -> void:
+	var heatbar = $%Overheatbar
 	if Input.is_action_pressed("Fire") and !m2_kill:
 		if bar[1] > 0:
 			_shield_deact()
-		if rotation_speed > 0.1:
-			rotation_speed -= 0.1
-		if !firedelay_m2 and !firing_m2 and frameindex_m2 < 25:
-			firedelay_m2 = true
-			frameindex_m2 += 1
+		rotation_speed = maxf(0.1, rotation_speed - 6.0 * delta)
+		charge_time_m2 = minf(LASER_CHARGE_TIME, charge_time_m2 + delta)
+		frameindex_m2 = mini(25, int(charge_time_m2 / 0.05))
+		if !firing_m2:
 			$PlayerSkin.frame = frameindex_m2
-			frameindexdelay_m2()
-		if frameindex_m2 == 25:
+		if charge_time_m2 >= LASER_CHARGE_TIME:
 			if !firing_m2:
 				$PlayerSkin.play("Stage2_mode2")
 			firing_m2 = true
-			fire()
-			cooldown_m2()
-	else:
-		rotation_speed = 1.5
-		if firing_m2:
-			cooldown_m2()
-		if m2_kill:
+			if fire():
+				heatbar.value = minf(maxoverheat, heatbar.value + LASER_HEAT_PER_SECOND * delta)
+			if heatbar.value >= maxoverheat:
+				m2_kill = true
+				firing_m2 = false
+				charge_time_m2 = 0.0
+				frameindex_m2 = 0
+		return
+
+	rotation_speed = Modecontrol.modes[Modecontrol.mode]["player_movement"]
+	firing_m2 = false
+	charge_time_m2 = 0.0
+	frameindex_m2 = 0
+	if m2_kill:
+		if $PlayerSkin.animation != "CD_mode2":
 			$PlayerSkin.play("CD_mode2")
-		else:
-			firing_m2 = false
-			frameindex_m2 = 0
-			$PlayerSkin.frame = frameindex_m2
-			$PlayerSkin.animation = "mode2"
-		if shield_conf:
-			_shield_act()
-
-func frameindexdelay_m2() -> void:
-	await get_tree().create_timer(0.05).timeout
-	firedelay_m2 = false
-	cooldown_m2()
-
-func cooldown_m2() -> void:
-	$%Overheatbar.value += 0.01
-	await get_tree().create_timer(0.01).timeout
-	if $%Overheatbar.value == maxoverheat and !m2_kill:
-		firing_m2 = false
-		m2_kill = true
-		frameindex_m2 = 0
-	if !firing_m2:
-		while $%Overheatbar.value > 0 and frameindex_m2 == 0:
-			$%Overheatbar.value -= 0.01
-			await get_tree().create_timer(0.05).timeout
-			if $%Overheatbar.value == 0:
-				m2_kill = false
-				if shield_conf:
-					_shield_act()
+	else:
+		$PlayerSkin.animation = "mode2"
+		$PlayerSkin.frame = 0
+	heatbar.value = maxf(0.0, heatbar.value - LASER_COOL_PER_SECOND * delta)
+	if heatbar.value <= 0.0:
+		m2_kill = false
+	if shield_conf and !m2_kill:
+		_shield_act()
 
 var frameindex_m1 := 0
-var firedelay_m1 := false
+var charge_time_m1 := 0.0
 
-func mode1_control() -> void:
+func mode1_control(delta: float) -> void:
 	if Input.is_action_pressed("Fire"):
-		if !firedelay_m1 and frameindex_m1 < 14:
-			firedelay_m1 = true
-			frameindex_m1 += 1
-			$PlayerSkin.frame = frameindex_m1
-			frameindexdelay_m1()
-		if frameindex_m1 == 14 and bullet_cooldown:
-			fire()
-			frameindex_m1 = 0
-			$PlayerSkin.frame = frameindex_m1
-			
-	else:
-		frameindex_m1 = 0
+		charge_time_m1 = minf(0.7, charge_time_m1 + delta)
+		frameindex_m1 = mini(14, int(charge_time_m1 / 0.05))
 		$PlayerSkin.frame = frameindex_m1
+		if frameindex_m1 >= 14 and fire():
+			charge_time_m1 = 0.0
+			frameindex_m1 = 0
+			$PlayerSkin.frame = 0
+	else:
+		charge_time_m1 = 0.0
+		frameindex_m1 = 0
+		$PlayerSkin.frame = 0
 		$PlayerSkin.animation = "mode1"
 
-func frameindexdelay_m1() -> void:
-	await get_tree().create_timer(0.05).timeout
-	firedelay_m1 = false
-
 var bullet_cooldown := true
+var shot_cooldown_remaining := 0.0
 
-func fire() -> void:
-	if bullet_cooldown and energy >= energy_cost:
-		energy -= energy_cost
-		Signalbus.shot.emit()
-		bullet_cooldown = false
-		fire_delay()
-	elif energy > 0 and energy < energy_cost:
+func fire() -> bool:
+	if !bullet_cooldown:
+		return false
+	if energy < energy_cost:
 		Signalbus.energy_low.emit()
-
-func fire_delay() -> void:
+		return false
+	energy -= energy_cost
+	bullet_cooldown = false
+	var cooldown := delay
 	if Modecontrol.mode != 2:
-		await get_tree().create_timer(delay * Shopcontrol.firerate_multi).timeout
-	else:
-		await get_tree().create_timer(delay).timeout
-	bullet_cooldown = true
+		cooldown *= Shopcontrol.firerate_multi
+	shot_cooldown_remaining = maxf(cooldown, 0.01)
+	Signalbus.shot.emit()
+	return true
