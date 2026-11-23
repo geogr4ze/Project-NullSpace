@@ -4,7 +4,6 @@ var test_enable = true
 var test_random = true
 var selection_T = 5
 var test_SN = 20
-const ENEMY_TYPE_COUNT := 6
 
 #Wave System
 var wave := 1
@@ -43,7 +42,6 @@ var enemy_per_round = {
 var selection: int
 
 func _ready():
-	rng.randomize()
 	new_enemy_totals()
 	Signalbus.kc_point.connect(kill_count)
 	if test_enable:
@@ -53,7 +51,7 @@ func _ready():
 
 # Game check for the next wave
 func _process(_delta):
-	if total_enemy_count > 0 and enemy_kc >= total_enemy_count and !test_enable:
+	if enemy_kc == total_enemy_count and !test_enable:
 		Signalbus.wave_complete.emit(wave)
 		enemy_kc = 0
 		wave += 1
@@ -66,9 +64,6 @@ func _process(_delta):
 # Collects total number of enemies that are meant to spawn
 func new_enemy_totals() -> void:
 	var file = FileAccess.open(wave_file_path, FileAccess.READ)
-	if file == null:
-		push_error("Could not open wave data: " + wave_file_path)
-		return
 	var line_content = ""
 	file_index = (wave - 1) * 6
 	for i in file_index:
@@ -82,37 +77,27 @@ func new_enemy_totals() -> void:
 func kill_count() -> void:
 	enemy_kc += 1
 
-# Choose only from enemy types that still have spawns remaining.
+# Randomly selects an enemy and returns the type if its available
 func get_enemy() -> int:
-	return rng.randi_range(0, ENEMY_TYPE_COUNT - 1)
-
-func get_next_wave_enemy() -> int:
-	var remaining := 0
-	for i in ENEMY_TYPE_COUNT:
-		remaining += enemy_per_round[str(i)]
-	if remaining <= 0:
-		return -1
-	var roll := rng.randi_range(0, remaining - 1)
-	for i in ENEMY_TYPE_COUNT:
-		roll -= enemy_per_round[str(i)]
-		if roll < 0:
-			return i
-	return -1
+	rng.randomize()
+	return rng.randi_range(0, 5)
 
 func spawn_enemy() -> void:
 	for i in total_enemy_count:
-		var enemy_type := get_next_wave_enemy()
-		if enemy_type < 0:
-			break
-		enemy_per_round[str(enemy_type)] -= 1
+		var reroll = 0
+		while enemy_per_round[str(selection)] == 0 and reroll <= 100:
+			selection = get_enemy()
+			reroll += 1
 		await get_tree().create_timer(spawnrate).timeout
-		Signalbus.new_enemy.emit(enemy_type)
+		Signalbus.new_enemy.emit()
+		enemy_per_round[str(selection)] -= 1
 
-# Test enemy spawns retain their explicitly selected type.
+# Test Enemy Function
 func test_spawn() -> void:
 	for i in test_SN:
-		var enemy_type := selection_T
 		if test_random:
-			enemy_type = get_enemy()
+			selection = get_enemy()
+		else:
+			selection = selection_T
 		await get_tree().create_timer(0.01).timeout
-		Signalbus.new_enemy.emit(enemy_type)
+		Signalbus.new_enemy.emit()

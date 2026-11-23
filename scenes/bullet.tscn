@@ -52,7 +52,6 @@ collision_layer = 4
 collision_mask = 0
 collision_priority = 3.0
 gravity_scale = 0.0
-continuous_cd = 1
 script = ExtResource("1_gjsl0")
 
 [node name="BulletCollision" type="CollisionShape2D" parent="." unique_id=1132149428]
