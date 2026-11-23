@@ -1,0 +1,11 @@
+res://Nodes/enemy.tscn
+res://Resources/HP Bar Player.tres
+res://Resources/HP Bar Theme.tres
+res://Nodes/Scripts/main.gd
+res://Nodes/UI.tscn
+res://Nodes/player.tscn
+res://Nodes/bullet.tscn
+res://Nodes/energy.tscn
+res://Nodes/main.tscn
+res://Nodes/Scripts/enemy.gd
+res://wavecontrol.gd

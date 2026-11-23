@@ -1,0 +1,46 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1754502706
+icon.svg::CompressedTexture2D/CompressedTexture2D::210553817243346316::1728455332::1753923559::1::::<><><>0<>0<>67f1a69615d17af7fb16832f7c8820ec<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
+modecontrol.gd::GDScript/GDScript::8628659188418040115::1754117088::0::1::::<>Node<><>0<>0<><>::
+Project SA 1 notes.txt::TextFile/TextFile::-1::1728455332::0::1::::<><><>0<>0<><>::
+signalbus.gd::GDScript::1161642828663347639::1754206198::0::1::::<>Node<><>0<>0<><>::
+wavecontrol.gd::GDScript::7402581845978872050::1754209751::0::1::::<>Node<><>0<>0<><>::
+::res://Background/::1728455814
+Space attack background v2.png::CompressedTexture2D/CompressedTexture2D::2049554747136648676::1754030046::1754030219::1::::<><><>0<>0<>ffdd5e77c737e2bb790865554a3f214d<>res://.godot/imported/Space attack background v2.png-a184d93223ff049f3ae093bfe8f64bd1.ctex::
+Space Background.png::CompressedTexture2D/CompressedTexture2D::1508404692737631770::1728455332::1753923561::1::::<><><>0<>0<>b62a9847059974f08cfe7a1efccc6e31<>res://.godot/imported/Space Background.png-564d4e6b4b519030dafe19923c1f6c15.ctex::
+::res://Bullet types/::1728455814
+Bullet default.png::CompressedTexture2D/CompressedTexture2D::6555513151178130844::1728455332::1753923560::1::::<><><>0<>0<>d7ea7cf45f79297b2849536ce7113e8a<>res://.godot/imported/Bullet default.png-0890c92912300c954ce57b98275c7bd3.ctex::
+Bullet wave.png::CompressedTexture2D/CompressedTexture2D::6473547925459808429::1728455332::1753923560::1::::<><><>0<>0<>22ecd3acb414a6173b8f6f9bb85464e9<>res://.godot/imported/Bullet wave.png-3b643cd5ba1da2aac103820677289f1f.ctex::
+Laser.png::CompressedTexture2D/CompressedTexture2D::5051903988945114409::1728455332::1753923560::1::::<><><>0<>0<>dc7d98a891c509f60f127c42ea26f1f9<>res://.godot/imported/Laser.png-b48e55720e47a28fdb587e7181a02cfb.ctex::
+::res://Dropables/::1728455814
+Ammo.png::CompressedTexture2D/CompressedTexture2D::8294945877135760649::1728455332::1753923559::1::::<><><>0<>0<>a248278ad8d74d7c3d03a73fde446897<>res://.godot/imported/Ammo.png-bad312aaec86ade00dc993998cc16c28.ctex::
+::res://Enemy/::1753984166
+Enemy_basic.png::CompressedTexture2D/CompressedTexture2D::6959066846201110140::1753947168::1753947366::1::::<><><>0<>0<>941edb7e8ada3d9caf75587c2c333e55<>res://.godot/imported/Enemy_basic.png-69766b892ccb9b4659ebcbf4dd2bf447.ctex::
+Enemy_railgun.png::CompressedTexture2D/CompressedTexture2D::3567968783479680814::1753947176::1753947366::1::::<><><>0<>0<>b60f8fa8f8fde2f61ca261ff7341a0c9<>res://.godot/imported/Enemy_railgun.png-e748aa46add5e8cfa8bede1c0894488a.ctex::
+Enemy_speed.png::CompressedTexture2D/CompressedTexture2D::4237251867455642768::1753947171::1753947366::1::::<><><>0<>0<>c3c1612390410b6c335a6a75d6ec49c0<>res://.godot/imported/Enemy_speed.png-7f810dcc31e99446b7e1b989f1159480.ctex::
+Enemy_support.png::CompressedTexture2D/CompressedTexture2D::4587544991841061951::1753947174::1753947366::1::::<><><>0<>0<>9640fc7b378025e706e9a2a0db34f1ed<>res://.godot/imported/Enemy_support.png-8fa204518f113e1fb7bd9aae5e83a671.ctex::
+Enemy_tank.png::CompressedTexture2D/CompressedTexture2D::4767265929848058290::1753947179::1753947366::1::::<><><>0<>0<>3dde358a255504d00ca439efdf66d0a7<>res://.godot/imported/Enemy_tank.png-704f5ef99cbe2a0fce7555cd584f09d6.ctex::
+::res://Fonts/::1753984172
+NotoSansBuhid-Regular.ttf::FontFile/FontFile::3519131142145101820::1728455332::1753923559::1::::<><><>0<>0<>8b5ae9efbdc475329da1d5caf5c5d07d<>res://.godot/imported/NotoSansBuhid-Regular.ttf-77e875db5e69ee140aea9e5caf9ecdf2.fontdata::
+SpaceGrotesk-VariableFont_wght.ttf::FontFile/FontFile::2734667699648965864::1728455332::1753923559::1::::<><><>0<>0<>5e58a274531467eaf7a90718417fe7e2<>res://.godot/imported/SpaceGrotesk-VariableFont_wght.ttf-9234e6dd09c3c0d2c6bdea7bf0a1d5e0.fontdata::
+::res://Nodes/::1754221194
+bullet.tscn::PackedScene::3030371180403070097::1754209751::0::1::::<><><>0<>0<><>::uid://hd4pj1wfn1vb::::res://Nodes/Scripts/bullet.gd<>uid://c0nslxp1811gi::::res://Bullet types/Bullet default.png<>uid://cd8gedojq00gr::::res://Bullet types/Laser.png<>uid://cyh3nhe8qtrqr::::res://Bullet types/Bullet wave.png
+enemy.tscn::PackedScene::6019763731524957902::1754209751::0::1::::<><><>0<>0<><>::uid://ds4aon3rw8rpv::::res://Nodes/Scripts/enemy.gd<>uid://c6fa2xijtjstw::::res://Enemy/Enemy_basic.png<>uid://bq3l6o2tyx48a::::res://Enemy/Enemy_railgun.png<>uid://ccvaedgyc116f::::res://Resources/HP Bar Theme.tres<>uid://b1ms6itylw481::::res://Enemy/Enemy_speed.png<>uid://b6migwkomulox::::res://Enemy/Enemy_support.png<>uid://b86kf5nw8fin7::::res://Enemy/Enemy_tank.png
+energy.tscn::PackedScene::1098633150586957450::1754209751::0::1::::<><><>0<>0<><>::uid://bby0bxdmrrj0c::::res://Nodes/Scripts/energy.gd<>uid://dqgest8dc1xxp::::res://Dropables/Ammo.png
+main.tscn::PackedScene::1709781527265501505::1754209751::0::1::::<><><>0<>0<><>::uid://uoy2tj7b30uj::::res://Nodes/Scripts/main.gd<>uid://btufqd8r4aj6d::::res://Nodes/player.tscn<>uid://bsfyfpt5smo58::::res://Nodes/UI.tscn<>uid://4g24qsch3f7a::::res://Background/Space attack background v2.png
+player.tscn::PackedScene::3761628634922986101::1754209751::0::1::::<><><>0<>0<><>::uid://tclyrb4y7ton::::res://Nodes/Scripts/player.gd<>uid://c4ymbhre3xcxx::::res://Player/Player_mode0.png<>uid://jg0wht6m30m::::res://Resources/HP Bar Player.tres<>uid://2b8fm4aghnh8::::res://Player/Player_mode1.png<>uid://cik3xs7a6lkur::::res://Player/Player_mode2.png
+UI.tscn::PackedScene::3661608713333044181::1754209751::0::1::::<><><>0<>0<><>::uid://be7xtvtak0ppg::::res://Fonts/SpaceGrotesk-VariableFont_wght.ttf<>uid://c24pgg1slii6i::::res://Nodes/Scripts/UI.gd
+::res://Nodes/Scripts/::1754221194
+bullet.gd::GDScript/GDScript::499303132309075755::1753924110::0::1::::<>RigidBody2D<><>0<>0<><>::
+enemy.gd::GDScript::8482553919407482463::1754205879::0::1::::<>Area2D<><>0<>0<><>::
+energy.gd::GDScript/GDScript::2507675517281723344::1754116100::0::1::::<>Area2D<><>0<>0<><>::
+main.gd::GDScript::1434184598882604357::1754208581::0::1::::<>Node2D<><>0<>0<><>::
+player.gd::GDScript::1338428426397619861::1754198734::0::1::::<>CharacterBody2D<><>0<>0<><>::
+UI.gd::GDScript::6728728926273614070::1754002949::0::1::::<>CanvasLayer<><>0<>0<><>::
+::res://Player/::1753984167
+Player_mode0.png::CompressedTexture2D/CompressedTexture2D::6858593682838870629::1753947166::1753947366::1::::<><><>0<>0<>54d23ec4022f8d399adc4e30ca1e7efa<>res://.godot/imported/Player_mode0.png-ec83d994904204f6409fb20b4c797fb9.ctex::
+Player_mode1.png::CompressedTexture2D/CompressedTexture2D::1899176420799590171::1753947164::1753947366::1::::<><><>0<>0<>a9949cb4833298088e509a1dd96a4e53<>res://.godot/imported/Player_mode1.png-dcb17c5c4d66667a2a9ebdfb742fd16c.ctex::
+Player_mode2.png::CompressedTexture2D/CompressedTexture2D::5356738037984247465::1753947161::1753947366::1::::<><><>0<>0<>01174107e557bac33527f6bddfa775cd<>res://.godot/imported/Player_mode2.png-fb7136a431073ac2e12fe2b8eec205b3.ctex::
+::res://Resources/::1754000977
+HP Bar Player.tres::Theme::18989513823297598::1754184318::0::1::::<><><>0<>0<><>::
+HP Bar Theme.tres::Theme::4956578298606194555::1754184318::0::1::::<><><>0<>0<><>::
