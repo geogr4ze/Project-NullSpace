@@ -1,0 +1,447 @@
+[gd_scene format=3 uid="uid://cr1avnkq2ad15"]
+
+[ext_resource type="Script" uid="uid://ds4aon3rw8rpv" path="res://Nodes/Scripts/enemy.gd" id="1_eyyi7"]
+[ext_resource type="Texture2D" uid="uid://c6fa2xijtjstw" path="res://Enemy/Enemy_basic.png" id="2_wsd4a"]
+[ext_resource type="Texture2D" uid="uid://dnkvm60fwlcma" path="res://Enemy/MineShip/MineShip (5).png" id="3_07pct"]
+[ext_resource type="Texture2D" uid="uid://3t186vhshxbx" path="res://Enemy/Railgun/Railgun Animation-2.png.png" id="3_mukef"]
+[ext_resource type="Theme" uid="uid://ccvaedgyc116f" path="res://Resources/HP Bar Theme.tres" id="3_yvp5j"]
+[ext_resource type="Texture2D" uid="uid://bdt2gkcmgwl8r" path="res://Enemy/Railgun/Railgun Animation-1.png.png" id="4_2qaxb"]
+[ext_resource type="Texture2D" uid="uid://b1ms6itylw481" path="res://Enemy/Enemy_speed.png" id="4_k3s3g"]
+[ext_resource type="Texture2D" uid="uid://cfhwbaofqstsu" path="res://Enemy/MineShip/MineShip (6).png" id="4_uq328"]
+[ext_resource type="Texture2D" uid="uid://c7wpiq7g86xd8" path="res://Enemy/Railgun/Railgun Animation-3.png.png" id="5_7x4i2"]
+[ext_resource type="Texture2D" uid="uid://dafrvnm74vt3w" path="res://Enemy/MineShip/MineShip (7).png" id="5_iq318"]
+[ext_resource type="Texture2D" uid="uid://dxxprxrbixyb7" path="res://Enemy/MineShip/MineShip (8).png" id="6_7ltsu"]
+[ext_resource type="Texture2D" uid="uid://owij3qisfpto" path="res://Enemy/Tank/Tank Animation + Shield-1.png.png" id="6_t3hhj"]
+[ext_resource type="Texture2D" uid="uid://dhkpwxb0nmgv3" path="res://Enemy/MineShip/MineShip (9).png" id="7_h33j4"]
+[ext_resource type="Texture2D" uid="uid://l0ii5tvvlg7p" path="res://Enemy/Support/Support Animation-1.png.png" id="7_hadhx"]
+[ext_resource type="Texture2D" uid="uid://cgfogtdxfa23k" path="res://Enemy/Tank/Tank Animation + Shield-2.png.png" id="7_pk2x4"]
+[ext_resource type="Texture2D" uid="uid://7amaspb58qak" path="res://Enemy/Support/Support Animation-2.png.png" id="8_3brvt"]
+[ext_resource type="Texture2D" uid="uid://cq8xob4yic0xg" path="res://Enemy/MineShip/MineShip (1).png" id="8_bhisw"]
+[ext_resource type="Texture2D" uid="uid://shaad1i21acc" path="res://Enemy/Tank/Tank Animation + Shield-3.png.png" id="8_mukef"]
+[ext_resource type="Texture2D" uid="uid://bc7l1voc2fb0s" path="res://Enemy/Abilities/Warning_1.png" id="9_83h23"]
+[ext_resource type="Texture2D" uid="uid://c4j6vbn5iwwf2" path="res://Enemy/Support/Support Animation-3.png.png" id="9_d3xy7"]
+[ext_resource type="Texture2D" uid="uid://c586jpm3xp13k" path="res://Enemy/MineShip/MineShip (2).png" id="9_wlbp5"]
+[ext_resource type="Texture2D" uid="uid://c1aokj44tw540" path="res://Enemy/Abilities/Warning_2.png" id="10_1ksyb"]
+[ext_resource type="Texture2D" uid="uid://blth1omfxgr46" path="res://Enemy/MineShip/MineShip (3).png" id="10_5kscc"]
+[ext_resource type="Texture2D" uid="uid://bt54p72qdxlt4" path="res://Enemy/Support/Support Animation-4.png.png" id="10_8vpro"]
+[ext_resource type="Texture2D" uid="uid://gpusnp2y8fky" path="res://Enemy/Support/Support Animation-5.png.png" id="11_6hi5h"]
+[ext_resource type="Texture2D" uid="uid://dpbn1jgofjv10" path="res://Enemy/MineShip/MineShip (4).png" id="11_gho5p"]
+[ext_resource type="Texture2D" uid="uid://c7bxepgn4i5xx" path="res://Enemy/Abilities/Warning_3.png" id="11_t3hhj"]
+[ext_resource type="Texture2D" uid="uid://dqxkiu1augakn" path="res://Enemy/Support/Support Animation-6.png.png" id="12_t4h4w"]
+[ext_resource type="Texture2D" uid="uid://cq3u50qykd24q" path="res://Enemy/Support/Support Animation-7.png.png" id="13_l46x0"]
+[ext_resource type="Texture2D" uid="uid://n8eyktxy5v08" path="res://Enemy/Abilities/Aoe_Support.png" id="21_hadhx"]
+[ext_resource type="Texture2D" uid="uid://bss881um474n" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-4.png.png" id="31_gho5p"]
+[ext_resource type="Texture2D" uid="uid://csuxao6gflxva" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-5.png.png" id="32_xl7wb"]
+[ext_resource type="Texture2D" uid="uid://c205f714f2hd5" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-6.png.png" id="33_eljib"]
+[ext_resource type="Texture2D" uid="uid://bkfccl22dp0ew" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-7.png.png" id="34_3pjt7"]
+[ext_resource type="Texture2D" uid="uid://c1n7lll4570pd" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-8.png.png" id="35_b5tyu"]
+[ext_resource type="Texture2D" uid="uid://gfynmtbrbyr" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-9.png.png" id="36_c256f"]
+[ext_resource type="Texture2D" uid="uid://60qp57wla3ui" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-10.png.png" id="37_2euev"]
+[ext_resource type="Texture2D" uid="uid://cxgl0mb84swmt" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-11.png.png" id="38_fdj5h"]
+[ext_resource type="Texture2D" uid="uid://bvgkmix374xbn" path="res://Enemy/Abilities/Shield/Tank Animation + Shield-12.png.png" id="39_ooexf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pk2x4"]
+resource_name = "basic"
+size = Vector2(67, 54)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mukef"]
+radius = 45.0111
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2qaxb"]
+radius = 45.0111
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_t3hhj"]
+radius = 54.0
+height = 188.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xl7wb"]
+radius = 46.0
+height = 166.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1ksyb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_wsd4a")
+}],
+"loop": true,
+"name": &"basic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_07pct")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_uq328")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_iq318")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_7ltsu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_h33j4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_bhisw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_wlbp5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_5kscc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_gho5p")
+}],
+"loop": false,
+"name": &"mineship",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_2qaxb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_7x4i2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_7x4i2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_2qaxb")
+}],
+"loop": true,
+"name": &"railgun",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_k3s3g")
+}],
+"loop": true,
+"name": &"speed",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_3brvt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_d3xy7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_8vpro")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_6hi5h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_hadhx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_t4h4w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_l46x0")
+}],
+"loop": true,
+"name": &"support",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_t3hhj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_t3hhj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_mukef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_t3hhj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_pk2x4")
+}],
+"loop": true,
+"name": &"tank",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ogn7r"]
+size = Vector2(2.04636, 2.00785)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pk2x4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_83h23")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1ksyb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_t3hhj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 3.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_l6wwd"]
+radius = 249.163
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_d3xy7"]
+radius = 61.0
+height = 220.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qiwcb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("31_gho5p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_xl7wb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_eljib")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_3pjt7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_b5tyu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_c256f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_2euev")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_fdj5h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_ooexf")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": false,
+"name": &"default",
+"speed": 16.0
+}]
+
+[node name="Enemy" type="Area2D" unique_id=1997102230]
+process_mode = 1
+top_level = true
+collision_layer = 2
+collision_mask = 133
+collision_priority = 8.0
+script = ExtResource("1_eyyi7")
+
+[node name="Position" type="Marker2D" parent="." unique_id=456478903]
+rotation = 1.5708
+
+[node name="RGMuzzle" type="Marker2D" parent="." unique_id=342802710]
+position = Vector2(88, 0)
+scale = Vector2(0.098, 0.098)
+
+[node name="MineSpawn" type="Marker2D" parent="." unique_id=1504321199]
+position = Vector2(-34.8, 0)
+scale = Vector2(0.098, 0.099)
+
+[node name="BasicCollision" type="CollisionShape2D" parent="." unique_id=59465499]
+position = Vector2(3.5, 0)
+shape = SubResource("RectangleShape2D_pk2x4")
+disabled = true
+
+[node name="SpeedCollision" type="CollisionShape2D" parent="." unique_id=964727123]
+position = Vector2(13, 0)
+shape = SubResource("CircleShape2D_mukef")
+disabled = true
+
+[node name="SupportCollision" type="CollisionShape2D" parent="." unique_id=987698921]
+shape = SubResource("CircleShape2D_2qaxb")
+disabled = true
+
+[node name="TankCollision" type="CollisionShape2D" parent="." unique_id=340821240]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_t3hhj")
+disabled = true
+
+[node name="RailgunCollision" type="CollisionShape2D" parent="." unique_id=1190759316]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_t3hhj")
+disabled = true
+
+[node name="MineShipCollision" type="CollisionShape2D" parent="." unique_id=1572730592]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_xl7wb")
+disabled = true
+
+[node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1151313046]
+position = Vector2(-9.53674e-07, 5.96046e-08)
+rotation = 1.5708
+scale = Vector2(0.098, 0.099)
+sprite_frames = SubResource("SpriteFrames_1ksyb")
+animation = &"tank"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=77744227]
+position = Vector2(3.8147e-06, 0)
+rotation = 1.5708
+scale = Vector2(0.977344, 0.74701)
+shape = SubResource("RectangleShape2D_ogn7r")
+
+[node name="RGShootTimer" type="Timer" parent="." unique_id=1262164381]
+wait_time = 30.0
+
+[node name="MineTimer" type="Timer" parent="." unique_id=1380899735]
+wait_time = 15.0
+
+[node name="Node2D" type="Node2D" parent="." unique_id=2020462411]
+self_modulate = Color(1, 1, 1, 0)
+
+[node name="ProgressBar" type="ProgressBar" parent="Node2D" unique_id=931811810]
+offset_left = -30.0
+offset_top = 36.0
+offset_right = 30.0
+offset_bottom = 43.0
+theme = ExtResource("3_yvp5j")
+max_value = 3.0
+value = 3.0
+show_percentage = false
+
+[node name="Warning_Railgun" type="Node2D" parent="." unique_id=1507110400]
+
+[node name="Warning_Sign" type="AnimatedSprite2D" parent="Warning_Railgun" unique_id=1009088547]
+unique_name_in_owner = true
+visible = false
+position = Vector2(114, 0)
+scale = Vector2(0.098, 0.098)
+sprite_frames = SubResource("SpriteFrames_pk2x4")
+frame_progress = 0.541439
+
+[node name="AoeS" type="Area2D" parent="." unique_id=960645960]
+collision_layer = 128
+collision_mask = 0
+
+[node name="AoeSkin" type="Sprite2D" parent="AoeS" unique_id=916700572]
+unique_name_in_owner = true
+visible = false
+self_modulate = Color(1, 1, 1, 0.3)
+scale = Vector2(0.098, 0.098)
+texture = ExtResource("21_hadhx")
+
+[node name="AoeSCollision" type="CollisionShape2D" parent="AoeS" unique_id=1529209618]
+unique_name_in_owner = true
+shape = SubResource("CircleShape2D_l6wwd")
+disabled = true
+
+[node name="TankShield" type="Area2D" parent="." unique_id=254776529]
+collision_layer = 0
+collision_mask = 4
+collision_priority = 5.0
+
+[node name="ShieldCollision" type="CollisionShape2D" parent="TankShield" unique_id=1664127977]
+unique_name_in_owner = true
+position = Vector2(1, 4.37114e-08)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_d3xy7")
+disabled = true
+
+[node name="ShieldRegen" type="Timer" parent="TankShield" unique_id=1076866317]
+unique_name_in_owner = true
+wait_time = 10.0
+one_shot = true
+
+[node name="Shield" type="AnimatedSprite2D" parent="TankShield" unique_id=184565235]
+unique_name_in_owner = true
+visible = false
+rotation = 1.5707964
+scale = Vector2(0.098, 0.098)
+sprite_frames = SubResource("SpriteFrames_qiwcb")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="RGShootTimer" to="." method="_on_shoot_timer_timeout"]
+[connection signal="timeout" from="MineTimer" to="." method="_on_mine_timer_timeout"]
+[connection signal="body_entered" from="TankShield" to="." method="_on_tank_shield_body_entered"]
+[connection signal="timeout" from="TankShield/ShieldRegen" to="." method="_on_shield_regen_timeout"]

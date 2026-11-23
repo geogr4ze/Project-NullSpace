@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://ymh374d61pbd"]
+
+[ext_resource type="Script" uid="uid://uoy2tj7b30uj" path="res://Nodes/Scripts/main.gd" id="1_61y8c"]
+[ext_resource type="PackedScene" uid="uid://btufqd8r4aj6d" path="res://Nodes/player.tscn" id="1_216my"]
+[ext_resource type="PackedScene" uid="uid://bsfyfpt5smo58" path="res://Nodes/UI.tscn" id="3_ogbuj"]
+[ext_resource type="Texture2D" uid="uid://4g24qsch3f7a" path="res://Background/Space attack background v2.png" id="3_uxqe4"]
+
+[sub_resource type="Curve2D" id="Curve2D_131mk"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 904, 0, 0, 0, 0, 1775, 0)
+}
+point_count = 4
+
+[sub_resource type="GDScript" id="GDScript_fmopq"]
+script/source = "extends Node
+"
+
+[node name="Main" type="Node2D" unique_id=1622911348]
+script = ExtResource("1_61y8c")
+
+[node name="Collision barrier" type="Node2D" parent="." unique_id=308234983]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Collision barrier" unique_id=125511983]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Collision barrier/StaticBody2D" unique_id=1250431000]
+polygon = PackedVector2Array(0, 0, 0, 900, 1700, 900, 1700, 0, 0, 0, 0, -16, 1718, -15, 1719, 928, -16, 928, -18, 844, -16, -16, 0, -16)
+
+[node name="UI" parent="." unique_id=2081308492 instance=ExtResource("3_ogbuj")]
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1196957029]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 17334.0
+offset_bottom = 9424.0
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("3_uxqe4")
+
+[node name="EnemySpawn" type="Path2D" parent="." unique_id=1069572321]
+curve = SubResource("Curve2D_131mk")
+
+[node name="EnemySpawnLocation" type="PathFollow2D" parent="EnemySpawn" unique_id=2120266173]
+unique_name_in_owner = true
+position = Vector2(1775, -0.16207886)
+
+[node name="PlayerStartPos" type="Marker2D" parent="." unique_id=69128695]
+position = Vector2(150, 450)
+
+[node name="Player" parent="." unique_id=338816673 instance=ExtResource("1_216my")]
+position = Vector2(-125, 84)
+
+[node name="signalbus" type="Node" parent="." unique_id=2103666038]
+unique_name_in_owner = true
+script = SubResource("GDScript_fmopq")

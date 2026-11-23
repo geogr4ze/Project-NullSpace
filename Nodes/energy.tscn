@@ -1,0 +1,86 @@
+[gd_scene load_steps=11 format=3 uid="uid://pwgletgpgwtm"]
+
+[ext_resource type="Script" uid="uid://bby0bxdmrrj0c" path="res://Nodes/Scripts/energy.gd" id="1_olh12"]
+[ext_resource type="Texture2D" uid="uid://606kv8u402yp" path="res://Dropables/Energy/Ammo-5.png.png" id="2_xdig1"]
+[ext_resource type="Texture2D" uid="uid://dj0uyss7fggpr" path="res://Dropables/Energy/Ammo-1.png.png" id="3_6o45n"]
+[ext_resource type="Texture2D" uid="uid://noof46umna5y" path="res://Dropables/Energy/Ammo-2.png.png" id="4_42w78"]
+[ext_resource type="Texture2D" uid="uid://p513l01hfxny" path="res://Dropables/Energy/Ammo-3.png.png" id="5_hbhwh"]
+[ext_resource type="Texture2D" uid="uid://bfhtr6tjj18ry" path="res://Dropables/Energy/Ammo-4.png.png" id="6_2uua5"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_qkrwn"]
+friction = 0.0
+bounce = 1.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6nw0e"]
+radius = 11.0
+height = 36.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rpju8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_xdig1")
+}],
+"loop": true,
+"name": &"Dead",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_6o45n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_42w78")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_hbhwh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_2uua5")
+}],
+"loop": true,
+"name": &"Decay",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_6o45n")
+}],
+"loop": true,
+"name": &"Spawn",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qkrwn"]
+radius = 11.0
+height = 36.0
+
+[node name="Energy" type="RigidBody2D"]
+process_mode = 1
+collision_layer = 64
+collision_mask = 72
+collision_priority = 4.0
+physics_material_override = SubResource("PhysicsMaterial_qkrwn")
+gravity_scale = 0.0
+script = ExtResource("1_olh12")
+
+[node name="PickupArea" type="Area2D" parent="."]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("CapsuleShape2D_6nw0e")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(3.8147e-06, -2.38419e-07)
+scale = Vector2(0.05, 0.05)
+sprite_frames = SubResource("SpriteFrames_rpju8")
+animation = &"Spawn"
+
+[node name="KillTimer" type="Timer" parent="."]
+wait_time = 30.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_qkrwn")
+
+[connection signal="body_entered" from="PickupArea" to="." method="_on_pickup_area_body_entered"]
+[connection signal="timeout" from="KillTimer" to="." method="_on_kill_timer_timeout"]

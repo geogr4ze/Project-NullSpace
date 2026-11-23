@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://ua41unhu7jc7"]
+
+[ext_resource type="Script" uid="uid://cj42p2p55doqk" path="res://Nodes/Scripts/buttonnodes.gd" id="1_3yjx1"]
+[ext_resource type="Texture2D" uid="uid://r3y05y81uj63" path="res://Buttons/Play + autoplay Skins-1.png.png" id="2_n8kob"]
+[ext_resource type="Texture2D" uid="uid://cjr7r1g2alvag" path="res://Buttons/Play + autoplay Skins-4.png.png" id="4_iptr1"]
+[ext_resource type="Texture2D" uid="uid://dyt3dam7agyv7" path="res://Buttons/Play + autoplay Skins-2.png.png" id="5_ewuqx"]
+[ext_resource type="Texture2D" uid="uid://cxob0athx3gmr" path="res://Buttons/Play + autoplay + shop Skins-4.png.png" id="6_w3yq0"]
+
+[node name="Buttons" type="Node2D" unique_id=485698641]
+process_mode = 1
+script = ExtResource("1_3yjx1")
+
+[node name="Play_PauseTab" type="TextureRect" parent="." unique_id=202283274]
+z_index = -1
+offset_left = -461.00003
+offset_top = 365.0
+offset_right = 539.0
+offset_bottom = 1365.0
+scale = Vector2(0.05, 0.05)
+pivot_offset = Vector2(500, 500)
+texture = ExtResource("4_iptr1")
+expand_mode = 3
+stretch_mode = 3
+metadata/_edit_group_ = true
+
+[node name="Button1" type="Button" parent="Play_PauseTab" unique_id=1193673282]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -10.903998
+anchor_top = 0.33200073
+anchor_right = -10.859998
+anchor_bottom = 0.33300206
+offset_left = 10483.998
+offset_top = -752.00073
+offset_right = 12271.998
+offset_bottom = 1078.998
+action_mode = 0
+icon = ExtResource("2_n8kob")
+flat = true
+metadata/_edit_use_anchors_ = true
+
+[node name="AutoPlayTab" type="TextureRect" parent="." unique_id=1607335579]
+z_index = -1
+offset_left = -389.00006
+offset_top = 364.99997
+offset_right = 610.99994
+offset_bottom = 1365.0
+scale = Vector2(0.05, 0.05)
+pivot_offset = Vector2(500, 500)
+texture = ExtResource("4_iptr1")
+expand_mode = 3
+stretch_mode = 3
+metadata/_edit_group_ = true
+
+[node name="Button2" type="Button" parent="AutoPlayTab" unique_id=886421972]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0000002
+anchor_bottom = 1.0000002
+offset_left = -420.00024
+offset_top = -420.00018
+offset_right = 411.99976
+offset_bottom = 411.99976
+action_mode = 0
+icon = ExtResource("5_ewuqx")
+flat = true
+metadata/_edit_use_anchors_ = true
+
+[node name="ShopTab" type="TextureRect" parent="." unique_id=1191966933]
+z_index = -1
+offset_left = -465.00003
+offset_top = -342.00003
+offset_right = 535.0
+offset_bottom = 658.0
+rotation = 1.5707964
+scale = Vector2(0.05, 0.05)
+pivot_offset = Vector2(500, 500)
+texture = ExtResource("4_iptr1")
+expand_mode = 3
+stretch_mode = 3
+metadata/_edit_group_ = true
+
+[node name="Button3" type="Button" parent="ShopTab" unique_id=2063185529]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -416.54675
+offset_top = -415.87997
+offset_right = 415.45325
+offset_bottom = 416.12
+rotation = -1.5707964
+pivot_offset = Vector2(916, 916)
+action_mode = 0
+icon = ExtResource("6_w3yq0")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[connection signal="mouse_entered" from="Play_PauseTab/Button1" to="." method="_on_button_1_mouse_entered"]
+[connection signal="mouse_exited" from="Play_PauseTab/Button1" to="." method="_on_button_1_mouse_exited"]
+[connection signal="pressed" from="Play_PauseTab/Button1" to="." method="_on_button_1_pressed"]
+[connection signal="mouse_entered" from="AutoPlayTab/Button2" to="." method="_on_button_2_mouse_entered"]
+[connection signal="mouse_exited" from="AutoPlayTab/Button2" to="." method="_on_button_2_mouse_exited"]
+[connection signal="pressed" from="AutoPlayTab/Button2" to="." method="_on_button_2_pressed"]
+[connection signal="mouse_entered" from="ShopTab/Button3" to="." method="_on_button_3_mouse_entered"]
+[connection signal="mouse_exited" from="ShopTab/Button3" to="." method="_on_button_3_mouse_exited"]
+[connection signal="pressed" from="ShopTab/Button3" to="." method="_on_button_3_pressed"]

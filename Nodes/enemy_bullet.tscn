@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dq40yjnjc1sps"]
+
+[ext_resource type="Script" uid="uid://bx1tmgpvrwchl" path="res://Nodes/Scripts/enemy_bullet.gd" id="1_hs4g0"]
+[ext_resource type="Texture2D" uid="uid://dbigombojde34" path="res://Enemy/Abilities/Railgun_bullet.png" id="2_a5oga"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3bptq"]
+radius = 9.0
+height = 48.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3bptq"]
+
+[node name="enemy_bullet" type="RigidBody2D" unique_id=1162794188]
+process_mode = 1
+collision_layer = 32
+collision_mask = 0
+collision_priority = 6.0
+gravity_scale = 0.0
+script = ExtResource("1_hs4g0")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=27535169]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1704356217]
+position = Vector2(0, 14)
+shape = SubResource("CapsuleShape2D_3bptq")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=581811610]
+scale = Vector2(0.098, 0.098)
+texture = ExtResource("2_a5oga")
+
+[node name="Visibility" type="VisibleOnScreenNotifier2D" parent="." unique_id=1429212992]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1112910767]
+shape = SubResource("CircleShape2D_3bptq")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="screen_exited" from="Visibility" to="." method="_on_visibility_screen_exited"]

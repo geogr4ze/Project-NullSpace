@@ -1,0 +1,83 @@
+[gd_scene load_steps=14 format=3 uid="uid://dqgs7uwcpnhsc"]
+
+[ext_resource type="Texture2D" uid="uid://ckn2vm2hd32ek" path="res://Dropables/Portal Animation/Portal Animation-1.png.png" id="1_c8rpc"]
+[ext_resource type="Script" uid="uid://gcrhufjexowc" path="res://Nodes/Scripts/portal.gd" id="1_cygi2"]
+[ext_resource type="Texture2D" uid="uid://1oias4tdwj3f" path="res://Dropables/Portal Animation/Portal Animation-2.png.png" id="2_cygi2"]
+[ext_resource type="Texture2D" uid="uid://dwu5ur24ydmba" path="res://Dropables/Portal Animation/Portal Animation-3.png.png" id="3_qatu5"]
+[ext_resource type="Texture2D" uid="uid://ctnpflrrdi3go" path="res://Dropables/Portal Animation/Portal Animation-4.png.png" id="4_aomtc"]
+[ext_resource type="Texture2D" uid="uid://dppw1pei8yonr" path="res://Dropables/Portal Animation/Portal Animation-5.png.png" id="5_tqqll"]
+[ext_resource type="Texture2D" uid="uid://d2rf3h0ntf5ik" path="res://Dropables/Portal Animation/Portal Animation-6.png.png" id="7_cat4u"]
+[ext_resource type="Texture2D" uid="uid://edmmej3ryhop" path="res://Dropables/Portal Animation/Portal Animation-7.png.png" id="8_bwrch"]
+[ext_resource type="Texture2D" uid="uid://hlgkp37f1lkq" path="res://Dropables/Portal Animation/Portal Animation-8.png.png" id="9_66nda"]
+[ext_resource type="Texture2D" uid="uid://7wvmr4ofidm3" path="res://Dropables/Portal Animation/Portal Animation-9.png.png" id="10_t2o4v"]
+[ext_resource type="Texture2D" uid="uid://dxkkuv7vy310e" path="res://Dropables/Portal Animation/Portal Animation-10.png.png" id="11_53s24"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cygi2"]
+radius = 38.0526
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ni0il"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_c8rpc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_cygi2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_qatu5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_aomtc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_tqqll")
+}],
+"loop": false,
+"name": &"Appearing",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_tqqll")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_cat4u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_bwrch")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_66nda")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_t2o4v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_53s24")
+}],
+"loop": false,
+"name": &"Disappearing",
+"speed": 10.0
+}]
+
+[node name="Portal" type="RigidBody2D"]
+collision_layer = 0
+collision_mask = 0
+gravity_scale = 0.0
+angular_velocity = 17.4533
+script = ExtResource("1_cygi2")
+
+[node name="Position" type="Marker2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_cygi2")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.098, 0.098)
+sprite_frames = SubResource("SpriteFrames_ni0il")
+animation = &"Disappearing"
+
+[node name="EnergyTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="EnergyTimer" to="." method="_on_energy_timer_timeout"]
