@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://dgl66ykkffptm"]
+
+[ext_resource type="Script" uid="uid://blr4p07aanua4" path="res://scripts/autoload/shopcontrol.gd" id="1_5coy6"]
+[ext_resource type="Texture2D" uid="uid://4g24qsch3f7a" path="res://assets/background/Space attack background v2.png" id="1_okntu"]
+
+[node name="Shop" type="Node2D" unique_id=2008765777]
+script = ExtResource("1_5coy6")
+
+[node name="Exitbutton" type="Button" parent="." unique_id=1429790155]
+offset_left = 41.0
+offset_top = 43.0
+offset_right = 133.0
+offset_bottom = 108.0
+text = "Exit"
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2013657684]
+z_index = -1
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 17334.0
+offset_bottom = 9424.0
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("1_okntu")
+
+[connection signal="pressed" from="Exitbutton" to="." method="_on_button_pressed"]

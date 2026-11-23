@@ -22,10 +22,10 @@ config/stretch/mode="disabled"
 
 [autoload]
 
-Signalbus="*res://signalbus.gd"
-Modecontrol="*res://modecontrol.gd"
-Wavecontrol="*res://wavecontrol.gd"
-Shopcontrol="*res://shopcontrol.gd"
+Signalbus="*res://scripts/autoload/signalbus.gd"
+Modecontrol="*res://scripts/autoload/modecontrol.gd"
+Wavecontrol="*res://scripts/autoload/wavecontrol.gd"
+Shopcontrol="*res://scripts/autoload/shopcontrol.gd"
 
 [display]
 
