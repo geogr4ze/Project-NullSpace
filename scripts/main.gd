@@ -7,6 +7,9 @@ var score := 0
 var bullet_speed: float
 var energy_CA: int
 
+@onready var muzzle: Marker2D = $Player/Muzzle
+@onready var enemy_spawn_location: PathFollow2D = $%EnemySpawnLocation
+
 func _ready():
 	bullet_speed = Modecontrol.modes[0]["bullet_speed"]
 	$Player.start($PlayerStartPos.position)
@@ -67,13 +70,12 @@ func _on_dash() -> void:
 
 func _on_shot() -> void:
 	$UI.update_energy($Player.energy)
-	var bullet = bullet_scene.instantiate()
-	bullet.call("configure_mode", Modecontrol.mode)
-	var bullet_sl = get_node("Player/Muzzle")
+	var bullet := bullet_scene.instantiate() as PlayerProjectile
+	bullet.configure_mode(Modecontrol.mode)
 	var direction = $Player.rotation
 	if Modecontrol.mode == 0:
 		direction += randf_range(-Shopcontrol.spread, Shopcontrol.spread)
-	bullet.position = bullet_sl.global_position
+	bullet.position = muzzle.global_position
 	bullet.rotation = direction
 	var velocity_bullet = Vector2(0, bullet_speed)
 	bullet.linear_velocity = velocity_bullet.rotated(direction)
@@ -89,11 +91,10 @@ func spawn_energy() -> void:
 		await get_tree().create_timer(randf_range(7, 15)).timeout
 
 func spawn_enemy(enemy_type: int) -> void:
-	var enemy = enemy_scene.instantiate()
-	enemy.call("configure_enemy", enemy_type)
-	var enemy_sl = $%EnemySpawnLocation
-	enemy_sl.progress_ratio = randf()
-	enemy.position = enemy_sl.position
+	var enemy := enemy_scene.instantiate() as EnemyShip
+	enemy.configure_enemy(enemy_type)
+	enemy_spawn_location.progress_ratio = randf()
+	enemy.position = enemy_spawn_location.position
 	add_child(enemy)
 
 func _on_spawn_energy(energy) -> void:

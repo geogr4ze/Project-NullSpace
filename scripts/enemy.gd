@@ -1,10 +1,11 @@
+class_name EnemyShip
 extends Area2D
 
 var bullet_scene = preload("res://scenes/enemy_bullet.tscn")
 var mine_scene = preload("res://scenes/enemy_mine.tscn")
 var collision_shapes = Array()
 var player
-var hpbar
+@onready var hpbar: ProgressBar = $Node2D/ProgressBar
 var hpvis_time := 0.0
 
 var health: int
@@ -36,7 +37,6 @@ func _ready():
 	if type == 5:
 		$MineTimer.wait_time = randf_range(5.0, 20.0)
 		$MineTimer.start()
-	hpbar = get_node("Node2D/ProgressBar")
 	player = get_node("../Player")
 	enemy_type(type)
 	var shape_owners = get_shape_owners()
@@ -79,13 +79,20 @@ func _show_health_bar() -> void:
 	hpbar.self_modulate.a = 1.0
 	hpvis_time = 5.0
 
-func detect_support() -> void:
-	while alive and has_overlapping_areas():
+var support_healing_active := false
+
+func detect_support(support_area: Area2D) -> void:
+	if support_healing_active:
+		return
+	support_healing_active = true
+	while alive and is_instance_valid(support_area) and overlaps_area(support_area):
 		if health < hpbar.max_value:
 			health += 1
 			_show_health_bar()
 			hpbar.value = health
+		# Always yield, even when health is already full.
 		await get_tree().create_timer(1.0).timeout
+	support_healing_active = false
 
 func detect_player() -> void:
 	while overlaps_body(player):
@@ -106,16 +113,17 @@ var alive = true
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		detect_player()
-	elif alive and body.has_method("register_hit"):
-		if type == Wavecontrol.TANK and tank_shield_hp > 0 and int(body.get("weapon_mode")) != Modecontrol.MODE2:
-			_absorb_shield_hit(body)
-		elif body.call("register_hit", self):
-			_take_damage(int(body.get("damage")))
+	elif alive and body is PlayerProjectile:
+		var projectile := body as PlayerProjectile
+		if type == Wavecontrol.TANK and tank_shield_hp > 0 and projectile.weapon_mode != Modecontrol.MODE2:
+			_absorb_shield_hit(projectile)
+		elif projectile.register_hit(self):
+			_take_damage(projectile.damage)
 
-func _absorb_shield_hit(bullet: Node2D) -> void:
-	if !alive or tank_shield_hp <= 0 or !bullet.call("register_hit", self):
+func _absorb_shield_hit(bullet: PlayerProjectile) -> void:
+	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
 		return
-	tank_shield_hp = maxi(0, tank_shield_hp - int(bullet.get("damage")))
+	tank_shield_hp = maxi(0, tank_shield_hp - bullet.damage)
 	$%Shield.self_modulate = Color(4.0, 4.0, 4.0, 0.3)
 	if tank_shield_hp == 0:
 		$%ShieldCollision.set_deferred("disabled", true)
@@ -175,9 +183,10 @@ func _on_shoot_timer_timeout():
 	Signalbus.shot_RG.emit(bullet)
 
 func _on_tank_shield_body_entered(body: Node2D) -> void:
-	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body.has_method("register_hit"):
-		if int(body.get("weapon_mode")) != Modecontrol.MODE2:
-			_absorb_shield_hit(body)
+	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectile:
+		var projectile := body as PlayerProjectile
+		if projectile.weapon_mode != Modecontrol.MODE2:
+			_absorb_shield_hit(projectile)
 
 func _on_shield_regen_timeout():
 	tank_shield_hp = max_tank_shield_hp
@@ -187,4 +196,4 @@ func _on_shield_regen_timeout():
 
 func _on_area_entered(area):
 	if area.name == "AoeS" and type != 2:
-		detect_support()
+		detect_support(area)

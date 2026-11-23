@@ -1,3 +1,4 @@
+class_name PlayerProjectile
 extends RigidBody2D
 
 # Capture weapon properties on spawn, so switching modes does not change bullets

@@ -89,8 +89,7 @@ func _physics_process(delta: float) -> void:
 	handle_movement(delta)
 	$Node2D.global_rotation = 0
 	# Combat updates at the fixed physics tick, independent of render FPS.
-	shot_cooldown_remaining = maxf(0.0, shot_cooldown_remaining - delta)
-	bullet_cooldown = shot_cooldown_remaining <= 0.0
+	shot_timer.advance(delta)
 	handle_fire_modes()
 	if Modecontrol.mode == 2:
 		mode2_control(delta)
@@ -301,20 +300,18 @@ func mode1_control(delta: float) -> void:
 		$PlayerSkin.frame = 0
 		$PlayerSkin.animation = "mode1"
 
-var bullet_cooldown := true
-var shot_cooldown_remaining := 0.0
+var shot_timer := WeaponCooldown.new()
 
 func fire() -> bool:
-	if !bullet_cooldown:
+	if !shot_timer.is_ready():
 		return false
 	if energy < energy_cost:
 		Signalbus.energy_low.emit()
 		return false
 	energy -= energy_cost
-	bullet_cooldown = false
 	var cooldown := delay
 	if Modecontrol.mode != 2:
 		cooldown *= Shopcontrol.firerate_multi
-	shot_cooldown_remaining = maxf(cooldown, 0.01)
+	shot_timer.start(cooldown)
 	Signalbus.shot.emit()
 	return true

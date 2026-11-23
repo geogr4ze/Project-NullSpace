@@ -6,16 +6,12 @@ func _ready():
 	$AnimatedSprite2D.play("Appearing")
 	$EnergyTimer.start()
 
-func _process(_delta):
-	pass
-
 # Summon portal on timer timeout
 func _on_energy_timer_timeout() -> void:
 	$EnergyTimer.stop()
 	var energy = energy_scene.instantiate()
 	var energy_sl = get_node("Position")
-	var direction = $Position.global_rotation
-	direction = randf()
+	var direction := randf_range(0.0, TAU)
 	energy.position = energy_sl.global_position
 	energy.rotation = direction
 	energy.angular_velocity = randf_range(-20, 20)
