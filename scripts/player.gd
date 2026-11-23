@@ -1,49 +1,49 @@
 extends CharacterBody2D
 
 # Misc Variables
-var death = false
-var energy := 100000000000000
+var death: bool = false
+var energy: int = 100000000000000
 var energy_cost: int
 var screen_size: Vector2
 var delay: float
-var maxoverheat = 3.0
-const DASH_DURATION := 0.5
-const DASH_COOLDOWN := 3.0
-const DASH_SPEED := 600.0
-const LASER_CHARGE_TIME := 1.25
-const LASER_HEAT_PER_SECOND := 1.2
-const LASER_COOL_PER_SECOND := 0.2
+var maxoverheat: float = 3.0
+const DASH_DURATION: float = 0.5
+const DASH_COOLDOWN: float = 3.0
+const DASH_SPEED: float = 600.0
+const LASER_CHARGE_TIME: float = 1.25
+const LASER_HEAT_PER_SECOND: float = 1.2
+const LASER_COOL_PER_SECOND: float = 0.2
 
 # Mobility Variables
-@export var acceleration := 1.5
-@export var max_speed := 450.0
+@export var acceleration: float = 1.5
+@export var max_speed: float = 450.0
 var rotation_speed: float
-var rotation_direction := 0.0
+var rotation_direction: float = 0.0
 
 # Hit Point Arrays
-var shield := 25
-var health := 50
-var hpbar
-var shieldbar
-var bar := [health, shield]
-var modul := [hpbar, shieldbar] # Player Health = 0, Shield Health = 1
-var vis_time := [5.0, 5.0]
+var shield: int = 25
+var health: int = 50
+var hpbar: ProgressBar
+var shieldbar: ProgressBar
+var bar: Array[int] = [health, shield]
+var modul: Array[ProgressBar] = [hpbar, shieldbar] # Player Health = 0, Shield Health = 1
+var vis_time: Array[float] = [5.0, 5.0]
 
 # HP Variables
-var healdelay := 1.5
-var max_health := health
-var healing_amount := 1
-var hit_timer := 0.0
+var healdelay: float = 1.5
+var max_health: int = health
+var healing_amount: int = 1
+var hit_timer: float = 0.0
 enum{BASIC = 0, RAILGUN, EXPLOSIVE}
-var rdtype = {
+var rdtype: Dictionary = {
 	BASIC: {"damage": 1, "recov": 10},
 	RAILGUN: {"damage": 25, "recov": 25},
 	EXPLOSIVE: {"damage": 40, "recov": 40}
 }
 
 # Shield Variables
-var shield_act := false
-var shield_conf := false
+var shield_act: bool = false
+var shield_conf: bool = false
 
 func _ready():
 	Signalbus.hit.connect(_on_hit)
@@ -59,7 +59,7 @@ func _ready():
 	rotation_speed = Modecontrol.modes[0]["player_movement"]
 	modul[0] = $%Healthbar
 	modul[1] = $%Shieldbar
-	for i in 2:
+	for i: int in 2:
 		modul[i].max_value = bar[i]
 		modul[i].value = bar[i]
 	screen_size = get_viewport_rect().size
@@ -68,11 +68,11 @@ func _ready():
 	$%Overheatbar.max_value = maxoverheat
 	_on_shield()
 
-func start(pos) -> void:
+func start(pos: Vector2) -> void:
 	position = pos
 	show()
 
-func _change_mode(mode) -> void:
+func _change_mode(mode: int) -> void:
 	energy_cost = Modecontrol.modes[mode]["energy"]
 	delay = Modecontrol.modes[mode]["delay"]
 	$PlayerSkin.animation = Modecontrol.modes[mode]["skin"]
@@ -104,16 +104,16 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if death:
 		return
-	for i in modul.size():
+	for i: int in modul.size():
 		if vis_time[i] > 0.0:
 			vis_time[i] = maxf(0.0, vis_time[i] - delta)
 		elif modul[i].modulate.a > 0.0:
 			modul[i].modulate.a = maxf(0.0, modul[i].modulate.a - delta)
 
-var dash_cooldown := false
-var dashing := false
-var dash_time_remaining := 0.0
-var dash_cooldown_remaining := 0.0
+var dash_cooldown: bool = false
+var dashing: bool = false
+var dash_time_remaining: float = 0.0
+var dash_cooldown_remaining: float = 0.0
 
 func dash_control(delta: float) -> void:
 	dash_time_remaining = maxf(0.0, dash_time_remaining - delta)
@@ -203,7 +203,7 @@ func _on_shield_regen_timeout() -> void:
 	hp_update(1)
 
 # Mobility functions -------------------------------------------------------------------
-func handle_rotation(delta) -> void:
+func handle_rotation(delta: float) -> void:
 	rotation_direction = Input.get_axis("turn_left", "turn_right")
 	if Input.is_action_pressed("slow_turn"):
 		rotation += rotation_speed * rotation_direction * delta * 0.3
@@ -211,12 +211,12 @@ func handle_rotation(delta) -> void:
 		rotation += rotation_speed * rotation_direction * delta
 
 func handle_movement(delta: float) -> void:
-	var thrust := Input.get_axis("move_backward", "move_forward")
-	var direction := Vector2.UP.rotated(rotation)
+	var thrust: float = Input.get_axis("move_backward", "move_forward")
+	var direction: Vector2 = Vector2.UP.rotated(rotation)
 	if dashing:
 		velocity = direction * DASH_SPEED
 	else:
-		var target_velocity := direction * thrust * max_speed
+		var target_velocity: Vector2 = direction * thrust * max_speed
 		velocity = velocity.lerp(target_velocity, clampf(acceleration * delta, 0.0, 1.0))
 	move_and_slide()
 	position = position.clamp(Vector2.ZERO, screen_size)
@@ -238,13 +238,13 @@ func handle_fire_modes() -> void:
 				$Default.polygon = Modecontrol.mode2_collision
 				$%Overheatbar.visible = true
 
-var frameindex_m2 := 0
-var firing_m2 := false
-var m2_kill := false
-var charge_time_m2 := 0.0
+var frameindex_m2: int = 0
+var firing_m2: bool = false
+var m2_kill: bool = false
+var charge_time_m2: float = 0.0
 
 func mode2_control(delta: float) -> void:
-	var heatbar = $%Overheatbar
+	var heatbar: ProgressBar = $%Overheatbar
 	if Input.is_action_pressed("Fire") and !m2_kill:
 		if bar[1] > 0:
 			_shield_deact()
@@ -282,8 +282,8 @@ func mode2_control(delta: float) -> void:
 	if shield_conf and !m2_kill:
 		_shield_act()
 
-var frameindex_m1 := 0
-var charge_time_m1 := 0.0
+var frameindex_m1: int = 0
+var charge_time_m1: float = 0.0
 
 func mode1_control(delta: float) -> void:
 	if Input.is_action_pressed("Fire"):
@@ -300,7 +300,7 @@ func mode1_control(delta: float) -> void:
 		$PlayerSkin.frame = 0
 		$PlayerSkin.animation = "mode1"
 
-var shot_timer := WeaponCooldown.new()
+var shot_timer: WeaponCooldown = WeaponCooldown.new()
 
 func fire() -> bool:
 	if !shot_timer.is_ready():
@@ -309,7 +309,7 @@ func fire() -> bool:
 		Signalbus.energy_low.emit()
 		return false
 	energy -= energy_cost
-	var cooldown := delay
+	var cooldown: float = delay
 	if Modecontrol.mode != 2:
 		cooldown *= Shopcontrol.firerate_multi
 	shot_timer.start(cooldown)

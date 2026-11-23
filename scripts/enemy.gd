@@ -1,12 +1,12 @@
 class_name EnemyShip
 extends Area2D
 
-var bullet_scene = preload("res://scenes/enemy_bullet.tscn")
-var mine_scene = preload("res://scenes/enemy_mine.tscn")
-var collision_shapes = Array()
-var player
+var bullet_scene: PackedScene = preload("res://scenes/enemy_bullet.tscn")
+var mine_scene: PackedScene = preload("res://scenes/enemy_mine.tscn")
+var collision_shapes: Array[Shape2D] = []
+var player: CharacterBody2D
 @onready var hpbar: ProgressBar = $Node2D/ProgressBar
-var hpvis_time := 0.0
+var hpvis_time: float = 0.0
 
 var health: int
 var speed: float
@@ -14,9 +14,9 @@ var type: int = -1
 var score_amount: int
 var reward_amount: int
 
-var tank_shield_hp = 25
-var max_tank_shield_hp = tank_shield_hp
-var RGbullet_speed := -1000.0
+var tank_shield_hp: int = 25
+var max_tank_shield_hp: int = tank_shield_hp
+var RGbullet_speed: float = -1000.0
 
 func configure_enemy(enemy_type: int) -> void:
 	type = enemy_type
@@ -37,11 +37,11 @@ func _ready():
 	if type == 5:
 		$MineTimer.wait_time = randf_range(5.0, 20.0)
 		$MineTimer.start()
-	player = get_node("../Player")
+	player = get_node("../Player") as CharacterBody2D
 	enemy_type(type)
-	var shape_owners = get_shape_owners()
-	for shape in shape_owners:
-		var this_shape = shape_owner_get_shape(shape, 0)
+	var shape_owners: Array[int] = get_shape_owners()
+	for shape: int in shape_owners:
+		var this_shape: Shape2D = shape_owner_get_shape(shape, 0)
 		collision_shapes.append(this_shape)
 	$Skin.animation = Wavecontrol.enemies[type]["enemy_skin"]
 	$CollisionShape2D.shape = collision_shapes[type]
@@ -50,7 +50,7 @@ func _ready():
 	hpbar.self_modulate.a = 0
 
 # Convert original per-frame speed values into pixels/second (at 60 FPS).
-func enemy_type(enemy) -> void:
+func enemy_type(enemy: int) -> void:
 	score_amount = Wavecontrol.enemies[enemy]["score"]
 	reward_amount = Wavecontrol.enemies[enemy]["reward"]
 	health = Wavecontrol.enemies[enemy]["health"]
@@ -64,7 +64,7 @@ func _physics_process(delta: float) -> void:
 	if type == 4:
 		warning_RG()
 	look_at(player.global_position)
-	var velocity = Vector2.RIGHT.rotated(rotation) * speed
+	var velocity: Vector2 = Vector2.RIGHT.rotated(rotation) * speed
 	position += velocity * delta
 	$Node2D.global_rotation = 0
 	$%Warning_Sign.global_rotation = 0
@@ -79,7 +79,7 @@ func _show_health_bar() -> void:
 	hpbar.self_modulate.a = 1.0
 	hpvis_time = 5.0
 
-var support_healing_active := false
+var support_healing_active: bool = false
 
 func detect_support(support_area: Area2D) -> void:
 	if support_healing_active:
@@ -108,13 +108,13 @@ func warning_RG() -> void:
 		$%Warning_Sign.stop()
 		$%Warning_Sign.frame = 0
 
-var alive = true
+var alive: bool = true
 
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		detect_player()
 	elif alive and body is PlayerProjectile:
-		var projectile := body as PlayerProjectile
+		var projectile: PlayerProjectile = body as PlayerProjectile
 		if type == Wavecontrol.TANK and tank_shield_hp > 0 and projectile.weapon_mode != Modecontrol.MODE2:
 			_absorb_shield_hit(projectile)
 		elif projectile.register_hit(self):
@@ -154,37 +154,37 @@ func _take_damage(amount: int) -> void:
 
 func _on_mine_timer_timeout():
 	$Skin.play()
-	for i in 5:
+	for i: int in 5:
 		speed = speed * 0.9
 		await get_tree().create_timer(0.01).timeout
 	await get_tree().create_timer(2.0).timeout
-	var mine = mine_scene.instantiate()
-	var mine_sl = get_node("MineSpawn")
-	var direction = randf_range(0, 180)
+	var mine: RigidBody2D = mine_scene.instantiate() as RigidBody2D
+	var mine_sl: Marker2D = get_node("MineSpawn") as Marker2D
+	var direction: float = randf_range(0, 180)
 	mine.position = mine_sl.global_position
 	mine.rotation = direction
-	var velocity_bullet = Vector2(0, 25)
+	var velocity_bullet: Vector2 = Vector2(0, 25)
 	mine.linear_velocity = velocity_bullet.rotated(direction)
 	Signalbus.mine_dispense.emit(mine)
 	$Skin.play_backwards()
 	await get_tree().create_timer(1.2).timeout
-	for i in 5:
+	for i: int in 5:
 		speed = speed / 0.9
 		await get_tree().create_timer(0.01).timeout
 
 func _on_shoot_timer_timeout():
-	var bullet = bullet_scene.instantiate()
-	var bullet_sl = get_node("RGMuzzle")
-	var direction = $Position.global_rotation
+	var bullet: RigidBody2D = bullet_scene.instantiate() as RigidBody2D
+	var bullet_sl: Marker2D = get_node("RGMuzzle") as Marker2D
+	var direction: float = $Position.global_rotation
 	bullet.position = bullet_sl.global_position
 	bullet.rotation = direction
-	var velocity_bullet = Vector2(0, RGbullet_speed)
+	var velocity_bullet: Vector2 = Vector2(0, RGbullet_speed)
 	bullet.linear_velocity = velocity_bullet.rotated(direction)
 	Signalbus.shot_RG.emit(bullet)
 
 func _on_tank_shield_body_entered(body: Node2D) -> void:
 	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectile:
-		var projectile := body as PlayerProjectile
+		var projectile: PlayerProjectile = body as PlayerProjectile
 		if projectile.weapon_mode != Modecontrol.MODE2:
 			_absorb_shield_hit(projectile)
 
@@ -194,6 +194,6 @@ func _on_shield_regen_timeout():
 	$%Shield.play_backwards("default")
 	$%ShieldCollision.set_deferred("disabled", false)
 
-func _on_area_entered(area):
+func _on_area_entered(area: Area2D):
 	if area.name == "AoeS" and type != 2:
 		detect_support(area)
