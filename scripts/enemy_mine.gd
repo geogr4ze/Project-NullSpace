@@ -1,13 +1,13 @@
 extends RigidBody2D
 
-var health = 10
-var primed = true
-var hpbar
-var hpvis_time := 0.0
+var health: int = 10
+var primed: bool = true
+var hpbar: ProgressBar
+var hpvis_time: float = 0.0
 
 func _ready():
 	$Skin.play("default")
-	hpbar = get_node("%Healthbar")
+	hpbar = get_node("%Healthbar") as ProgressBar
 	hpbar.max_value = health
 	hpbar.value = health
 
@@ -35,7 +35,7 @@ func explosion() -> void:
 	angular_velocity = randi_range(-25, 25)
 
 	# One tween replaces more than a hundred individual scene-tree timers.
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_interval(1.0)
 	tween.tween_property($Skin, "scale", Vector2(0.001, 0.001), 0.97)
 	tween.parallel().tween_property($%ExplisionCollision, "scale", Vector2(0.001, 0.001), 0.97)
@@ -45,12 +45,12 @@ func fadeout() -> void:
 	$Skin.play("fadeout")
 	$%ExplisionCollision.set_deferred("disabled", true)
 	$Skin.self_modulate.a = 0.8
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property($Skin, "scale", Vector2(0.041, 0.041), 0.2)
 	tween.tween_property($Skin, "scale", Vector2(0.001, 0.001), 0.2)
 	tween.tween_callback(queue_free)
 
-var hitflag = true
+var hitflag: bool = true
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.name == "Player":
@@ -61,7 +61,7 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 		hitflag = false
 		Signalbus.mine_hit.emit()
 	elif primed and body is PlayerProjectile:
-		var projectile := body as PlayerProjectile
+		var projectile: PlayerProjectile = body as PlayerProjectile
 		if projectile.register_hit(self):
 			health = maxi(0, health - projectile.damage)
 			_show_health_bar()

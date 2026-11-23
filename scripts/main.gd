@@ -1,9 +1,9 @@
 extends Node2D
 
-var enemy_scene = preload("res://scenes/enemy.tscn")
-var bullet_scene = preload("res://scenes/bullet.tscn") 
-var portal_scene = preload("res://scenes/portal.tscn")
-var score := 0
+var enemy_scene: PackedScene = preload("res://scenes/enemy.tscn")
+var bullet_scene: PackedScene = preload("res://scenes/bullet.tscn") 
+var portal_scene: PackedScene = preload("res://scenes/portal.tscn")
+var score: int = 0
 var bullet_speed: float
 var energy_CA: int
 
@@ -31,10 +31,10 @@ func _ready():
 func _death() -> void:
 	get_tree().paused = true
 
-func _change_bp(mode) -> void:
+func _change_bp(mode: int) -> void:
 	bullet_speed = Modecontrol.modes[mode]["bullet_speed"]
 
-var energy_low = true
+var energy_low: bool = true
 
 func _on_energy_low() -> void:
 	if energy_low:
@@ -43,7 +43,7 @@ func _on_energy_low() -> void:
 		await get_tree().create_timer(3).timeout
 		energy_low = true
 
-func _on_money(reward_amount) -> void:
+func _on_money(reward_amount: int) -> void:
 	Shopcontrol.shopmoney += reward_amount * Shopcontrol.money_multi
 	@warning_ignore("narrowing_conversion")
 	$UI.update_money(Shopcontrol.shopmoney)
@@ -55,14 +55,14 @@ func _on_next_wave() -> void:
 	$UI.update_wave(Wavecontrol.wave)
 	spawn_energy()
 
-func _on_score(score_type) -> void:
+func _on_score(score_type: int) -> void:
 	score += score_type
 	$UI.update_score(score)
 
-func _on_RGshot(bulletRG) -> void:
+func _on_RGshot(bulletRG: RigidBody2D) -> void:
 	add_child(bulletRG)
 
-func _on_mine_dispense(mine) -> void:
+func _on_mine_dispense(mine: RigidBody2D) -> void:
 	add_child(mine)
 
 func _on_dash() -> void:
@@ -70,32 +70,32 @@ func _on_dash() -> void:
 
 func _on_shot() -> void:
 	$UI.update_energy($Player.energy)
-	var bullet := bullet_scene.instantiate() as PlayerProjectile
+	var bullet: PlayerProjectile = bullet_scene.instantiate() as PlayerProjectile
 	bullet.configure_mode(Modecontrol.mode)
-	var direction = $Player.rotation
+	var direction: float = $Player.rotation
 	if Modecontrol.mode == 0:
 		direction += randf_range(-Shopcontrol.spread, Shopcontrol.spread)
 	bullet.position = muzzle.global_position
 	bullet.rotation = direction
-	var velocity_bullet = Vector2(0, bullet_speed)
+	var velocity_bullet: Vector2 = Vector2(0, bullet_speed)
 	bullet.linear_velocity = velocity_bullet.rotated(direction)
 	add_child(bullet)
 
 func spawn_energy() -> void:
 	energy_CA = 1 + 2*(Wavecontrol.wave)
-	for i in energy_CA:
-		var portal = portal_scene.instantiate()
+	for i: int in energy_CA:
+		var portal: Node2D = portal_scene.instantiate() as Node2D
 		var portal_sl: Vector2 = Vector2(randf_range(100, 1600), randf_range(100, 800))
 		portal.position = portal_sl
 		add_child(portal)
 		await get_tree().create_timer(randf_range(7, 15)).timeout
 
 func spawn_enemy(enemy_type: int) -> void:
-	var enemy := enemy_scene.instantiate() as EnemyShip
+	var enemy: EnemyShip = enemy_scene.instantiate() as EnemyShip
 	enemy.configure_enemy(enemy_type)
 	enemy_spawn_location.progress_ratio = randf()
 	enemy.position = enemy_spawn_location.position
 	add_child(enemy)
 
-func _on_spawn_energy(energy) -> void:
+func _on_spawn_energy(energy: RigidBody2D) -> void:
 	add_child(energy)

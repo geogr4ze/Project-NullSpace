@@ -3,9 +3,9 @@ extends RigidBody2D
 
 # Capture weapon properties on spawn, so switching modes does not change bullets
 # already in flight. Each projectile damages each target at most once.
-var weapon_mode := -1
-var damage := 1
-var pierce := 1
+var weapon_mode: int = -1
+var damage: int = 1
+var pierce: int = 1
 var hit_targets: Dictionary = {}
 
 func configure_mode(mode: int) -> void:
@@ -28,7 +28,7 @@ func _ready() -> void:
 func register_hit(target: Node2D) -> bool:
 	if is_queued_for_deletion() or pierce <= 0:
 		return false
-	var target_id := target.get_instance_id()
+	var target_id: int = target.get_instance_id()
 	if hit_targets.has(target_id):
 		return false
 	hit_targets[target_id] = true

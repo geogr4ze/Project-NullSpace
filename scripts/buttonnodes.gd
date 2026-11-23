@@ -1,22 +1,22 @@
 extends Node2D
 
-var pressed_button1 = true
-var pressed_button2 = true
-var auto_start = false 
-var click_scale := Vector2(0.005, 0.005)
-var shop_scene := "res://scenes/shop.tscn"
-var shop_loading := false
+var pressed_button1: bool = true
+var pressed_button2: bool = true
+var auto_start: bool = false 
+var click_scale: Vector2 = Vector2(0.005, 0.005)
+var shop_scene: String = "res://scenes/shop.tscn"
+var shop_loading: bool = false
 var tab_targets: Dictionary = {}
 var tab_tweens: Dictionary = {}
 var click_tweens: Dictionary = {}
-var play = preload("res://assets/ui/buttons/Play + autoplay Skins-1.png.png")
-var pause = preload("res://assets/ui/buttons/Play + autoplay Skins-3.png.png")
+var play: Texture2D = preload("res://assets/ui/buttons/Play + autoplay Skins-1.png.png")
+var pause: Texture2D = preload("res://assets/ui/buttons/Play + autoplay Skins-3.png.png")
 
 func _ready():
 	Signalbus.wave_complete.connect(on_wave_complete)
 	Signalbus.test_mode.connect(on_test)
 
-func _process(_delta):
+func _process(_delta: float):
 	if Input.is_action_just_pressed("auto_next_wave") and pressed_button2:
 		extend($AutoPlayTab, 1)
 		autoplay_control()
@@ -66,20 +66,20 @@ func shop_control() -> void:
 	clicked($%Button3)
 	Shopcontrol.shop_open = true
 
-	var request_error := ResourceLoader.load_threaded_request(shop_scene)
+	var request_error: int = ResourceLoader.load_threaded_request(shop_scene)
 	if request_error != OK:
 		push_error("Shop scene loading failed: " + str(request_error))
 		Shopcontrol.shop_open = false
 		shop_loading = false
 		return
 
-	var load_status := ResourceLoader.load_threaded_get_status(shop_scene)
+	var load_status: int = ResourceLoader.load_threaded_get_status(shop_scene)
 	while load_status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await get_tree().process_frame
 		load_status = ResourceLoader.load_threaded_get_status(shop_scene)
 
 	if load_status == ResourceLoader.THREAD_LOAD_LOADED:
-		var scene := ResourceLoader.load_threaded_get(shop_scene) as PackedScene
+		var scene: PackedScene = ResourceLoader.load_threaded_get(shop_scene) as PackedScene
 		if scene != null:
 			get_tree().change_scene_to_packed(scene)
 			return
@@ -140,14 +140,14 @@ func _on_button_3_mouse_exited() -> void:
 	retract($ShopTab, 0)
 
 # Helper functions — one tween per tab; no timer-per-pixel animation.
-const HOVER_DISTANCE := 10.0
-const TAB_DISTANCE := 100.0
-const HOVER_DURATION := 0.1
-const TAB_DURATION := 1.0
-var vectors := [Vector2.RIGHT, Vector2.UP]
+const HOVER_DISTANCE: float = 10.0
+const TAB_DISTANCE: float = 100.0
+const HOVER_DURATION: float = 0.1
+const TAB_DURATION: float = 1.0
+var vectors: Array[Vector2] = [Vector2.RIGHT, Vector2.UP]
 
 func _move_tab(tab: Control, offset: Vector2, duration: float) -> void:
-	var key := tab.get_instance_id()
+	var key: int = tab.get_instance_id()
 	var target: Vector2 = tab_targets.get(key, tab.position)
 	target += offset
 	tab_targets[key] = target
@@ -155,7 +155,7 @@ func _move_tab(tab: Control, offset: Vector2, duration: float) -> void:
 		var previous: Tween = tab_tweens[key]
 		if previous.is_valid():
 			previous.kill()
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(tab, "position", target, duration)
 	tab_tweens[key] = tween
 
@@ -172,19 +172,19 @@ func hide_button(tab: Control, vector_type: int) -> void:
 	_move_tab(tab, -vectors[vector_type] * TAB_DISTANCE, TAB_DURATION)
 
 func clicked(button: Control) -> void:
-	var key := button.get_instance_id()
+	var key: int = button.get_instance_id()
 	if click_tweens.has(key):
 		var previous: Tween = click_tweens[key]
 		if previous.is_valid():
 			previous.kill()
 	var original_scale: Vector2 = button.scale
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(button, "scale", original_scale - click_scale * 10.0, 0.1)
 	tween.tween_property(button, "scale", original_scale, 0.1)
 	click_tweens[key] = tween
 
 #Wave functions-----------------------------------------------------------------
-func on_wave_complete(wave) -> void:
+func on_wave_complete(wave: int) -> void:
 	if auto_start:
 		await get_tree().create_timer(2).timeout
 		_next_wave()
@@ -204,7 +204,7 @@ func _next_wave() -> void:
 func on_test() -> void:
 	pressed_button1 = false
 	pressed_button2 = false
-	for i in 100:
+	for i: int in 100:
 		$AutoPlayButton.position += Vector2(0, 1.0)
 		$%AutoPlaySkin.position += Vector2(0, 1.0)
 		$Play_PauseButton.position += Vector2(0, 1.0)

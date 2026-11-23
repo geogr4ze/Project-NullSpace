@@ -3,7 +3,7 @@ extends RefCounted
 
 # Standalone cooldown timer shared by the player's weapon modes.
 # All timing is in seconds, independent of rendering frame rate.
-var remaining := 0.0
+var remaining: float = 0.0
 
 func advance(delta: float) -> void:
 	remaining = maxf(0.0, remaining - delta)
