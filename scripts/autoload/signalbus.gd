@@ -30,7 +30,7 @@ signal enemy_hit(body_hit)
 @warning_ignore("unused_signal")
 signal kc_point
 @warning_ignore("unused_signal")
-signal new_enemy
+signal new_enemy(enemy_type)
 @warning_ignore("unused_signal")
 signal shot_RG
 @warning_ignore("unused_signal")
