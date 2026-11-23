@@ -109,11 +109,11 @@ func _on_body_entered(body: Node2D) -> void:
 	elif alive and body.has_method("register_hit"):
 		if type == Wavecontrol.TANK and tank_shield_hp > 0 and int(body.get("weapon_mode")) != Modecontrol.MODE2:
 			_absorb_shield_hit(body)
-		elif body.register_hit(self):
+		elif body.call("register_hit", self):
 			_take_damage(int(body.get("damage")))
 
 func _absorb_shield_hit(bullet: Node2D) -> void:
-	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
+	if !alive or tank_shield_hp <= 0 or !bullet.call("register_hit", self):
 		return
 	tank_shield_hp = maxi(0, tank_shield_hp - int(bullet.get("damage")))
 	$%Shield.self_modulate = Color(4.0, 4.0, 4.0, 0.3)

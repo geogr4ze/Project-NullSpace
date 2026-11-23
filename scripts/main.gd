@@ -68,7 +68,7 @@ func _on_dash() -> void:
 func _on_shot() -> void:
 	$UI.update_energy($Player.energy)
 	var bullet = bullet_scene.instantiate()
-	bullet.configure_mode(Modecontrol.mode)
+	bullet.call("configure_mode", Modecontrol.mode)
 	var bullet_sl = get_node("Player/Muzzle")
 	var direction = $Player.rotation
 	if Modecontrol.mode == 0:
@@ -90,7 +90,7 @@ func spawn_energy() -> void:
 
 func spawn_enemy(enemy_type: int) -> void:
 	var enemy = enemy_scene.instantiate()
-	enemy.configure_enemy(enemy_type)
+	enemy.call("configure_enemy", enemy_type)
 	var enemy_sl = $%EnemySpawnLocation
 	enemy_sl.progress_ratio = randf()
 	enemy.position = enemy_sl.position

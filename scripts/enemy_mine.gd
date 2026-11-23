@@ -61,7 +61,7 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 		hitflag = false
 		Signalbus.mine_hit.emit()
 	elif primed and body.has_method("register_hit"):
-		if body.register_hit(self):
+		if body.call("register_hit", self):
 			health = maxi(0, health - int(body.get("damage")))
 			_show_health_bar()
 			hpbar.value = health
