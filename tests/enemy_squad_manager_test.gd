@@ -41,6 +41,55 @@ func _initialize() -> void:
 	var equal_pairs: Array[Dictionary] = Tactics.assign_unique_supports(tied_candidates)
 	_check("stable equal-score tie breaking",
 		int(equal_pairs[0]["tank_id"]) == 7)
+	# Regression for the freed-reference cast at the former line 35.
+	var old_support: Node2D = Node2D.new()
+	var stale_reference: Variant = old_support
+	var support_id: int = old_support.get_instance_id()
+	_check("living support gets an ID", Tactics.valid_object_id(stale_reference) == support_id)
+	old_support.free()
+	_check("freed support does not get cast or accessed",
+		Tactics.valid_object_id(stale_reference) == 0)
+	_check("null support is safe", Tactics.valid_object_id(null) == 0)
+
+	# A fifth visible speed triggers two balanced, stable flanks.
+	var ids: Array[int] = [10, 11, 12, 13, 14]
+	var flanks: Dictionary = Tactics.assign_speed_flanks(ids, {})
+	var left_count: int = 0
+	var right_count: int = 0
+	for speed_id: int in ids:
+		if int(flanks[speed_id]) == -1:
+			left_count += 1
+		elif int(flanks[speed_id]) == 1:
+			right_count += 1
+	_check("five Speed enemies split 3-2",
+		left_count == 3 and right_count == 2)
+	_check("flank assignment remains stable without deaths",
+		Tactics.assign_speed_flanks(ids, flanks) == flanks)
+	var crowded_previous: Dictionary = {
+		10: -1, 11: -1, 12: -1, 13: -1, 14: 1
+	}
+	var balanced: Dictionary = Tactics.assign_speed_flanks(ids, crowded_previous)
+	var left_rebalanced: int = 0
+	var right_rebalanced: int = 0
+	for side: Variant in balanced.values():
+		if int(side) < 0:
+			left_rebalanced += 1
+		else:
+			right_rebalanced += 1
+	_check("existing flanks rebalance when heavily uneven",
+		left_rebalanced == 3 and right_rebalanced == 2)
+
+	var arena: Vector2 = Vector2(1700.0, 900.0)
+	var center: Vector2 = Vector2(850.0, 450.0)
+	var left: Vector2 = Tactics.speed_flank_target(center, arena, -1, 0, 3)
+	var left_next: Vector2 = Tactics.speed_flank_target(center, arena, -1, 1, 3)
+	var right: Vector2 = Tactics.speed_flank_target(center, arena, 1, 0, 2)
+	_check("left group stages at left edge", left.x < arena.x * 0.15)
+	_check("right group stages at right edge", right.x > arena.x * 0.85)
+	_check("pincer staging lanes are distinct", left.y != left_next.y)
+	_check("all flank staging positions remain inside viewport",
+		Rect2(Vector2.ZERO, arena).has_point(left)
+		and Rect2(Vector2.ZERO, arena).has_point(right))
 	quit(1 if errors > 0 else 0)
 
 func _check(description: String, ok: bool) -> void:
