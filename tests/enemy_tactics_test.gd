@@ -46,8 +46,8 @@ func _initialize() -> void:
 	_check((guard_goal - tank_position).dot(
 		player_position - tank_position) > 0.0,
 		"Protecting a support never makes a tank retreat from the player")
-	# Tanks do not dodge harmless shielded weapons, including while a
-	# previous laser dodge timer is running after switching weapon modes.
+	# The tank evaluates each in-flight projectile's captured weapon mode.
+	# Switching the player's active weapon cannot change an existing shot.
 	_check(!Tactics.can_evade_weapon(Wavecontrol.TANK, Modecontrol.DEFAULT),
 		"Tank ignores default fire")
 	_check(!Tactics.can_evade_weapon(Wavecontrol.TANK, Modecontrol.MODE1),
