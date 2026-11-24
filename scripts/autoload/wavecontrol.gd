@@ -1,6 +1,6 @@
 extends Node
 #Test System
-var test_enable: bool = true
+var test_enable: bool = false # Enable explicitly to run the test wave.
 var test_random: bool = true
 var selection_T: int = 5
 var test_SN: int = 20
@@ -48,10 +48,7 @@ func _ready():
 	rng.randomize()
 	new_enemy_totals()
 	Signalbus.kc_point.connect(kill_count)
-	if test_enable:
-		test_spawn()
-		await get_tree().create_timer(1).timeout
-		Signalbus.test_mode.emit()
+	# Test spawning is started by Main after its signal handlers are connected.
 
 # Wave completion is checked only when an enemy dies, not every frame.
 

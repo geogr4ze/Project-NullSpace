@@ -180,8 +180,9 @@ func on_wave_complete(wave: int) -> void:
 			shopshow()
 
 func _next_wave() -> void:
+	# Start the wave as soon as Play is pressed; the spawn loop staggers
+	# individual enemies using Wavecontrol.spawnrate.
 	Signalbus.next_wave.emit()
-	await get_tree().create_timer(7).timeout
 	Wavecontrol.spawn_enemy()
 
 func on_test() -> void:
