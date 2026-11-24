@@ -130,3 +130,34 @@ static func tank_defense_target(
 		toward_player * chase_weight + toward_screen * (1.0 - chase_weight)
 	).normalized()
 	return tank_position + blended * 200.0
+
+# Returns a sideways escape vector when the enemy lies in the forward firing
+# lane of the player's ship. The distance check rejects threats behind
+# the ship; the lateral threshold limits dodging to visibly aimed-at targets.
+static func firing_lane_escape(
+		player_position: Vector2,
+		facing: Vector2,
+		enemy_position: Vector2,
+		half_width: float,
+		maximum_range: float,
+		preferred_side: float
+	) -> Vector2:
+	if facing.length_squared() < 0.0001:
+		return Vector2.ZERO
+	var forward: Vector2 = facing.normalized()
+	var relative: Vector2 = enemy_position - player_position
+	var forward_distance: float = relative.dot(forward)
+	if forward_distance <= 0.0 or forward_distance > maximum_range:
+		return Vector2.ZERO
+	var tangent: Vector2 = Vector2(-forward.y, forward.x)
+	var lateral_distance: float = relative.dot(tangent)
+	var width: float = maxf(half_width, 1.0)
+	if absf(lateral_distance) >= width:
+		return Vector2.ZERO
+	var side: float = preferred_side
+	if absf(lateral_distance) > 8.0:
+		side = signf(lateral_distance)
+	if side == 0.0:
+		side = 1.0
+	var urgency: float = 1.0 - absf(lateral_distance) / width
+	return tangent * side * urgency

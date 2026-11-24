@@ -30,6 +30,10 @@ const AI_DECISION_INTERVAL: float = 0.2
 const AI_COMMITMENT: float = 0.5
 const SUPPORT_TARGET_DISTANCE: float = 420.0
 const AVOIDANCE_WEIGHT: float = 0.75
+const FIRING_LANE_HALF_WIDTH: float = 100.0
+const FIRING_LANE_RANGE: float = 950.0
+const FIRING_LANE_DODGE_WEIGHT: float = 1.8
+const FIRING_LANE_REACTION_TIME: float = 0.5
 const TURN_RESPONSE_NEAR: float = 8.0
 const TURN_RESPONSE_FAR: float = 4.0
 const TURN_DISTANCE_REFERENCE: float = 750.0
@@ -50,6 +54,7 @@ var separation: Vector2 = Vector2.ZERO
 var cover_lane: int = 0
 var strafe_direction: float = 1.0
 var motion_velocity: Vector2 = Vector2.ZERO
+var firing_lane_dodge_time: float = 0.0
 
 func configure_enemy(enemy_type: int) -> void:
 	type = enemy_type
@@ -92,6 +97,8 @@ func _ready():
 	strafe_direction = -1.0 if randf() < 0.5 else 1.0
 	decision_timer = randf_range(0.0, AI_DECISION_INTERVAL)
 	add_to_group("enemy_ai")
+	if type == Wavecontrol.TANK:
+		add_to_group("enemy_tanks")
 
 # Convert original per-frame speed values into pixels/second (at 60 FPS).
 func _apply_enemy_stats(enemy: int) -> void:
@@ -119,8 +126,23 @@ func _physics_process(delta: float) -> void:
 	if direction_to_goal.length() > 12.0:
 		preferred_velocity = direction_to_goal.normalized() * speed
 		preferred_velocity *= clampf(direction_to_goal.length() / 65.0, 0.0, 1.0)
+	# React to the direction of the player's gun while Fire is held,
+	# including the charge-up of the two special weapons. A short memory
+	# lets ships finish their dodge after a single default shot.
+	if Input.is_action_pressed("Fire"):
+		firing_lane_dodge_time = FIRING_LANE_REACTION_TIME
+	else:
+		firing_lane_dodge_time = maxf(0.0, firing_lane_dodge_time - delta)
+	var evasion: Vector2 = Vector2.ZERO
+	if firing_lane_dodge_time > 0.0:
+		var player_forward: Vector2 = Vector2.UP.rotated(player.global_rotation)
+		evasion = TacticsScript.firing_lane_escape(
+			player.global_position, player_forward, global_position,
+			FIRING_LANE_HALF_WIDTH, FIRING_LANE_RANGE, strafe_direction
+		)
 	var desired_velocity: Vector2 = (
 		preferred_velocity + separation * speed * AVOIDANCE_WEIGHT
+		+ evasion * speed * FIRING_LANE_DODGE_WEIGHT
 	).limit_length(speed)
 	# Steering acceleration prevents sudden sideways movement when an intercept
 	# point changes; turning and movement follow the same physics delta.
@@ -337,20 +359,30 @@ const MINE_SLOW_FACTOR: float = 0.59049
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		detect_player()
-	elif alive and body is PlayerProjectileScript:
-		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
-		if type == Wavecontrol.TANK and tank_shield_hp > 0:
-			_absorb_shield_hit(projectile)
-		elif projectile.register_hit(self):
-			_take_damage(projectile.damage)
+	elif body is PlayerProjectileScript:
+		intercept_projectile(body as PlayerProjectileScript)
+
+# Both the tank hull and shield area report here. One shared entry point
+# prevents callback ordering from changing the result of a projectile hit.
+# Player bullets also use this for high-speed swept collision checks.
+func intercept_projectile(projectile: PlayerProjectileScript) -> void:
+	if !alive or !is_instance_valid(projectile) or projectile.is_queued_for_deletion():
+		return
+	if type == Wavecontrol.TANK and tank_shield_hp > 0:
+		_absorb_shield_hit(projectile)
+	elif projectile.register_hit(self):
+		_take_damage(projectile.damage)
 
 func _absorb_shield_hit(bullet: PlayerProjectileScript) -> void:
 	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
 		return
-	# Default and wave projectiles are blocked but do not damage the shield.
-	if bullet.weapon_mode != Modecontrol.MODE2:
-		return
-	tank_shield_hp = maxi(0, tank_shield_hp - bullet.damage)
+	if bullet.weapon_mode == Modecontrol.MODE2:
+		# Only the large laser reduces shield HP.
+		tank_shield_hp = maxi(0, tank_shield_hp - bullet.damage)
+	else:
+		# Default and wave shots are fully consumed rather than retaining
+		# pierce and appearing to pass through the shield.
+		bullet.queue_free()
 	if shield_flash != null and shield_flash.is_valid():
 		shield_flash.kill()
 	$%Shield.self_modulate = Color(4.0, 4.0, 4.0, 0.3)
@@ -427,9 +459,8 @@ func _on_shoot_timer_timeout():
 	Signalbus.shot_RG.emit(bullet)
 
 func _on_tank_shield_body_entered(body: Node2D) -> void:
-	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectileScript:
-		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
-		_absorb_shield_hit(projectile)
+	if type == Wavecontrol.TANK and body is PlayerProjectileScript:
+		intercept_projectile(body as PlayerProjectileScript)
 
 func _on_shield_regen_timeout():
 	tank_shield_hp = max_tank_shield_hp
