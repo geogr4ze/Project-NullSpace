@@ -30,10 +30,7 @@ const AI_DECISION_INTERVAL: float = 0.2
 const AI_COMMITMENT: float = 0.5
 const SUPPORT_TARGET_DISTANCE: float = 420.0
 const AVOIDANCE_WEIGHT: float = 0.75
-const FIRING_LANE_HALF_WIDTH: float = 100.0
-const FIRING_LANE_RANGE: float = 950.0
-const FIRING_LANE_DODGE_WEIGHT: float = 2.3
-const FIRING_LANE_REACTION_TIME: float = 0.6
+const PROJECTILE_DODGE_WEIGHT: float = 2.3
 const TURN_RESPONSE_NEAR: float = 8.0
 const TURN_RESPONSE_FAR: float = 4.0
 const TURN_DISTANCE_REFERENCE: float = 750.0
@@ -54,7 +51,7 @@ var separation: Vector2 = Vector2.ZERO
 var cover_lane: int = 0
 var strafe_direction: float = 1.0
 var motion_velocity: Vector2 = Vector2.ZERO
-var firing_lane_dodge_time: float = 0.0
+var incoming_dodge: Vector2 = Vector2.ZERO
 
 # Controlled by EnemySquadManager when five or more Speed enemies are visible.
 # State 0: individual intercept, 1: move to assigned edge, 2: pincer strike.
@@ -133,27 +130,12 @@ func _physics_process(delta: float) -> void:
 	if direction_to_goal.length() > 12.0:
 		preferred_velocity = direction_to_goal.normalized() * speed
 		preferred_velocity *= clampf(direction_to_goal.length() / 65.0, 0.0, 1.0)
-	# Tanks ignore default and wave fire: their shields already absorb those
-	# projectiles. All other enemies evade every weapon, while tanks only
-	# evade the large laser (including its charge-up). Clear a tank's dodge
-	# memory immediately when the player switches away from the laser.
-	var can_evade_weapon: bool = TacticsScript.can_evade_weapon(type, Modecontrol.mode)
-	if !can_evade_weapon:
-		firing_lane_dodge_time = 0.0
-	elif Input.is_action_pressed("Fire"):
-		firing_lane_dodge_time = FIRING_LANE_REACTION_TIME
-	else:
-		firing_lane_dodge_time = maxf(0.0, firing_lane_dodge_time - delta)
-	var evasion: Vector2 = Vector2.ZERO
-	if firing_lane_dodge_time > 0.0:
-		var player_forward: Vector2 = Vector2.UP.rotated(player.global_rotation)
-		evasion = TacticsScript.firing_lane_escape(
-			player.global_position, player_forward, global_position,
-			FIRING_LANE_HALF_WIDTH, FIRING_LANE_RANGE, strafe_direction
-		)
+	# ProjectileThreatManager supplies an evasive direction only when an
+	# existing bullet is predicted to intersect this enemy soon. Steering
+	# remains combined with normal AI movement and separation.
 	var desired_velocity: Vector2 = (
 		preferred_velocity + separation * speed * AVOIDANCE_WEIGHT
-		+ evasion * speed * FIRING_LANE_DODGE_WEIGHT
+		+ incoming_dodge * speed * PROJECTILE_DODGE_WEIGHT
 	).limit_length(speed)
 	# Steering acceleration prevents sudden sideways movement when an intercept
 	# point changes; turning and movement follow the same physics delta.

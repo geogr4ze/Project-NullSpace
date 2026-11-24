@@ -131,42 +131,78 @@ static func tank_defense_target(
 	).normalized()
 	return tank_position + blended * 200.0
 
-# Returns a sideways escape vector when the enemy lies in the forward firing
-# lane of the player's ship. The distance check rejects threats behind
-# the ship; the lateral threshold limits dodging to visibly aimed-at targets.
-static func firing_lane_escape(
-		player_position: Vector2,
-		facing: Vector2,
+# Project an existing bullet and enemy's current velocities forward. Dodge
+# only when their closest approach occurs in the future and would overlap
+# their estimated combined collision widths. The chosen side is stable when
+# a bullet is aimed directly at the center of the enemy.
+static func projectile_evasion(
+		bullet_position: Vector2,
+		bullet_velocity: Vector2,
 		enemy_position: Vector2,
-		half_width: float,
-		maximum_range: float,
+		enemy_velocity: Vector2,
+		hit_radius: float,
+		time_horizon: float,
 		preferred_side: float
 	) -> Vector2:
-	if facing.length_squared() < 0.0001:
+	var relative_velocity: Vector2 = bullet_velocity - enemy_velocity
+	var speed_squared: float = relative_velocity.length_squared()
+	if speed_squared < 1.0 or time_horizon <= 0.0:
 		return Vector2.ZERO
-	var forward: Vector2 = facing.normalized()
-	var relative: Vector2 = enemy_position - player_position
-	var forward_distance: float = relative.dot(forward)
-	if forward_distance <= 0.0 or forward_distance > maximum_range:
+	var relative_position: Vector2 = enemy_position - bullet_position
+	var closest_time: float = relative_position.dot(relative_velocity) / speed_squared
+	if closest_time < 0.0 or closest_time > time_horizon:
 		return Vector2.ZERO
-	var tangent: Vector2 = Vector2(-forward.y, forward.x)
-	var lateral_distance: float = relative.dot(tangent)
-	var width: float = maxf(half_width, 1.0)
-	if absf(lateral_distance) >= width:
+	var miss_vector: Vector2 = relative_position - relative_velocity * closest_time
+	var miss_distance: float = miss_vector.length()
+	var radius: float = maxf(hit_radius, 1.0)
+	if miss_distance > radius:
 		return Vector2.ZERO
-	var side: float = preferred_side
-	if absf(lateral_distance) > 8.0:
-		side = signf(lateral_distance)
-	if side == 0.0:
-		side = 1.0
-	var urgency: float = 1.0 - absf(lateral_distance) / width
-	return tangent * side * urgency
+	var travel: Vector2 = relative_velocity / sqrt(speed_squared)
+	var sideways: Vector2 = Vector2(-travel.y, travel.x)
+	var cross_track: float = miss_vector.dot(sideways)
+	var sign_direction: float = preferred_side
+	if absf(cross_track) > 2.0:
+		sign_direction = signf(cross_track)
+	if sign_direction == 0.0:
+		sign_direction = 1.0
+	# Earlier, nearer direct impacts are more urgent; stay responsive even
+	# at the horizon and near the edge of the estimated collision area.
+	var urgency: float = 0.55 + 0.45 * (1.0 - closest_time / time_horizon)
+	var overlap: float = 0.45 + 0.55 * (1.0 - minf(miss_distance / radius, 1.0))
+	return sideways * sign_direction * urgency * overlap
+
+
+# Conservative half-width of a collision shape perpendicular to a bullet's
+# path. Supports the circle, rectangle and capsule shapes used by this game,
+# including local rotations and scales of wave and laser projectiles.
+static func collision_half_width(
+		hitbox: CollisionShape2D,
+		perpendicular: Vector2
+	) -> float:
+	if hitbox == null or hitbox.shape == null:
+		return 0.0
+	var axis_x: Vector2 = hitbox.global_transform.x
+	var axis_y: Vector2 = hitbox.global_transform.y
+	var shape: Shape2D = hitbox.shape
+	if shape is RectangleShape2D:
+		var rectangle: RectangleShape2D = shape as RectangleShape2D
+		return (absf(perpendicular.dot(axis_x)) * rectangle.size.x
+			+ absf(perpendicular.dot(axis_y)) * rectangle.size.y) * 0.5
+	if shape is CapsuleShape2D:
+		var capsule: CapsuleShape2D = shape as CapsuleShape2D
+		return (absf(perpendicular.dot(axis_x)) * capsule.radius
+			+ absf(perpendicular.dot(axis_y)) * capsule.height * 0.5)
+	if shape is CircleShape2D:
+		var circle: CircleShape2D = shape as CircleShape2D
+		return circle.radius * maxf(axis_x.length(), axis_y.length())
+	return 0.0
 
 # The tank shield absorbs default and wave shots without taking damage.
-# Only the large laser warrants evasive movement for tanks. Other enemy
-# roles continue to respond to all player weapons.
-static func can_evade_weapon(enemy_type: int, player_weapon_mode: int) -> bool:
-	return enemy_type != Wavecontrol.TANK or player_weapon_mode == Modecontrol.MODE2
+# Only an actual large laser projectile warrants evasive movement for tanks.
+# Compare the in-flight projectile's captured mode, not the player's current
+# selected mode (which may have changed after firing).
+static func can_evade_weapon(enemy_type: int, projectile_weapon_mode: int) -> bool:
+	return enemy_type != Wavecontrol.TANK or projectile_weapon_mode == Modecontrol.MODE2
 
 # An Object can be queued/freed while a tank still holds a reference to it.
 # Check validity before accessing or casting it.

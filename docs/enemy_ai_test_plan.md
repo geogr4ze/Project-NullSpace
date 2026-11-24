@@ -7,7 +7,7 @@ This feature branch starts from current `main`; it does not depend on older refa
 | Enemy | Movement/decision behavior |
 |---|---|
 | Basic | Pursues player; avoids stacking with nearby ships |
-| Speed | Steers toward predicted interception normally; when at least five are visible, divides into two balanced flanks, stages at opposite vertical screen edges, then converges toward the player for a synchronized pincer; tank cover and dodge rules still apply |
+| Speed | Steers toward predicted interception normally; when at least five are visible, divides into two balanced flanks, stages at opposite vertical screen edges, then converges toward the player for a synchronized pincer; tank cover and projectile-based dodge rules still apply |
 | Support | Prioritizes damaged non-support allies inside 420 px search radius, follows them from a safer side; otherwise orbits at 290–425 px |
 | Tank | Keeps advancing on the player, while biasing its route to defend an assigned nearby support (one-to-one protection) |
 | Railgun | Tries to stay 340–535 px away, strafes within that band, leads shots using estimated flight time |
@@ -17,13 +17,14 @@ Enemy movement remains frame-rate independent; existing attack timers, projectil
 
 ## Shared rules
 
-- When the player holds Fire (including charging either special weapon), non-tank enemies within 100 px laterally of the ship's forward line and within 950 px ahead add stronger sideways evasion steering (weight 2.3, previously 1.8). A 0.6-second memory (previously 0.5) also responds to single-tap shots. Evasion is strongest near the center of the firing corridor and drops to zero at its edges, so normal pursuit and formation behavior remain active.
-- Tanks only evade the **large laser (Mode 2 in code, mode 3 in the UI)**. They do not evade default or wave fire, which their active shields absorb harmlessly. Switching away from the laser cancels any remaining tank dodge memory.
+- **Projectile-based dodging:** Enemies dodge only when a real player projectile is predicted to intersect their collision width in the next 0.7 seconds. Prediction uses the projectile's actual trajectory/velocity, the enemy's current movement, and rotated/scaled hitbox widths (including wide waves and the large laser). No dodge happens merely because the player aims or holds Fire; once no dangerous projectile remains, ordinary steering resumes.
+- The `ProjectileThreatManager` runs one centralized check each physics tick and supplies evasion vectors to enemies. Enemies ignore projectiles that have already hit them, are being deleted, are moving away, or will pass harmlessly outside their hitboxes. Existing role-based movement, tank cover, and Speed pincer behavior remain in place.
+- Tanks only evade actual **large laser projectiles** (`Modecontrol.MODE2`, mode 3 in the UI). Default and wave projectiles do not trigger tank evasion because their active shields absorb them harmlessly, even if the player is now holding another weapon.
 - Default and wave bullets are completely consumed by active tank shields. All shield-vs-hull projectile handling shares a single entry point, including a supplementary swept-hit ray for high-speed bullets.
 
 - A shared `EnemySquadManager` assigns tank/support pairs every 0.25 seconds. It pairs each support with **at most one tank**, and each tank with **at most one support**, favoring nearby combinations and preserving existing assignments when sensible. Its prior-partner lookup checks object validity before retrieving the ID so dead supports never cause a "Trying to cast a freed object" error.
 - **Speed pincer trigger:** When **5 or more live Speed ships are visible** in the viewport, the manager assigns them stable, balanced top/bottom roles (typically 3+2 for five ships). Off-screen ships do not count. With fewer than five visible, ships return to ordinary player-interception logic.
-- **Pincer staging:** Each group moves toward its assigned horizontal screen edge, with y-offsets and individual lanes to avoid stacking. They do not teleport. The group positions are computed from current viewport size and player position, respecting the existing avoidance, turning, and tank-cover rules.
+- **Pincer staging:** Each group moves toward its assigned top/bottom screen edge, with horizontal lanes to avoid stacking. They do not teleport. The group positions are computed from current viewport size and player position, respecting the existing avoidance, turning, and tank-cover rules.
 - **Pincer launch:** When at least half of each group is near its staging edge, both groups enter an attack phase together, switching to their existing predicted-intercept movement for 3.75 seconds. After a 1.5-second regrouping break, they may stage another pincer if five or more Speed enemies remain visible. If their count drops below five, the formation cancels.
 - Defending a support alters the tank's chase direction rather than making it stop pursuing or reverse course. Tanks without a partner simply chase the player.
 - Ships use smooth, delta-time-independent angular steering instead of `look_at()` snapping. Turn responsiveness rises as ships approach the player; actual turn amount is proportional to angular error. Speed enemies face their current movement direction so intercept paths look natural.
@@ -53,8 +54,10 @@ godot --headless --path . --script res://tests/enemy_squad_manager_test.gd
 
 ## In-game checks
 
-- Hold Fire while facing an enemy: it should curve sideways out of the gun's forward corridor. Rotate away or stop firing: the enemy should resume its normal role. Check that enemies behind the player or far outside the lane do not dodge randomly.
-- Test a tank while firing each weapon: default and wave shots should not trigger evasive movement; the large laser should trigger lateral evasion while aimed at the tank. Switch from the laser to default immediately after releasing Fire: the tank should stop dodging harmless fire. Other enemy types should keep dodging all three weapons.
+- Hold Fire without a projectile being launched (for example, while charging): enemies should not dodge. Fire a projectile that is travelling directly toward an enemy, then release Fire or rotate away: the enemy should still try to dodge the approaching projectile.
+- Fire a shot deliberately away from an enemy or let it pass safely to one side: that enemy should not dodge. Test directly approaching and diagonal shots, and a moving target that is already clearing the projectile path.
+- Test the large wave projectile: its broad hitbox should lead to dodging at greater sideways offsets than a default bullet. Confirm laser bullets are evaluated from their actual trajectory and shape.
+- Test a tank while firing each weapon: default and wave projectiles should not trigger evasive movement; only an incoming large laser should. Switch weapon modes while either shot is in flight to verify behavior follows each bullet's captured mode, not the selected weapon. Other enemy types should evade any incoming projectile predicted to collide.
 - Fire a basic bullet and a charged wave at an active tank shield from multiple angles: both should disappear on contact, without damaging the tank or continuing to pierce through it. Confirm the tank shield only loses HP from the large laser. Test a fast-moving or rotating tank.
 - Speed enemies should move noticeably faster (+12.5% to base speed) while still turning smoothly and preserving their intercept behavior.
 - Spawn **four** Speed enemies on-screen: they should pursue independently. Spawn a **fifth**: the two balanced wings should begin staging at the top/bottom edges, with ships spreading into separate lanes. After both wings have enough ships positioned, they should attack the player's position from above and below. Check moving player, different resolutions, and player dodging.

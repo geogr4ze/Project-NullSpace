@@ -33,6 +33,7 @@ func _ready() -> void:
 	$CollisionShape2D.shape = authored_shape.shape
 	$CollisionShape2D.transform = authored_shape.transform
 	previous_position = global_position
+	add_to_group("player_projectiles")
 	$Visibility.screen_exited.connect(_on_screen_exited)
 
 # Area2D enter events can miss a fast projectile that crosses an entire
