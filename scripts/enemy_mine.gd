@@ -1,5 +1,8 @@
 extends RigidBody2D
 
+const PlayerShipScript = preload("res://scripts/player.gd")
+const PlayerProjectileScript = preload("res://scripts/bullet.gd")
+
 var health: int = 10
 var primed: bool = true
 var hpbar: ProgressBar
@@ -57,15 +60,15 @@ func _on_visibility_screen_exited() -> void:
 		queue_free()
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body is PlayerShip:
+	if body is PlayerShipScript:
 		if primed:
 			explosion()
 		if !hitflag:
 			return
 		hitflag = false
 		Signalbus.mine_hit.emit()
-	elif primed and body is PlayerProjectile:
-		var projectile: PlayerProjectile = body as PlayerProjectile
+	elif primed and body is PlayerProjectileScript:
+		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
 		if projectile.register_hit(self):
 			health = maxi(0, health - projectile.damage)
 			_show_health_bar()

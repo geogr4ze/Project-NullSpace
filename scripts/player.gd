@@ -1,5 +1,7 @@
-class_name PlayerShip
 extends CharacterBody2D
+
+# Use a local script type instead of a global class registration.
+const WeaponCooldownScript = preload("res://scripts/combat/weapon_cooldown.gd")
 
 # Misc Variables
 var death: bool = false
@@ -204,7 +206,7 @@ func _on_healing_timer_timeout() -> void:
 	elif bar[0] < max_health:
 		bar[0] += healing_amount
 	if bar[0] >= modul[0].max_value:
-		bar[0] = modul[0].max_value
+		bar[0] = int(modul[0].max_value)
 		healing_timer.stop()
 	hp_update(0)
 
@@ -212,7 +214,7 @@ func _on_shield_regen_timeout() -> void:
 	if bar[1] < modul[1].max_value:
 		bar[1] += 5
 	if bar[1] >= modul[1].max_value:
-		bar[1] = modul[1].max_value
+		bar[1] = int(modul[1].max_value)
 		shield_regen_timer.stop()
 	hp_update(1)
 
@@ -313,7 +315,7 @@ func mode1_control(delta: float) -> void:
 		player_skin.frame = 0
 		player_skin.animation = "mode1"
 
-var shot_timer: WeaponCooldown = WeaponCooldown.new()
+var shot_timer: WeaponCooldownScript = WeaponCooldownScript.new()
 
 func fire() -> bool:
 	if !shot_timer.is_ready():

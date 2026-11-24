@@ -1,10 +1,11 @@
-class_name GameHUD
 extends CanvasLayer
+
+const PlayerShipScript = preload("res://scripts/player.gd")
 
 var wave_tween: Tween
 var energy_warning_tween: Tween
 
-@onready var player: PlayerShip = $"../Player"
+@onready var player: PlayerShipScript = $"../Player"
 @onready var wave_label: Label = $NextWaveMessage
 
 func update_energy_low(energy: int) -> void:

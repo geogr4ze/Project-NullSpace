@@ -1,5 +1,10 @@
 extends Node2D
 
+const PlayerShipScript = preload("res://scripts/player.gd")
+const EnemyShipScript = preload("res://scripts/enemy.gd")
+const PlayerProjectileScript = preload("res://scripts/bullet.gd")
+const GameHUDScript = preload("res://scripts/ui.gd")
+
 var enemy_scene: PackedScene = preload("res://scenes/enemy.tscn")
 var bullet_scene: PackedScene = preload("res://scenes/bullet.tscn") 
 var portal_scene: PackedScene = preload("res://scenes/portal.tscn")
@@ -7,8 +12,8 @@ var score: int = 0
 var bullet_speed: float
 var energy_CA: int
 
-@onready var ship: PlayerShip = $Player
-@onready var hud: GameHUD = $UI
+@onready var ship: PlayerShipScript = $Player
+@onready var hud: GameHUDScript = $UI
 @onready var muzzle: Marker2D = $Player/Muzzle
 @onready var enemy_spawn_location: PathFollow2D = $%EnemySpawnLocation
 
@@ -72,7 +77,10 @@ func _on_dash() -> void:
 
 func _on_shot() -> void:
 	hud.update_energy(ship.energy)
-	var bullet: PlayerProjectile = bullet_scene.instantiate() as PlayerProjectile
+	var bullet: PlayerProjectileScript = bullet_scene.instantiate() as PlayerProjectileScript
+	if bullet == null:
+		push_error("Bullet scene did not instantiate a projectile. Check bullet.gd.")
+		return
 	bullet.configure_mode(Modecontrol.mode)
 	var direction: float = ship.rotation
 	if Modecontrol.mode == 0:
@@ -93,7 +101,10 @@ func spawn_energy() -> void:
 		await get_tree().create_timer(randf_range(7, 15)).timeout
 
 func spawn_enemy(enemy_type: int) -> void:
-	var enemy: EnemyShip = enemy_scene.instantiate() as EnemyShip
+	var enemy: EnemyShipScript = enemy_scene.instantiate() as EnemyShipScript
+	if enemy == null:
+		push_error("Enemy scene did not instantiate an enemy. Check enemy.gd.")
+		return
 	enemy.configure_enemy(enemy_type)
 	enemy_spawn_location.progress_ratio = randf()
 	enemy.position = enemy_spawn_location.position

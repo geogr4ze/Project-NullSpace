@@ -1,5 +1,7 @@
 extends RigidBody2D
 
+const PlayerShipScript = preload("res://scripts/player.gd")
+
 var dead: bool = false
 
 func _ready():
@@ -12,7 +14,7 @@ func _ready():
 
 
 func _on_pickup_area_body_entered(_body: Node2D) -> void:
-	if !dead and _body is PlayerShip:
+	if !dead and _body is PlayerShipScript:
 		dead = true
 		Signalbus.energy.emit()
 		queue_free()

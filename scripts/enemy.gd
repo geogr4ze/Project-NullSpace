@@ -1,9 +1,11 @@
-class_name EnemyShip
 extends Area2D
+
+const PlayerShipScript = preload("res://scripts/player.gd")
+const PlayerProjectileScript = preload("res://scripts/bullet.gd")
 
 var bullet_scene: PackedScene = preload("res://scenes/enemy_bullet.tscn")
 var mine_scene: PackedScene = preload("res://scenes/enemy_mine.tscn")
-@onready var player: PlayerShip = $"../Player"
+@onready var player: PlayerShipScript = $"../Player"
 @onready var hpbar: ProgressBar = $Node2D/ProgressBar
 @onready var skin: AnimatedSprite2D = $Skin
 @onready var warning_sign: AnimatedSprite2D = $%Warning_Sign
@@ -44,7 +46,7 @@ func _ready():
 		push_error("Unknown enemy type: " + str(type))
 		queue_free()
 		return
-	enemy_type(type)
+	_apply_enemy_stats(type)
 	var shapes: Array[Shape2D] = [
 		$BasicCollision.shape,
 		$SpeedCollision.shape,
@@ -60,7 +62,7 @@ func _ready():
 	hpbar.self_modulate.a = 0
 
 # Convert original per-frame speed values into pixels/second (at 60 FPS).
-func enemy_type(enemy: int) -> void:
+func _apply_enemy_stats(enemy: int) -> void:
 	score_amount = Wavecontrol.enemies[enemy]["score"]
 	reward_amount = Wavecontrol.enemies[enemy]["reward"]
 	health = Wavecontrol.enemies[enemy]["health"]
@@ -140,14 +142,14 @@ const MINE_SLOW_FACTOR: float = 0.59049
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		detect_player()
-	elif alive and body is PlayerProjectile:
-		var projectile: PlayerProjectile = body as PlayerProjectile
+	elif alive and body is PlayerProjectileScript:
+		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
 		if type == Wavecontrol.TANK and tank_shield_hp > 0 and projectile.weapon_mode != Modecontrol.MODE2:
 			_absorb_shield_hit(projectile)
 		elif projectile.register_hit(self):
 			_take_damage(projectile.damage)
 
-func _absorb_shield_hit(bullet: PlayerProjectile) -> void:
+func _absorb_shield_hit(bullet: PlayerProjectileScript) -> void:
 	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
 		return
 	tank_shield_hp = maxi(0, tank_shield_hp - bullet.damage)
@@ -215,8 +217,8 @@ func _on_shoot_timer_timeout():
 	Signalbus.shot_RG.emit(bullet)
 
 func _on_tank_shield_body_entered(body: Node2D) -> void:
-	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectile:
-		var projectile: PlayerProjectile = body as PlayerProjectile
+	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectileScript:
+		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
 		if projectile.weapon_mode != Modecontrol.MODE2:
 			_absorb_shield_hit(projectile)
 
