@@ -14,9 +14,9 @@ const DASH_DURATION: float = 0.5
 const DASH_COOLDOWN: float = 3.0
 const DASH_SPEED: float = 600.0
 const LASER_CHARGE_TIME: float = 1.25
-const LASER_HEAT_PER_SECOND: float = 1.2
-const LASER_COOL_PER_SECOND: float = 1.0
-const MODE1_CHARGE_TIME: float = 0.7
+const LASER_HEAT_PER_SECOND: float = 1.4
+const LASER_COOL_PER_SECOND: float = 0.3
+const MODE1_CHARGE_TIME: float = 1.3
 
 # Mobility Variables
 @export var acceleration: float = 1.5

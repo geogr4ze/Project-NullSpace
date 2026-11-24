@@ -1,27 +1,20 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1795466383
-README.md::TextFile::-1::1795466263::0::1::::<><><>0<>0<><>::
+::res://::1795481905
+README.md::TextFile::-1::1795468873::0::1::::<><><>0<>0<><>::
 ::res://addons/::1795466317
 ::res://addons/godot-git-plugin/::1795466317
 git_plugin.gdextension::GDExtension::6361054573682441426::1795466263::0::1::::<><><>0<>0<><>::
-::res://addons/godot-git-plugin/lib/::1795466370
-::res://addons/terminal/::1795466317
-plugin.cfg::TextFile::-1::1795466264::0::1::::<><><>0<>0<><>::
-plugin.gd::GDScript::7748497391051581654::1795466264::0::1::::<>EditorPlugin<><>0<>1<><>::
-terminal.gdextension::GDExtension::3112001656909876210::1795466264::0::1::::<><><>0<>0<><>::
+::res://addons/godot-git-plugin/lib/::1795481901
+::res://addons/terminal/::1795468321
 ::res://addons/terminal/internal/::1795466319
-::res://addons/terminal/internal/ui/::1795466319
-terminal_bottom_panel.gd::GDScript::2111456264129187076::1795466264::0::1::::<>VBoxContainer<><>0<>0<><>::
-terminal_settings_dialog.gd::GDScript::6406519321122267787::1795466264::0::1::::<>ConfirmationDialog<><>0<>0<><>::
-terminal_tab_bar.gd::GDScript::2463031336904490705::1795466264::0::1::::<>HBoxContainer<><>0<>0<><>::
-terminal_view.gd::GDScript::2430667527388332539::1795466264::0::1::::<>Control<><>0<>0<><>::
+::res://addons/terminal/internal/ui/::1795468321
 ::res://assets/::1795466317
-::res://assets/background/::1795466317
+::res://assets/background/::1795466401
 Space attack background v2.png::CompressedTexture2D::2049554747136648676::1795466264::1795466401::1::::<><><>0<>0<>316bba62757d17181ffc36bc89893286<>res://.godot/imported/Space attack background v2.png-5bec23aaf6ddf548388806c6f91be0d5.ctex::
-::res://assets/enemies/::1795466317
+::res://assets/enemies/::1795466404
 Enemy_basic.png::CompressedTexture2D::6959066846201110140::1795466264::1795466404::1::::<><><>0<>0<>6aee8fed7a1716c05e6d867a3c6c1560<>res://.godot/imported/Enemy_basic.png-818e5e604d9a95591f2f96b092823a05.ctex::
 Enemy_speed.png::CompressedTexture2D::4237251867455642768::1795466264::1795466404::1::::<><><>0<>0<>f80d6875c178aec7cc80ba0954fa8a1a<>res://.godot/imported/Enemy_speed.png-f1c3db77bf27c6263d0eb22b6678a8a1.ctex::
-::res://assets/enemies/abilities/::1795466318
+::res://assets/enemies/abilities/::1795466400
 Aoe_Support.png::CompressedTexture2D::980865715866253399::1795466264::1795466400::1::::<><><>0<>0<>9697d98831110c6f28c2bb168ea3c853<>res://.godot/imported/Aoe_Support.png-86170984cf595f663222f4baf7b74878.ctex::
 Mine (1).png::CompressedTexture2D::7284539619117652046::1795466264::1795466398::1::::<><><>0<>0<>99b96d7bbe660b2456f67cdbb1939d28<>res://.godot/imported/Mine (1).png-2f09d8eaef10caedc36d93efde7f7463.ctex::
 Mine (2).png::CompressedTexture2D::7449872683323439584::1795466264::1795466398::1::::<><><>0<>0<>c474fb67d66154b79e49fdeb0adef4b3<>res://.godot/imported/Mine (2).png-9424a631f4ca154bc55ac8274380b097.ctex::
@@ -29,13 +22,13 @@ Railgun_bullet.png::CompressedTexture2D::7246355852294333709::1795466264::179546
 Warning_1.png::CompressedTexture2D::2593573901405802368::1795466264::1795466397::1::::<><><>0<>0<>b02825418cdd0404b8b356710b4473a7<>res://.godot/imported/Warning_1.png-d5ebec61aa8818cfd150d47ced0ebe76.ctex::
 Warning_2.png::CompressedTexture2D::6598619716666220971::1795466264::1795466397::1::::<><><>0<>0<>73a6f0abeeb85c5756cf732a75a8b21f<>res://.godot/imported/Warning_2.png-1b85435748fa026f937a77ac1ed453be.ctex::
 Warning_3.png::CompressedTexture2D::7022353173315389261::1795466264::1795466397::1::::<><><>0<>0<>c1fdfda823e5546d9d2ee7f71ad4d6e6<>res://.godot/imported/Warning_3.png-a7c0fceee37cde0c5920bc28ac82f207.ctex::
-::res://assets/enemies/abilities/explosion/::1795466319
+::res://assets/enemies/abilities/explosion/::1795466403
 Void Explosion Skins-1.png.png::CompressedTexture2D::6683299134771849721::1795466264::1795466402::1::::<><><>0<>0<>4c6c88be78a6ad8e2a03f37b44fedb3f<>res://.godot/imported/Void Explosion Skins-1.png.png-bb4c8749003a74c25b6fb4a0472dea56.ctex::
 Void Explosion Skins-2.png.png::CompressedTexture2D::27009292554646357::1795466264::1795466402::1::::<><><>0<>0<>61602ea99db1a2eaecc79145b3f88a79<>res://.godot/imported/Void Explosion Skins-2.png.png-9ca4889e7a573ec42021936488668bdc.ctex::
 Void Explosion Skins-3.png.png::CompressedTexture2D::6726793847373851135::1795466264::1795466402::1::::<><><>0<>0<>84756e3322411e1b343a6b65990a0841<>res://.godot/imported/Void Explosion Skins-3.png.png-cee576d1ea26a653aa1733b575bff88c.ctex::
 Void Explosion Skins-4.png.png::CompressedTexture2D::371329092006422869::1795466264::1795466401::1::::<><><>0<>0<>4d60727514acf8aaadb747660070c3c1<>res://.godot/imported/Void Explosion Skins-4.png.png-14755cd732225f252c85194287b8374c.ctex::
 Void Explosion Skins-5.png.png::CompressedTexture2D::9190127723343140199::1795466264::1795466403::1::::<><><>0<>0<>29263341cb038081e1e484495096cee8<>res://.godot/imported/Void Explosion Skins-5.png.png-b518cc99384f87cbe51667f07bad8680.ctex::
-::res://assets/enemies/abilities/shield/::1795466319
+::res://assets/enemies/abilities/shield/::1795466400
 Tank Animation + Shield-4.png.png::CompressedTexture2D::108501254641158159::1795466264::1795466400::1::::<><><>0<>0<>3f99c8430c8feb12101298dc75b1c575<>res://.godot/imported/Tank Animation + Shield-4.png.png-ba22b104200c38e47776cf4cf0883f18.ctex::
 Tank Animation + Shield-5.png.png::CompressedTexture2D::6078925382281201998::1795466264::1795466400::1::::<><><>0<>0<>5fce388eb2e9ce253de828f4e0fda510<>res://.godot/imported/Tank Animation + Shield-5.png.png-29ba8b077aed0518baa818c1b74096cd.ctex::
 Tank Animation + Shield-6.png.png::CompressedTexture2D::6721381750454587112::1795466264::1795466400::1::::<><><>0<>0<>a4827b3aff5a0283b3fb81787d5e803c<>res://.godot/imported/Tank Animation + Shield-6.png.png-66a601f8d5d4f1b0fe48816ebef1596b.ctex::
@@ -45,7 +38,7 @@ Tank Animation + Shield-9.png.png::CompressedTexture2D::12733412748392893::17954
 Tank Animation + Shield-10.png.png::CompressedTexture2D::2228463481571892880::1795466264::1795466399::1::::<><><>0<>0<>cae110e6db5423755e578dda68da2680<>res://.godot/imported/Tank Animation + Shield-10.png.png-c3c5da15e60abe2fbc1e13befb23355b.ctex::
 Tank Animation + Shield-11.png.png::CompressedTexture2D::6400284202717221315::1795466264::1795466399::1::::<><><>0<>0<>6078a0bfa0380495476248c73deb9605<>res://.godot/imported/Tank Animation + Shield-11.png.png-eca96a1ed4dd58ebe0d0b4f5bb3adca2.ctex::
 Tank Animation + Shield-12.png.png::CompressedTexture2D::3873401723104086963::1795466264::1795466399::1::::<><><>0<>0<>b195a7146a0f5751ca505afa4cab28d7<>res://.godot/imported/Tank Animation + Shield-12.png.png-5ef13ff8b491765238982bf2aabd9517.ctex::
-::res://assets/enemies/mine_ship/::1795466318
+::res://assets/enemies/mine_ship/::1795466406
 MineShip (1).png::CompressedTexture2D::5965408921850917448::1795466264::1795466397::1::::<><><>0<>0<>4a73b36e6a8ec30183efa2683475a51a<>res://.godot/imported/MineShip (1).png-e157d78fe666c741d9515542d8a452b5.ctex::
 MineShip (2).png::CompressedTexture2D::6948530249023504018::1795466264::1795466397::1::::<><><>0<>0<>159f16b2f9c585e03c2fd076dfa62165<>res://.godot/imported/MineShip (2).png-2d5b02a1240e8d7ca6e73614c2bf83bd.ctex::
 MineShip (3).png::CompressedTexture2D::3198193344752209917::1795466264::1795466396::1::::<><><>0<>0<>8f09fb1c228f0f08a4290b8b1b16ca48<>res://.godot/imported/MineShip (3).png-b57b626f73044d25863f7bdaa82874e6.ctex::
@@ -55,11 +48,11 @@ MineShip (6).png::CompressedTexture2D::5139573811366099956::1795466264::17954663
 MineShip (7).png::CompressedTexture2D::7170654333233375250::1795466264::1795466396::1::::<><><>0<>0<>0f60fe713eca7aec2c1bc7814427c33a<>res://.godot/imported/MineShip (7).png-666c80cac63d19f5bb88be4b404c2aaa.ctex::
 MineShip (8).png::CompressedTexture2D::8822028490841089338::1795466264::1795466396::1::::<><><>0<>0<>11c3e4c50fdc716f0f9e50ad73bb5a04<>res://.godot/imported/MineShip (8).png-db2455bdd1d478e202dca270e4dd1415.ctex::
 MineShip (9).png::CompressedTexture2D::7672178987179127310::1795466264::1795466406::1::::<><><>0<>0<>377a7d62dbe382e71e215bbd439b4e87<>res://.godot/imported/MineShip (9).png-151fd521f6338a04ec30ad608af1710a.ctex::
-::res://assets/enemies/railgun/::1795466318
+::res://assets/enemies/railgun/::1795466406
 Railgun Animation-1.png.png::CompressedTexture2D::2637860994379689775::1795466264::1795466406::1::::<><><>0<>0<>567f51db83e3729339801303aedf852f<>res://.godot/imported/Railgun Animation-1.png.png-30a183b82725720830cc54a0d526c1f8.ctex::
 Railgun Animation-2.png.png::CompressedTexture2D::2006150033209983117::1795466264::1795466406::1::::<><><>0<>0<>a4b5684b55b22a24713a3ff7aa92f459<>res://.godot/imported/Railgun Animation-2.png.png-0633c13296267b33a65bdad7fd2eb25b.ctex::
 Railgun Animation-3.png.png::CompressedTexture2D::7065226605760589995::1795466264::1795466406::1::::<><><>0<>0<>a8c24dab67ce6fbd82eec2d6815321b8<>res://.godot/imported/Railgun Animation-3.png.png-65664756f9475970d090729d6fe645ef.ctex::
-::res://assets/enemies/support/::1795466318
+::res://assets/enemies/support/::1795466406
 Support Animation-1.png.png::CompressedTexture2D::824188352197657071::1795466264::1795466406::1::::<><><>0<>0<>c8134ce9cce2e4fc43bdd6f4c7763cc2<>res://.godot/imported/Support Animation-1.png.png-f04aed28b621ee9c431bfcf852898b92.ctex::
 Support Animation-2.png.png::CompressedTexture2D::2246772569009443730::1795466264::1795466406::1::::<><><>0<>0<>84c624bffd086b3a51aafed3a2cfdd5d<>res://.godot/imported/Support Animation-2.png.png-80d66e9b0ede354995a869fc72b7cfc8.ctex::
 Support Animation-3.png.png::CompressedTexture2D::6828817035103893709::1795466264::1795466406::1::::<><><>0<>0<>9d9a86297c17a4f670de546373c57550<>res://.godot/imported/Support Animation-3.png.png-87469a475eb0b6ceaf01d0367c160d28.ctex::
@@ -67,21 +60,21 @@ Support Animation-4.png.png::CompressedTexture2D::3783729348325127543::179546626
 Support Animation-5.png.png::CompressedTexture2D::453345919520458152::1795466264::1795466405::1::::<><><>0<>0<>908a7db619d36b276ecdafa1eca092bd<>res://.godot/imported/Support Animation-5.png.png-4477bd8b0982b9354b626f07ef2009b2.ctex::
 Support Animation-6.png.png::CompressedTexture2D::8330386784568980561::1795466264::1795466405::1::::<><><>0<>0<>0aba94fffe8bfb85a73bbc1143a6260a<>res://.godot/imported/Support Animation-6.png.png-fc420873348e9ec0c10ba0f9873f69fc.ctex::
 Support Animation-7.png.png::CompressedTexture2D::5954934695285458062::1795466264::1795466404::1::::<><><>0<>0<>1c611892959c71143c8b069e52b5f550<>res://.godot/imported/Support Animation-7.png.png-bb5fada7faf3c1e0263e613bd87512b8.ctex::
-::res://assets/enemies/tank/::1795466318
+::res://assets/enemies/tank/::1795466405
 Tank Animation + Shield-1.png.png::CompressedTexture2D::1028563425367470872::1795466264::1795466405::1::::<><><>0<>0<>1de14d68b833e86cc2dea44e3790b998<>res://.godot/imported/Tank Animation + Shield-1.png.png-659a026da917dfcf0f2d397e6f452ba7.ctex::
 Tank Animation + Shield-2.png.png::CompressedTexture2D::5205158074276649758::1795466264::1795466405::1::::<><><>0<>0<>2ffa2a28b20ab152e7ee34d9b628f123<>res://.godot/imported/Tank Animation + Shield-2.png.png-657f13237d3d5c1a91e28780737089e2.ctex::
 Tank Animation + Shield-3.png.png::CompressedTexture2D::1277850027898553030::1795466264::1795466405::1::::<><><>0<>0<>cd6214207cf7b4babe52a97d5687f500<>res://.godot/imported/Tank Animation + Shield-3.png.png-96faf0bc4f7d73d7e60ec8e2d40d80da.ctex::
-::res://assets/fonts/::1795466317
+::res://assets/fonts/::1795466386
 NotoSansBuhid-Regular.ttf::FontFile::3519131142145101820::1795466264::1795466386::1::::<><><>0<>0<>14a0b08ff32a4506f213943b0e9281f6<>res://.godot/imported/NotoSansBuhid-Regular.ttf-3275fe456bc263ef5f2b7077a2da4ddd.fontdata::
 SpaceGrotesk-VariableFont_wght.ttf::FontFile::2734667699648965864::1795466264::1795466386::1::::<><><>0<>0<>1f1dcb1c7676faff41d9995a09c8ba96<>res://.godot/imported/SpaceGrotesk-VariableFont_wght.ttf-855949c9e0951734ae651115ee6e6639.fontdata::
 ::res://assets/pickups/::1795466319
-::res://assets/pickups/energy/::1795466319
+::res://assets/pickups/energy/::1795466404
 Ammo-1.png.png::CompressedTexture2D::7843829261269776423::1795466264::1795466403::1::::<><><>0<>0<>655dc2a740c26d32b84649e12d52b94e<>res://.godot/imported/Ammo-1.png.png-439dba82a5dbf35aa50825bbfa35d20f.ctex::
 Ammo-2.png.png::CompressedTexture2D::942216794710860412::1795466264::1795466403::1::::<><><>0<>0<>6da9a44a3111551c326f849e4fae7c20<>res://.godot/imported/Ammo-2.png.png-ff11a9012f967ecc409b0b09f1b3528b.ctex::
 Ammo-3.png.png::CompressedTexture2D::1116393248801405126::1795466264::1795466403::1::::<><><>0<>0<>27db70864e8befc41491348593489163<>res://.godot/imported/Ammo-3.png.png-da4dd06866747fa1cb3ace14f269349f.ctex::
 Ammo-4.png.png::CompressedTexture2D::2753001185517772318::1795466264::1795466403::1::::<><><>0<>0<>f2b57801fe7520257f642055b1e47d60<>res://.godot/imported/Ammo-4.png.png-10fc59cf95f65fbdacd28847edb03160.ctex::
 Ammo-5.png.png::CompressedTexture2D::2229364836262683267::1795466264::1795466403::1::::<><><>0<>0<>b4c6f7c378fb0d77f68309aa0474b4ee<>res://.godot/imported/Ammo-5.png.png-a7e24a38c4f057d5d44613d39fe6e1c7.ctex::
-::res://assets/pickups/portal_animation/::1795466319
+::res://assets/pickups/portal_animation/::1795466404
 Portal Animation-1.png.png::CompressedTexture2D::5503244247359110190::1795466264::1795466403::1::::<><><>0<>0<>25164f7451cd20613e2d3b2d3357253a<>res://.godot/imported/Portal Animation-1.png.png-9b1a9444c96a5ceefcd73d0911035d12.ctex::
 Portal Animation-2.png.png::CompressedTexture2D::1854297950175599329::1795466264::1795466404::1::::<><><>0<>0<>bdc70a0840dc57fbf79c55394bc6f2c4<>res://.godot/imported/Portal Animation-2.png.png-42e7283e8935ee3485d782a2bfebd261.ctex::
 Portal Animation-3.png.png::CompressedTexture2D::8746562327814805834::1795466264::1795466403::1::::<><><>0<>0<>0272915aea02350825375a71e78916d2<>res://.godot/imported/Portal Animation-3.png.png-f6516d63ea356c7cab76374ef1fb3c27.ctex::
@@ -92,9 +85,9 @@ Portal Animation-7.png.png::CompressedTexture2D::287698766546866967::1795466265:
 Portal Animation-8.png.png::CompressedTexture2D::514413053222958000::1795466265::1795466403::1::::<><><>0<>0<>587fe8f37b0109f99fdf7e6d89a8a050<>res://.godot/imported/Portal Animation-8.png.png-20aceff8414bc4b6e6a2aaf4b5354664.ctex::
 Portal Animation-9.png.png::CompressedTexture2D::2292756731720682320::1795466265::1795466402::1::::<><><>0<>0<>79f0ee7920089ccd20ff6cb7ad5f18a5<>res://.godot/imported/Portal Animation-9.png.png-31d6fad36cf95f006d892ba7c1235261.ctex::
 Portal Animation-10.png.png::CompressedTexture2D::8794893271511850046::1795466264::1795466402::1::::<><><>0<>0<>96063ef605e12766a38aac54b28eb75a<>res://.godot/imported/Portal Animation-10.png.png-f21d26f304969708668894c5f5e66391.ctex::
-::res://assets/player/::1795466317
+::res://assets/player/::1795466392
 Player_mode0.png::CompressedTexture2D::6858593682838870629::1795466265::1795466392::1::::<><><>0<>0<>51d1f3ca7b53b69d2a33438f66d31469<>res://.godot/imported/Player_mode0.png-b44b64a58edab5e7497ca03df450dfca.ctex::
-::res://assets/player/mode1/::1795466319
+::res://assets/player/mode1/::1795466391
 Player Mode1 Animation-1.png.png::CompressedTexture2D::1301534520360308298::1795466265::1795466391::1::::<><><>0<>0<>a5f8e9c58a5691d24a3f7403856a9d6f<>res://.godot/imported/Player Mode1 Animation-1.png.png-43c215b7827b7db88f5aaa955fe83831.ctex::
 Player Mode1 Animation-2.png.png::CompressedTexture2D::7907583052774445555::1795466265::1795466391::1::::<><><>0<>0<>0ae3d7defeb3a76f4ba9940a33e960ac<>res://.godot/imported/Player Mode1 Animation-2.png.png-f59886549031c997ec8f85431c08cf5b.ctex::
 Player Mode1 Animation-3.png.png::CompressedTexture2D::5046248644450545016::1795466265::1795466390::1::::<><><>0<>0<>c0ce8f2062e72c06713723595eb7718f<>res://.godot/imported/Player Mode1 Animation-3.png.png-803af90a53d92ea9f9fbe92b2ef1e292.ctex::
@@ -106,7 +99,7 @@ Player Mode1 Animation-8.png.png::CompressedTexture2D::5027397174081941875::1795
 Player Mode1 Animation-9.png.png::CompressedTexture2D::4108769184067868921::1795466265::1795466390::1::::<><><>0<>0<>44de91b5912a6ec1804ae5d6fd808024<>res://.godot/imported/Player Mode1 Animation-9.png.png-36cef14099c03e5f23450a0efc046e68.ctex::
 Player Mode1 Animation-10.png.png::CompressedTexture2D::4410633042730384164::1795466265::1795466389::1::::<><><>0<>0<>8ca82c287e89e55b9720843233a60e85<>res://.godot/imported/Player Mode1 Animation-10.png.png-66e572f43cf58d6ac4d9cfbe55d2647b.ctex::
 Player Mode1 Animation-11.png.png::CompressedTexture2D::2242323352251789793::1795466265::1795466389::1::::<><><>0<>0<>d3398810e148fe6a3822ff0846ba3c19<>res://.godot/imported/Player Mode1 Animation-11.png.png-0224202e983fedbc915a17f31996f2f0.ctex::
-::res://assets/player/mode2/::1795466319
+::res://assets/player/mode2/::1795466389
 Player Mode2 Animation-1.png.png::CompressedTexture2D::2157243193837883466::1795466265::1795466389::1::::<><><>0<>0<>b00da09f169d6c9889e58f28e5a1a9a0<>res://.godot/imported/Player Mode2 Animation-1.png.png-be777d28246ecd7f5e5d9dd79870cb5a.ctex::
 Player Mode2 Animation-2.png.png::CompressedTexture2D::1403041039758749860::1795466265::1795466389::1::::<><><>0<>0<>b20d2b08ccf125d8de2afd8685de753a<>res://.godot/imported/Player Mode2 Animation-2.png.png-18f23d888af023d5e136757b192393d3.ctex::
 Player Mode2 Animation-2_2.png.png::CompressedTexture2D::4558498514660775896::1795466265::1795466389::1::::<><><>0<>0<>05f79d6e3ec1ed83d8a56f36baaa5ff0<>res://.godot/imported/Player Mode2 Animation-2_2.png.png-9bb0adb45da8ac2c6ce8b436fbe5f1f5.ctex::
@@ -125,7 +118,7 @@ Player Mode2 Animation-14.png.png::CompressedTexture2D::279897196423792905::1795
 Player Mode2 Animation-16.png.png::CompressedTexture2D::5725069571538873879::1795466265::1795466386::1::::<><><>0<>0<>81b9376bf386c59551277ada9142cc74<>res://.godot/imported/Player Mode2 Animation-16.png.png-c71216f35b1275553397c305ad50e5c8.ctex::
 Player Mode2 Animation-17.png.png::CompressedTexture2D::2876384851717355239::1795466265::1795466386::1::::<><><>0<>0<>f65329d9487ddfc22219b97f7919c017<>res://.godot/imported/Player Mode2 Animation-17.png.png-5a3d8b91cc7fe53e999b1c009395c430.ctex::
 ::res://assets/player/shield_animations/::1795466319
-::res://assets/player/shield_animations/default/::1795466319
+::res://assets/player/shield_animations/default/::1795466396
 Player Shield Skins-15.png.png::CompressedTexture2D::4225130773803747193::1795466265::1795466386::1::::<><><>0<>0<>563420385e3317b1d47a0af89371a330<>res://.godot/imported/Player Shield Skins-15.png.png-50700436c4cc8c93ee5a58211e547e6c.ctex::
 Player Shield Skins-16.png.png::CompressedTexture2D::1862955870903607951::1795466265::1795466396::1::::<><><>0<>0<>83a1a2b38063a2f41f899fc46f61ee05<>res://.godot/imported/Player Shield Skins-16.png.png-2d31e7a2d21c609ef135d05d5740701c.ctex::
 Player Shield Skins-17.png.png::CompressedTexture2D::4630953859284011359::1795466265::1795466395::1::::<><><>0<>0<>c930151c00929b22737ea767dd7a4c0d<>res://.godot/imported/Player Shield Skins-17.png.png-4af6d56bf5ff4b13131299bd4fc609da.ctex::
@@ -133,7 +126,7 @@ Player Shield Skins-18.png.png::CompressedTexture2D::1879573775248114738::179546
 Player Shield Skins-19.png.png::CompressedTexture2D::5220418697826476273::1795466265::1795466395::1::::<><><>0<>0<>9b70b2bb968eec267e31bbbad3be88b9<>res://.godot/imported/Player Shield Skins-19.png.png-b91f75b679ff4f984361489f6ff30225.ctex::
 Player Shield Skins-20.png.png::CompressedTexture2D::1771658354150283440::1795466265::1795466395::1::::<><><>0<>0<>b711124e67ac875b3672243cb3a6d1c9<>res://.godot/imported/Player Shield Skins-20.png.png-5de5a1d36451e36851533f19a6c8ff95.ctex::
 Player Shield Skins-21.png.png::CompressedTexture2D::2144872226857335706::1795466265::1795466395::1::::<><><>0<>0<>8824dd8f4dfff80169cee81a6f7c8c62<>res://.godot/imported/Player Shield Skins-21.png.png-c08f7dfd102c11016d72ef2a4e04b1d4.ctex::
-::res://assets/player/shield_animations/mode1/::1795466319
+::res://assets/player/shield_animations/mode1/::1795466395
 Player Shield Skins-8.png.png::CompressedTexture2D::6067141385395134133::1795466265::1795466395::1::::<><><>0<>0<>a2a95b1b14ae2e11848916586281f052<>res://.godot/imported/Player Shield Skins-8.png.png-75e8913882b0e685d7f612433e9cd472.ctex::
 Player Shield Skins-9.png.png::CompressedTexture2D::6167639020618504279::1795466265::1795466395::1::::<><><>0<>0<>152787359a6b1edfe4a162aea9083ce5<>res://.godot/imported/Player Shield Skins-9.png.png-9759a00f937cd90af0191acfc2d33666.ctex::
 Player Shield Skins-10.png.png::CompressedTexture2D::8805613305039838412::1795466265::1795466395::1::::<><><>0<>0<>d355192caac71351a843e421484988a2<>res://.godot/imported/Player Shield Skins-10.png.png-106d5a6af8ab09e5e42e7b5dfe31d04e.ctex::
@@ -141,7 +134,7 @@ Player Shield Skins-11.png.png::CompressedTexture2D::4598461309650718453::179546
 Player Shield Skins-12.png.png::CompressedTexture2D::7572222249796879047::1795466265::1795466394::1::::<><><>0<>0<>278b9a996fae250845254f29206119cd<>res://.godot/imported/Player Shield Skins-12.png.png-618afdd518552bed3a8e198784676ec4.ctex::
 Player Shield Skins-13.png.png::CompressedTexture2D::676252296424901742::1795466265::1795466394::1::::<><><>0<>0<>fdedd984a27e6dd5323cf5e369990210<>res://.godot/imported/Player Shield Skins-13.png.png-97bc69c7b1bb25c4e3fabcd6709e625f.ctex::
 Player Shield Skins-14.png.png::CompressedTexture2D::785021687744236629::1795466265::1795466394::1::::<><><>0<>0<>ab9401ecb2b9e6e92caa14e40687cec7<>res://.godot/imported/Player Shield Skins-14.png.png-09c97509c0f1d126ffa369f968a97f51.ctex::
-::res://assets/player/shield_animations/mode2/::1795466319
+::res://assets/player/shield_animations/mode2/::1795466394
 Player Shield Skins-1.png.png::CompressedTexture2D::5764794830056039056::1795466265::1795466394::1::::<><><>0<>0<>a849bfd319f7fc52dbd92d33d4bcdbe4<>res://.godot/imported/Player Shield Skins-1.png.png-0b08b4940c9e5e536d402222e93f1e6e.ctex::
 Player Shield Skins-2.png.png::CompressedTexture2D::4936009189083744558::1795466265::1795466393::1::::<><><>0<>0<>b3f15f5536cba517bb2f06e9fd3351d0<>res://.godot/imported/Player Shield Skins-2.png.png-b069a8b4df18642879aebb810b26a025.ctex::
 Player Shield Skins-3.png.png::CompressedTexture2D::3262208624740402218::1795466265::1795466393::1::::<><><>0<>0<>fe6e52d642cf94d87f9fdd2dbccab233<>res://.godot/imported/Player Shield Skins-3.png.png-c8907c6d3e81f95f235adab82d489e41.ctex::
@@ -149,25 +142,28 @@ Player Shield Skins-4.png.png::CompressedTexture2D::4858548437753242791::1795466
 Player Shield Skins-5.png.png::CompressedTexture2D::6090891893126447069::1795466265::1795466393::1::::<><><>0<>0<>b5ac1f81056c36c41420ba1d4dc62eaa<>res://.godot/imported/Player Shield Skins-5.png.png-4cfe69e841000888395b371618607393.ctex::
 Player Shield Skins-6.png.png::CompressedTexture2D::2000142474676709983::1795466265::1795466393::1::::<><><>0<>0<>8d8f2f31ac6077d5ac66d1562b8301b9<>res://.godot/imported/Player Shield Skins-6.png.png-10bf68a32e25c2b9e450de9f25ce0e39.ctex::
 Player Shield Skins-7.png.png::CompressedTexture2D::6903035257776789311::1795466265::1795466392::1::::<><><>0<>0<>851e4d817099ac10449b08dcf4c53e66<>res://.godot/imported/Player Shield Skins-7.png.png-f8addfc5e6ba472bf592f70afdd4bba8.ctex::
-::res://assets/projectiles/::1795466318
+::res://assets/projectiles/::1795466393
 Bullet default.png::CompressedTexture2D::6555513151178130844::1795466265::1795466393::1::::<><><>0<>0<>71f25313a1d883325abe09b74b494c15<>res://.godot/imported/Bullet default.png-1297f7e5fe0a06c5c5fe699791e6f717.ctex::
 Bullet wave.png::CompressedTexture2D::6473547925459808429::1795466265::1795466393::1::::<><><>0<>0<>da16a8ac7023d8e191d5726676a423a3<>res://.godot/imported/Bullet wave.png-63f9dd8955b9169e48f84c111dfa49ef.ctex::
 Laser.png::CompressedTexture2D::5051903988945114409::1795466265::1795466392::1::::<><><>0<>0<>13fa9d1376ea9fd81134468851b4708b<>res://.godot/imported/Laser.png-f1395926910b7de2f39ef75cc1d98e2e.ctex::
 ::res://assets/ui/::1795466319
-::res://assets/ui/buttons/::1795466319
+::res://assets/ui/buttons/::1795466391
 Play + autoplay + shop Skins-4.png.png::CompressedTexture2D::6416191451159348145::1795466265::1795466391::1::::<><><>0<>0<>efb944ca4fe29ae60334e953622c29ca<>res://.godot/imported/Play + autoplay + shop Skins-4.png.png-cdff34faba72c084479be368221af907.ctex::
 Play + autoplay Skins-1.png.png::CompressedTexture2D::1252516385944963390::1795466265::1795466391::1::::<><><>0<>0<>5155e51a13d28ff80d516b50ce51b282<>res://.godot/imported/Play + autoplay Skins-1.png.png-ee64dcf6674d53dbf1c415867e222e60.ctex::
 Play + autoplay Skins-2.png.png::CompressedTexture2D::8884722928890242682::1795466265::1795466391::1::::<><><>0<>0<>f2c2f74b302e952506cfbb2e02180a44<>res://.godot/imported/Play + autoplay Skins-2.png.png-338b9da8d23d17c0115d3b75daaad2e6.ctex::
 Play + autoplay Skins-3.png.png::CompressedTexture2D::3233981986504214436::1795466265::1795466391::1::::<><><>0<>0<>36b3833df3767e71c8482840a408d253<>res://.godot/imported/Play + autoplay Skins-3.png.png-24c072b2a5c02eded3c950301d6a8db8.ctex::
 Play + autoplay Skins-4.png.png::CompressedTexture2D::5441610060315563154::1795466265::1795466390::1::::<><><>0<>0<>b0285aa26a4e68b5e4d5dce126848f80<>res://.godot/imported/Play + autoplay Skins-4.png.png-a0adad93e1cc27d46db657be284ba28f.ctex::
-::res://assets/ui/shop/::1795466319
+::res://assets/ui/shop/::1795466393
 Shop menu-1.png.png::CompressedTexture2D::143326237168538128::1795466265::1795466391::1::::<><><>0<>0<>708ede08a319e660106bdc0267a1be68<>res://.godot/imported/Shop menu-1.png.png-b4daf0242881f448d40de5653be3bdf1.ctex::
 Shop menu-2.png.png::CompressedTexture2D::6059152036075124448::1795466265::1795466393::1::::<><><>0<>0<>83901e71396f67d477e6acc1a4a230fe<>res://.godot/imported/Shop menu-2.png.png-802a2e52501182149b53c5fc52c8f870.ctex::
 ::res://data/::1795466318
 ::res://data/waves/::1795466318
 waveinfo.txt::TextFile::-1::1795466265::0::1::::<><><>0<>0<><>::
-::res://docs/::1795466317
+::res://docs/::1795469070
+combat_test_plan.md::TextFile::-1::1795467879::0::1::::<><><>0<>0<><>::
 design_notes.txt::TextFile::-1::1795466265::0::1::::<><><>0<>0<><>::
+full_project_optimization_review.md::TextFile::-1::1795480824::0::1::::<><><>0<>0<><>::
+optimization_test_plan.md::TextFile::-1::1795469070::0::1::::<><><>0<>0<><>::
 ::res://docs/legacy/::1795466318
 ::res://resources/::1795466318
 ::res://resources/ui/::1795466318
@@ -176,33 +172,36 @@ hp_bar_theme.tres::Theme::4956578298606194555::1795466265::0::1::::<><><>0<>0<><
 loading_bar.tres::Theme::4872012208815980536::1795466265::0::1::::<><><>0<>0<><>::
 overheat_bar.tres::Theme::4659239504185705115::1795466265::0::1::::<><><>0<>0<><>::
 shield_bar_theme.tres::Theme::5798077260422548700::1795466265::0::1::::<><><>0<>0<><>::
-::res://scenes/::1795466317
-bullet.tscn::PackedScene::3030371180403070097::1795466265::0::1::::<><><>0<>0<><>::uid://hd4pj1wfn1vb::::res://scripts/bullet.gd<>uid://c0nslxp1811gi::::res://assets/projectiles/Bullet default.png<>uid://cd8gedojq00gr::::res://assets/projectiles/Laser.png<>uid://cyh3nhe8qtrqr::::res://assets/projectiles/Bullet wave.png
+::res://scenes/::1795481609
+bullet.tscn::PackedScene::3030371180403070097::1795467879::0::1::::<><><>0<>0<><>::uid://hd4pj1wfn1vb::::res://scripts/bullet.gd<>uid://c0nslxp1811gi::::res://assets/projectiles/Bullet default.png<>uid://cd8gedojq00gr::::res://assets/projectiles/Laser.png<>uid://cyh3nhe8qtrqr::::res://assets/projectiles/Bullet wave.png
 buttonnodes.tscn::PackedScene::1405585167087905640::1795466265::0::1::::<><><>0<>0<><>::uid://cj42p2p55doqk::::res://scripts/buttonnodes.gd<>uid://r3y05y81uj63::::res://assets/ui/buttons/Play + autoplay Skins-1.png.png<>uid://cjr7r1g2alvag::::res://assets/ui/buttons/Play + autoplay Skins-4.png.png<>uid://dyt3dam7agyv7::::res://assets/ui/buttons/Play + autoplay Skins-2.png.png<>uid://cxob0athx3gmr::::res://assets/ui/buttons/Play + autoplay + shop Skins-4.png.png
 enemy.tscn::PackedScene::6019763731524957902::1795466265::0::1::::<><><>0<>0<><>::uid://ds4aon3rw8rpv::::res://scripts/enemy.gd<>uid://c6fa2xijtjstw::::res://assets/enemies/Enemy_basic.png<>uid://dnkvm60fwlcma::::res://assets/enemies/mine_ship/MineShip (5).png<>uid://3t186vhshxbx::::res://assets/enemies/railgun/Railgun Animation-2.png.png<>uid://ccvaedgyc116f::::res://resources/ui/hp_bar_theme.tres<>uid://bdt2gkcmgwl8r::::res://assets/enemies/railgun/Railgun Animation-1.png.png<>uid://b1ms6itylw481::::res://assets/enemies/Enemy_speed.png<>uid://cfhwbaofqstsu::::res://assets/enemies/mine_ship/MineShip (6).png<>uid://c7wpiq7g86xd8::::res://assets/enemies/railgun/Railgun Animation-3.png.png<>uid://dafrvnm74vt3w::::res://assets/enemies/mine_ship/MineShip (7).png<>uid://dxxprxrbixyb7::::res://assets/enemies/mine_ship/MineShip (8).png<>uid://owij3qisfpto::::res://assets/enemies/tank/Tank Animation + Shield-1.png.png<>uid://dhkpwxb0nmgv3::::res://assets/enemies/mine_ship/MineShip (9).png<>uid://l0ii5tvvlg7p::::res://assets/enemies/support/Support Animation-1.png.png<>uid://cgfogtdxfa23k::::res://assets/enemies/tank/Tank Animation + Shield-2.png.png<>uid://7amaspb58qak::::res://assets/enemies/support/Support Animation-2.png.png<>uid://cq8xob4yic0xg::::res://assets/enemies/mine_ship/MineShip (1).png<>uid://shaad1i21acc::::res://assets/enemies/tank/Tank Animation + Shield-3.png.png<>uid://bc7l1voc2fb0s::::res://assets/enemies/abilities/Warning_1.png<>uid://c4j6vbn5iwwf2::::res://assets/enemies/support/Support Animation-3.png.png<>uid://c586jpm3xp13k::::res://assets/enemies/mine_ship/MineShip (2).png<>uid://c1aokj44tw540::::res://assets/enemies/abilities/Warning_2.png<>uid://blth1omfxgr46::::res://assets/enemies/mine_ship/MineShip (3).png<>uid://bt54p72qdxlt4::::res://assets/enemies/support/Support Animation-4.png.png<>uid://gpusnp2y8fky::::res://assets/enemies/support/Support Animation-5.png.png<>uid://dpbn1jgofjv10::::res://assets/enemies/mine_ship/MineShip (4).png<>uid://c7bxepgn4i5xx::::res://assets/enemies/abilities/Warning_3.png<>uid://dqxkiu1augakn::::res://assets/enemies/support/Support Animation-6.png.png<>uid://cq3u50qykd24q::::res://assets/enemies/support/Support Animation-7.png.png<>uid://n8eyktxy5v08::::res://assets/enemies/abilities/Aoe_Support.png<>uid://bss881um474n::::res://assets/enemies/abilities/shield/Tank Animation + Shield-4.png.png<>uid://csuxao6gflxva::::res://assets/enemies/abilities/shield/Tank Animation + Shield-5.png.png<>uid://c205f714f2hd5::::res://assets/enemies/abilities/shield/Tank Animation + Shield-6.png.png<>uid://bkfccl22dp0ew::::res://assets/enemies/abilities/shield/Tank Animation + Shield-7.png.png<>uid://c1n7lll4570pd::::res://assets/enemies/abilities/shield/Tank Animation + Shield-8.png.png<>uid://gfynmtbrbyr::::res://assets/enemies/abilities/shield/Tank Animation + Shield-9.png.png<>uid://60qp57wla3ui::::res://assets/enemies/abilities/shield/Tank Animation + Shield-10.png.png<>uid://cxgl0mb84swmt::::res://assets/enemies/abilities/shield/Tank Animation + Shield-11.png.png<>uid://bvgkmix374xbn::::res://assets/enemies/abilities/shield/Tank Animation + Shield-12.png.png
-enemy_bullet.tscn::PackedScene::8343711781233677352::1795466265::0::1::::<><><>0<>0<><>::uid://bx1tmgpvrwchl::::res://scripts/enemy_bullet.gd<>uid://dbigombojde34::::res://assets/enemies/abilities/Railgun_bullet.png
-enemy_mine.tscn::PackedScene::3466091915397572931::1795466265::0::1::::<><><>0<>0<><>::uid://dkftmcuf127kp::::res://scripts/enemy_mine.gd<>uid://db1xkksvu6myw::::res://assets/enemies/abilities/Mine (1).png<>uid://dee1kx0f5jfjs::::res://assets/enemies/abilities/Mine (2).png<>uid://c2ho7wd6pag7r::::res://assets/enemies/abilities/explosion/Void Explosion Skins-1.png.png<>uid://nc3sactlcw0::::res://assets/enemies/abilities/explosion/Void Explosion Skins-2.png.png<>uid://c23rkuryi5u5d::::res://assets/enemies/abilities/explosion/Void Explosion Skins-3.png.png<>uid://fj40axs7tvdd::::res://assets/enemies/abilities/explosion/Void Explosion Skins-4.png.png<>uid://d361ccn75eax0::::res://assets/enemies/abilities/explosion/Void Explosion Skins-5.png.png<>uid://ccvaedgyc116f::::res://resources/ui/hp_bar_theme.tres
+enemy_bullet.tscn::PackedScene::8343711781233677352::1795467879::0::1::::<><><>0<>0<><>::uid://bx1tmgpvrwchl::::res://scripts/enemy_bullet.gd<>uid://dbigombojde34::::res://assets/enemies/abilities/Railgun_bullet.png
+enemy_mine.tscn::PackedScene::3466091915397572931::1795480824::0::1::::<><><>0<>0<><>::uid://dkftmcuf127kp::::res://scripts/enemy_mine.gd<>uid://db1xkksvu6myw::::res://assets/enemies/abilities/Mine (1).png<>uid://dee1kx0f5jfjs::::res://assets/enemies/abilities/Mine (2).png<>uid://c2ho7wd6pag7r::::res://assets/enemies/abilities/explosion/Void Explosion Skins-1.png.png<>uid://nc3sactlcw0::::res://assets/enemies/abilities/explosion/Void Explosion Skins-2.png.png<>uid://c23rkuryi5u5d::::res://assets/enemies/abilities/explosion/Void Explosion Skins-3.png.png<>uid://fj40axs7tvdd::::res://assets/enemies/abilities/explosion/Void Explosion Skins-4.png.png<>uid://d361ccn75eax0::::res://assets/enemies/abilities/explosion/Void Explosion Skins-5.png.png<>uid://ccvaedgyc116f::::res://resources/ui/hp_bar_theme.tres
 energy.tscn::PackedScene::1098633150586957450::1795466265::0::1::::<><><>0<>0<><>::uid://bby0bxdmrrj0c::::res://scripts/energy.gd<>uid://606kv8u402yp::::res://assets/pickups/energy/Ammo-5.png.png<>uid://dj0uyss7fggpr::::res://assets/pickups/energy/Ammo-1.png.png<>uid://noof46umna5y::::res://assets/pickups/energy/Ammo-2.png.png<>uid://p513l01hfxny::::res://assets/pickups/energy/Ammo-3.png.png<>uid://bfhtr6tjj18ry::::res://assets/pickups/energy/Ammo-4.png.png
-main.tscn::PackedScene::1709781527265501505::1795466265::0::1::::<><><>0<>0<><>::uid://uoy2tj7b30uj::::res://scripts/main.gd<>uid://btufqd8r4aj6d::::res://scenes/player.tscn<>uid://bsfyfpt5smo58::::res://scenes/ui.tscn<>uid://4g24qsch3f7a::::res://assets/background/Space attack background v2.png
+main.tscn::PackedScene::1709781527265501505::1795481609::0::1::::<><><>0<>0<><>::uid://uoy2tj7b30uj::::res://scripts/main.gd<>uid://btufqd8r4aj6d::::res://scenes/player.tscn<>uid://bsfyfpt5smo58::::res://scenes/ui.tscn<>uid://4g24qsch3f7a::::res://assets/background/Space attack background v2.png
 player.tscn::PackedScene::3761628634922986101::1795466265::0::1::::<><><>0<>0<><>::uid://tclyrb4y7ton::::res://scripts/player.gd<>uid://c4ymbhre3xcxx::::res://assets/player/Player_mode0.png<>uid://bg8lvx3jolokd::::res://assets/player/mode2/Player Mode2 Animation-17.png.png<>uid://cntjcawwrkrfj::::res://assets/player/mode2/Player Mode2 Animation-16.png.png<>uid://5y8qle1nx81k::::res://assets/player/mode2/Player Mode2 Animation-1.png.png<>uid://t8v47mnd8aci::::res://assets/player/mode2/Player Mode2 Animation-2.png.png<>uid://dtr03ekcqyrel::::res://assets/player/mode2/Player Mode2 Animation-3.png.png<>uid://du0sj4gkavwh2::::res://assets/player/mode2/Player Mode2 Animation-4.png.png<>uid://l2ymg2fxd5q6::::res://assets/player/mode2/Player Mode2 Animation-5.png.png<>uid://b57f2mbknugge::::res://assets/player/mode2/Player Mode2 Animation-2_2.png.png<>uid://ssqc3nyc5lck::::res://assets/player/mode1/Player Mode1 Animation-1.png.png<>uid://dxn1khnxcbjhy::::res://assets/player/mode2/Player Mode2 Animation-6.png.png<>uid://ckiqe3ltamse4::::res://assets/player/mode2/Player Mode2 Animation-7.png.png<>uid://dkwq0cvlewvtj::::res://assets/player/mode1/Player Mode1 Animation-2.png.png<>uid://cd5o8ipxugnum::::res://assets/player/mode1/Player Mode1 Animation-3.png.png<>uid://dscttd2bvdymj::::res://assets/player/mode2/Player Mode2 Animation-8.png.png<>uid://bilrxj8innxt4::::res://assets/player/mode1/Player Mode1 Animation-4.png.png<>uid://bxo113rlydclc::::res://assets/player/mode2/Player Mode2 Animation-9.png.png<>uid://bqqqe2ocwelyf::::res://assets/player/mode1/Player Mode1 Animation-5.png.png<>uid://d1yhagl1w5tbf::::res://assets/player/mode2/Player Mode2 Animation-10.png.png<>uid://cduta2b8l6400::::res://assets/player/mode2/Player Mode2 Animation-11.png.png<>uid://bwuphwoy6ydtj::::res://assets/player/mode1/Player Mode1 Animation-6.png.png<>uid://b5s6s5fpagqxr::::res://assets/player/mode2/Player Mode2 Animation-12.png.png<>uid://bhiqaw7e6lhdp::::res://assets/player/mode1/Player Mode1 Animation-7.png.png<>uid://camo1vyecy8lx::::res://assets/player/mode2/Player Mode2 Animation-13.png.png<>uid://cdvkq5p61k70r::::res://assets/player/mode1/Player Mode1 Animation-8.png.png<>uid://bysk3fmd53kyb::::res://assets/player/mode1/Player Mode1 Animation-9.png.png<>uid://d8t4patt0ror::::res://assets/player/mode2/Player Mode2 Animation-14.png.png<>uid://b33sqm8fam2o3::::res://assets/player/mode1/Player Mode1 Animation-10.png.png<>uid://67g0dermyb66::::res://assets/player/mode1/Player Mode1 Animation-11.png.png<>uid://b7m7817woimtf::::res://resources/ui/overheat_bar.tres<>uid://jg0wht6m30m::::res://resources/ui/hp_bar_player.tres<>uid://couvqrc7xwyr1::::res://resources/ui/shield_bar_theme.tres<>uid://b1gxj0imxnko4::::res://assets/player/shield_animations/default/Player Shield Skins-15.png.png<>uid://1sou1libcjpn::::res://assets/player/shield_animations/default/Player Shield Skins-16.png.png<>uid://b68jesj745gjv::::res://assets/player/shield_animations/default/Player Shield Skins-17.png.png<>uid://11qknefpkste::::res://assets/player/shield_animations/default/Player Shield Skins-18.png.png<>uid://cgm2seoqpr7o4::::res://assets/player/shield_animations/default/Player Shield Skins-19.png.png<>uid://0ig7pd4cmcyy::::res://assets/player/shield_animations/default/Player Shield Skins-20.png.png<>uid://5s8y5owaxyfy::::res://assets/player/shield_animations/default/Player Shield Skins-21.png.png<>uid://cso76xvcokm7v::::res://assets/player/shield_animations/mode1/Player Shield Skins-8.png.png<>uid://ct4wd4juwwiv4::::res://assets/player/shield_animations/mode1/Player Shield Skins-9.png.png<>uid://dxprfukexuy73::::res://assets/player/shield_animations/mode1/Player Shield Skins-10.png.png<>uid://b6rr8ry34m1c0::::res://assets/player/shield_animations/mode1/Player Shield Skins-11.png.png<>uid://df5bnnvhwfb2f::::res://assets/player/shield_animations/mode1/Player Shield Skins-12.png.png<>uid://jvt1nwmgtwp7::::res://assets/player/shield_animations/mode1/Player Shield Skins-13.png.png<>uid://lgjgssgc3w3f::::res://assets/player/shield_animations/mode1/Player Shield Skins-14.png.png<>uid://coerlf4pke07m::::res://assets/player/shield_animations/mode2/Player Shield Skins-1.png.png<>uid://cclbl52v2qtny::::res://assets/player/shield_animations/mode2/Player Shield Skins-2.png.png<>uid://bmqidm7glv0fe::::res://assets/player/shield_animations/mode2/Player Shield Skins-3.png.png<>uid://cbhrt24mk0mcl::::res://assets/player/shield_animations/mode2/Player Shield Skins-4.png.png<>uid://cs1qdnei3lxon::::res://assets/player/shield_animations/mode2/Player Shield Skins-5.png.png<>uid://3q5b32r0pvit::::res://assets/player/shield_animations/mode2/Player Shield Skins-6.png.png<>uid://c5l48nmn0pfad::::res://assets/player/shield_animations/mode2/Player Shield Skins-7.png.png
-portal.tscn::PackedScene::8295820951651068570::1795466265::0::1::::<><><>0<>0<><>::uid://ckn2vm2hd32ek::::res://assets/pickups/portal_animation/Portal Animation-1.png.png<>uid://gcrhufjexowc::::res://scripts/portal.gd<>uid://1oias4tdwj3f::::res://assets/pickups/portal_animation/Portal Animation-2.png.png<>uid://dwu5ur24ydmba::::res://assets/pickups/portal_animation/Portal Animation-3.png.png<>uid://ctnpflrrdi3go::::res://assets/pickups/portal_animation/Portal Animation-4.png.png<>uid://dppw1pei8yonr::::res://assets/pickups/portal_animation/Portal Animation-5.png.png<>uid://d2rf3h0ntf5ik::::res://assets/pickups/portal_animation/Portal Animation-6.png.png<>uid://edmmej3ryhop::::res://assets/pickups/portal_animation/Portal Animation-7.png.png<>uid://hlgkp37f1lkq::::res://assets/pickups/portal_animation/Portal Animation-8.png.png<>uid://7wvmr4ofidm3::::res://assets/pickups/portal_animation/Portal Animation-9.png.png<>uid://dxkkuv7vy310e::::res://assets/pickups/portal_animation/Portal Animation-10.png.png
-shop.tscn::PackedScene::7605042131058665222::1795466265::0::1::::<><><>0<>0<><>::uid://blr4p07aanua4::::res://scripts/autoload/shopcontrol.gd<>uid://4g24qsch3f7a::::res://assets/background/Space attack background v2.png
+portal.tscn::PackedScene::8295820951651068570::1795480824::0::1::::<><><>0<>0<><>::uid://ckn2vm2hd32ek::::res://assets/pickups/portal_animation/Portal Animation-1.png.png<>uid://gcrhufjexowc::::res://scripts/portal.gd<>uid://1oias4tdwj3f::::res://assets/pickups/portal_animation/Portal Animation-2.png.png<>uid://dwu5ur24ydmba::::res://assets/pickups/portal_animation/Portal Animation-3.png.png<>uid://ctnpflrrdi3go::::res://assets/pickups/portal_animation/Portal Animation-4.png.png<>uid://dppw1pei8yonr::::res://assets/pickups/portal_animation/Portal Animation-5.png.png<>uid://d2rf3h0ntf5ik::::res://assets/pickups/portal_animation/Portal Animation-6.png.png<>uid://edmmej3ryhop::::res://assets/pickups/portal_animation/Portal Animation-7.png.png<>uid://hlgkp37f1lkq::::res://assets/pickups/portal_animation/Portal Animation-8.png.png<>uid://7wvmr4ofidm3::::res://assets/pickups/portal_animation/Portal Animation-9.png.png<>uid://dxkkuv7vy310e::::res://assets/pickups/portal_animation/Portal Animation-10.png.png
+shop.tscn::PackedScene::7605042131058665222::1795480824::0::1::::<><><>0<>0<><>::res://scripts/shop.gd<>uid://4g24qsch3f7a::::res://assets/background/Space attack background v2.png
 start_page.tscn::PackedScene::3094677895444697756::1795466265::0::1::::<><><>0<>0<><>::uid://u4ygxb3gx7ks::::res://scripts/start_page.gd<>uid://4g24qsch3f7a::::res://assets/background/Space attack background v2.png<>uid://cboblgvuot2cq::::res://resources/ui/loading_bar.tres<>uid://be7xtvtak0ppg::::res://assets/fonts/SpaceGrotesk-VariableFont_wght.ttf
 ui.tscn::PackedScene::3661608713333044181::1795466265::0::1::::<><><>0<>0<><>::uid://be7xtvtak0ppg::::res://assets/fonts/SpaceGrotesk-VariableFont_wght.ttf<>uid://c24pgg1slii6i::::res://scripts/ui.gd<>uid://ua41unhu7jc7::::res://scenes/buttonnodes.tscn
-::res://scripts/::1795466317
-bullet.gd::GDScript::499303132309075755::1795466265::0::1::::<>RigidBody2D<><>0<>0<><>::
-buttonnodes.gd::GDScript::5466075503415302618::1795466265::0::1::::<>Node2D<><>0<>0<><>::
-enemy.gd::GDScript::8482553919407482463::1795466265::0::1::::<>Area2D<><>0<>0<><>::
-enemy_bullet.gd::GDScript::4055613300652717601::1795466265::0::1::::<>RigidBody2D<><>0<>0<><>::
-enemy_mine.gd::GDScript::7872647564825156475::1795466265::0::1::::<>RigidBody2D<><>0<>0<><>::
-energy.gd::GDScript::2507675517281723344::1795466265::0::1::::<>RigidBody2D<><>0<>0<><>::
-main.gd::GDScript::1434184598882604357::1795466265::0::1::::<>Node2D<><>0<>0<><>::
-player.gd::GDScript::1338428426397619861::1795466265::0::1::::<>CharacterBody2D<><>0<>0<><>::
-portal.gd::GDScript::426307565376888062::1795466265::0::1::::<>Node2D<><>0<>0<><>::
-start_page.gd::GDScript::1465112961081214654::1795466265::0::1::::<>Node2D<><>0<>0<><>::
-ui.gd::GDScript::6728728926273614070::1795466265::0::1::::<>CanvasLayer<><>0<>0<><>::
-::res://scripts/autoload/::1795466318
-modecontrol.gd::GDScript::8628659188418040115::1795466265::0::1::::<>Node<><>0<>0<><>::
-shopcontrol.gd::GDScript::3195381327747303381::1795466265::0::1::::<>Node<><>0<>0<><>::
-signalbus.gd::GDScript::1161642828663347639::1795466265::0::1::::<>Node<><>0<>0<><>::
-wavecontrol.gd::GDScript::7402581845978872050::1795466265::0::1::::<>Node<><>0<>0<><>::
+::res://scripts/::1795481742
+bullet.gd::GDScript::499303132309075755::1795481609::0::1::::<>RigidBody2D<><>0<>0<><>::
+buttonnodes.gd::GDScript::5466075503415302618::1795480824::0::1::::<>Node2D<><>0<>0<><>::
+enemy.gd::GDScript::8482553919407482463::1795481609::0::1::::<>Area2D<><>0<>0<><>::
+enemy_bullet.gd::GDScript::4055613300652717601::1795481609::0::1::::<>RigidBody2D<><>0<>0<><>::
+enemy_mine.gd::GDScript::7872647564825156475::1795481609::0::1::::<>RigidBody2D<><>0<>0<><>::
+energy.gd::GDScript::2507675517281723344::1795481609::0::1::::<>RigidBody2D<><>0<>0<><>::
+main.gd::GDScript::1434184598882604357::1795481609::0::1::::<>Node2D<><>0<>0<><>::
+player.gd::GDScript::1338428426397619861::1795481609::0::1::::<>CharacterBody2D<><>0<>0<><>::
+portal.gd::GDScript::426307565376888062::1795480824::0::1::::<>Node2D<><>0<>0<><>::
+shop.gd::GDScript::4109721668005122980::1795480824::0::1::::<>Node2D<><>0<>0<><>::
+start_page.gd::GDScript::1465112961081214654::1795469655::0::1::::<>Node2D<><>0<>0<><>::
+ui.gd::GDScript::6728728926273614070::1795481609::0::1::::<>CanvasLayer<><>0<>0<><>::
+::res://scripts/autoload/::1795481753
+modecontrol.gd::GDScript::8628659188418040115::1795480824::0::1::::<>Node<><>0<>0<><>::
+shopcontrol.gd::GDScript::3195381327747303381::1795481599::0::1::::<>Node<><>0<>0<><>::
+signalbus.gd::GDScript::1161642828663347639::1795480824::0::1::::<>Node<><>0<>0<><>::
+wavecontrol.gd::GDScript::7402581845978872050::1795480824::0::1::::<>Node<><>0<>0<><>::
+::res://scripts/combat/::1795481609
+weapon_cooldown.gd::GDScript::9029017984058236001::1795481609::0::1::::<>RefCounted<><>0<>0<><>::
