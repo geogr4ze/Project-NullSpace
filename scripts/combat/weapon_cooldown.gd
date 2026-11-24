@@ -1,4 +1,3 @@
-class_name WeaponCooldown
 extends RefCounted
 
 # Standalone cooldown timer shared by the player's weapon modes.
