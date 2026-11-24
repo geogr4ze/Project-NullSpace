@@ -14,19 +14,21 @@ func _run() -> void:
 	Signalbus.game_over.connect(_on_game_over)
 	Signalbus.wave_complete.connect(_on_wave_complete)
 	_check(Wavecontrol.wave == 1 and Wavecontrol.total_enemy_count == 10, "first wave loads")
-	_check(Wavecontrol.enemy_per_round.size() == 6, "six typed counts")
+	_check(Wavecontrol.max_wave == 50 and Wavecontrol.enemy_per_round.size() == 1, "50 waves with sparse named rosters")
 	Wavecontrol.wave = Wavecontrol.max_wave - 1
 	Wavecontrol.new_enemy_totals()
 	Wavecontrol.wave_active = true
+	Wavecontrol.spawned_enemy_count = Wavecontrol.total_enemy_count
 	Wavecontrol.enemy_kc = Wavecontrol.total_enemy_count - 1
 	Wavecontrol.kill_count()
 	_check(completion_count == 1 and Wavecontrol.wave == Wavecontrol.max_wave, "next wave prepared before completion")
 	Wavecontrol.wave_active = true
+	Wavecontrol.spawned_enemy_count = Wavecontrol.total_enemy_count
 	Wavecontrol.enemy_kc = Wavecontrol.total_enemy_count - 1
 	Wavecontrol.kill_count()
 	Wavecontrol.kill_count()
 	_check(victory_count == 1 and completion_count == 1 and Wavecontrol.finished, "victory emitted once without extra wave")
-	_check(not Wavecontrol.can_start_wave(), "cannot start wave 26")
+	_check(not Wavecontrol.can_start_wave(), "cannot start wave 51")
 	Wavecontrol.reset_run()
 	_check(Wavecontrol.can_start_wave() and Wavecontrol.wave == 1, "restart clears wave state")
 	Shopcontrol.shopmoney = 100

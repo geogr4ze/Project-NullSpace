@@ -21,7 +21,7 @@ func _restore_energy_label() -> void:
 		update_energy(player.energy)
 
 func update_wave(wave: int) -> void:
-	wave_label.text = "Wave: " + str(wave)
+	wave_label.text = "Wave: %d / %d" % [wave, Wavecontrol.max_wave]
 	if wave_tween != null and wave_tween.is_valid():
 		wave_tween.kill()
 	wave_label.modulate.a = 0.0
