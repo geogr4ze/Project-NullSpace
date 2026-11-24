@@ -28,20 +28,20 @@ func _ready() -> void:
 	# Reuse the ship glow's cached sprite-color sampler, but keep the original
 	# bullet artwork and its collision untouched.
 	if weapon_mode == Modecontrol.DEFAULT or weapon_mode == Modecontrol.MODE1:
-		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.94
+		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.48
 		projectile_glow.match_sprite($Skin)
 		if weapon_mode == Modecontrol.DEFAULT:
 			projectile_glow.scale = Vector2(0.24, 0.42)
 			projectile_glow.position = Vector2.ZERO
 		else:
-			# Make the wave halo extend beyond the wave's existing silhouette
-			# instead of hiding inside it. The original sprite is unchanged.
-			projectile_glow.scale = Vector2(2.40, 1.55)
-			projectile_glow.position = Vector2(0, 43.0)
-			# Tint the particles to the wave's existing artwork and fade them
-			# in world-space, leaving a wake rather than an attached cloud.
+			# A restrained halo just beyond the original wave silhouette.
+			# Keep the artwork untouched and preserve the corrected z-index.
+			projectile_glow.scale = Vector2(1.95, 1.30)
+			projectile_glow.position = Vector2(0, 45.0)
+			# Match the wave sprite's sampled hue, but use restrained, narrow
+			# energy streaks rather than bright white glowing particle orbs.
 			var tint: Color = projectile_glow.self_modulate
-			wave_trail.color = Color(tint.r, tint.g, tint.b, 1.0)
+			wave_trail.color = Color.from_hsv(tint.h, 0.42, 0.86, 0.72)
 	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
 	if weapon_mode == Modecontrol.MODE1:
 		# Ensure freshly spawned wave shots start the particle system.
