@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://c0nslxp1811gi" path="res://assets/projectiles/Bullet default.png" id="2_4728c"]
 [ext_resource type="Texture2D" uid="uid://cd8gedojq00gr" path="res://assets/projectiles/Laser.png" id="3_ninqg"]
 [ext_resource type="Texture2D" uid="uid://cyh3nhe8qtrqr" path="res://assets/projectiles/Bullet wave.png" id="4_0jsfh"]
+[ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="10_projectile_glow"]
+
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_av2yl"]
 resource_name = "bullet"
@@ -42,8 +44,6 @@ animations = [{
 "name": &"wave",
 "speed": 5.0
 }]
-
-[ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="10_projectile_glow"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_projectile_fx"]
 blend_mode = 1
