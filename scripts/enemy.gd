@@ -144,13 +144,16 @@ func _on_body_entered(body: Node2D) -> void:
 		detect_player()
 	elif alive and body is PlayerProjectileScript:
 		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
-		if type == Wavecontrol.TANK and tank_shield_hp > 0 and projectile.weapon_mode != Modecontrol.MODE2:
+		if type == Wavecontrol.TANK and tank_shield_hp > 0:
 			_absorb_shield_hit(projectile)
 		elif projectile.register_hit(self):
 			_take_damage(projectile.damage)
 
 func _absorb_shield_hit(bullet: PlayerProjectileScript) -> void:
 	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
+		return
+	# Default and wave projectiles are blocked but do not damage the shield.
+	if bullet.weapon_mode != Modecontrol.MODE2:
 		return
 	tank_shield_hp = maxi(0, tank_shield_hp - bullet.damage)
 	if shield_flash != null and shield_flash.is_valid():
@@ -219,8 +222,7 @@ func _on_shoot_timer_timeout():
 func _on_tank_shield_body_entered(body: Node2D) -> void:
 	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body is PlayerProjectileScript:
 		var projectile: PlayerProjectileScript = body as PlayerProjectileScript
-		if projectile.weapon_mode != Modecontrol.MODE2:
-			_absorb_shield_hit(projectile)
+		_absorb_shield_hit(projectile)
 
 func _on_shield_regen_timeout():
 	tank_shield_hp = max_tank_shield_hp

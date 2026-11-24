@@ -7,9 +7,9 @@
 
 [sub_resource type="Curve2D" id="Curve2D_131mk"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 904, 0, 0, 0, 0, 0, 904, 0, 0, 0, 0, 0, 0)
+"points": PackedVector2Array(0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 904)
 }
-point_count = 5
+point_count = 2
 
 [node name="Main" type="Node2D" unique_id=1622911348]
 script = ExtResource("1_61y8c")
