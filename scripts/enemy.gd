@@ -107,13 +107,18 @@ func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		detect_player()
 	elif alive and body.has_method("register_hit"):
-		if type == Wavecontrol.TANK and tank_shield_hp > 0 and int(body.get("weapon_mode")) != Modecontrol.MODE2:
+		# While the tank shield is active, it blocks all projectile damage to
+		# the hull. Only the large laser (mode 3) reduces shield HP.
+		if type == Wavecontrol.TANK and tank_shield_hp > 0:
 			_absorb_shield_hit(body)
 		elif body.call("register_hit", self):
 			_take_damage(int(body.get("damage")))
 
 func _absorb_shield_hit(bullet: Node2D) -> void:
 	if !alive or tank_shield_hp <= 0 or !bullet.call("register_hit", self):
+		return
+	# Default and wave bullets hit the shield without weakening it.
+	if int(bullet.get("weapon_mode")) != Modecontrol.MODE2:
 		return
 	tank_shield_hp = maxi(0, tank_shield_hp - int(bullet.get("damage")))
 	$%Shield.self_modulate = Color(4.0, 4.0, 4.0, 0.3)
@@ -176,8 +181,7 @@ func _on_shoot_timer_timeout():
 
 func _on_tank_shield_body_entered(body: Node2D) -> void:
 	if type == Wavecontrol.TANK and tank_shield_hp > 0 and body.has_method("register_hit"):
-		if int(body.get("weapon_mode")) != Modecontrol.MODE2:
-			_absorb_shield_hit(body)
+		_absorb_shield_hit(body)
 
 func _on_shield_regen_timeout():
 	tank_shield_hp = max_tank_shield_hp
