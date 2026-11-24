@@ -54,6 +54,8 @@ func _run() -> void:
 		_check(trail.lifetime >= 0.42 and trail.lifetime <= 0.50 and
 			trail.amount >= 72 and trail.amount <= 84,
 			"Wave emits enough pixels to form a dispersed fading wake")
+		if trail.emission_shape != CPUParticles2D.EMISSION_SHAPE_RECTANGLE or trail.emission_rect_extents != Vector2(92, 26):
+			printerr("Wave emitter mode %d: shape=%s, extents=%s" % [mode, trail.emission_shape, trail.emission_rect_extents])
 		_check(trail.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE,
 			"Wave particles are born at random positions within a rectangle")
 		_check(trail.emission_rect_extents.x >= 90.0 and

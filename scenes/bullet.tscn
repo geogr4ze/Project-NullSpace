@@ -133,10 +133,7 @@ position = Vector2(0, 86)
 amount = 78
 lifetime = 0.46
 local_coords = false
-# Random emission throughout a wide 2D area, not a 6px-high single line.
 emission_shape = 3
-# Covers the wave tip-to-tip and gives pixels independent vertical positions
-# across a 52px-deep area behind the crescent.
 emission_rect_extents = Vector2(92, 26)
 direction = Vector2(0, 1)
 spread = 25.0
