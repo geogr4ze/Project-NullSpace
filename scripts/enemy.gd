@@ -42,6 +42,12 @@ const STEERING_ACCELERATION_MULTIPLIER: float = 5.0
 const STEERING_ACCELERATION_MINIMUM: float = 200.0
 const TANK_PURSUIT_WEIGHT: float = 0.70
 const TANK_SCREENING_DISTANCE: float = 150.0
+const RAILGUN_MIN_RANGE: float = 650.0
+const RAILGUN_ENTRY_SPEED: float = 110.0
+const RAILGUN_RETREAT_SPEED: float = 190.0
+const RAILGUN_SCREEN_MARGIN: float = 155.0
+var railgun_entered: bool = false
+var railgun_margin: float = RAILGUN_SCREEN_MARGIN
 
 var ai_elapsed: float = 0.0
 var decision_timer: float = 0.0
@@ -78,7 +84,6 @@ func _ready():
 		$%Shield.visible = true
 	if type == Wavecontrol.RAILGUN:
 		$RGShootTimer.wait_time = randf_range(15.0, 30.0)
-		$RGShootTimer.start()
 	if type == Wavecontrol.MINESHIP:
 		$MineTimer.wait_time = randf_range(5.0, 20.0)
 		$MineTimer.start()
@@ -101,6 +106,9 @@ func _ready():
 	if type == Wavecontrol.TANK or type == Wavecontrol.RAILGUN or type == Wavecontrol.MINESHIP:
 		ship_glow.scale = Vector2(1.65, 1.05)
 	$CollisionShape2D.shape = shapes[type]
+	if type == Wavecontrol.RAILGUN:
+		# Include every authored hull and warning frame plus the glow.
+		railgun_margin = _railgun_visual_margin()
 	if type != Wavecontrol.MINESHIP:
 		skin.play()
 	hpbar.self_modulate.a = 0
@@ -135,25 +143,36 @@ func _physics_process(delta: float) -> void:
 	# Even during the 0.5 s formation commitment, an enemy that overtakes its
 	# tank immediately returns to its own attack behavior.
 	var goal: Vector2 = _movement_goal()
+	var movement_speed: float = speed
+	if type == Wavecontrol.RAILGUN:
+		movement_speed = RAILGUN_ENTRY_SPEED
+		if railgun_entered and global_position.distance_to(player.global_position) < RAILGUN_MIN_RANGE:
+			movement_speed = RAILGUN_RETREAT_SPEED
 	var direction_to_goal: Vector2 = goal - global_position
 	var preferred_velocity: Vector2 = Vector2.ZERO
-	if direction_to_goal.length() > 12.0:
-		preferred_velocity = direction_to_goal.normalized() * speed
+	if direction_to_goal.length() > (0.5 if type == Wavecontrol.RAILGUN and not railgun_entered else 12.0):
+		preferred_velocity = direction_to_goal.normalized() * movement_speed
 		preferred_velocity *= clampf(direction_to_goal.length() / 65.0, 0.0, 1.0)
 	# ProjectileThreatManager supplies an evasive direction only when an
 	# existing bullet is predicted to intersect this enemy soon. Steering
 	# remains combined with normal AI movement and separation.
 	var desired_velocity: Vector2 = (
-		preferred_velocity + separation * speed * AVOIDANCE_WEIGHT
-		+ incoming_dodge * speed * PROJECTILE_DODGE_WEIGHT
-	).limit_length(speed)
+		preferred_velocity + separation * movement_speed * AVOIDANCE_WEIGHT
+		+ incoming_dodge * movement_speed * PROJECTILE_DODGE_WEIGHT
+	).limit_length(movement_speed)
 	# Steering acceleration prevents sudden sideways movement when an intercept
 	# point changes; turning and movement follow the same physics delta.
 	var acceleration: float = maxf(
-		STEERING_ACCELERATION_MINIMUM, speed * STEERING_ACCELERATION_MULTIPLIER
+		STEERING_ACCELERATION_MINIMUM, movement_speed * STEERING_ACCELERATION_MULTIPLIER
 	)
+	if type == Wavecontrol.RAILGUN and not railgun_entered:
+		# No dodge or separation can push the ship away from its entry point.
+		desired_velocity = preferred_velocity
 	motion_velocity = motion_velocity.move_toward(desired_velocity, acceleration * delta)
 	global_position += motion_velocity * delta
+
+	if type == Wavecontrol.RAILGUN:
+		_update_railgun_bounds()
 
 	# Speed ships point where they are actually flying, not straight toward
 	# the player's old position. Other ships preserve player-facing attacks.
@@ -259,6 +278,10 @@ func _update_ai_decision() -> void:
 				cover_commit_until = ai_elapsed + AI_COMMITMENT
 
 func _movement_goal() -> Vector2:
+	# Railgunners do not follow tanks into close-quarters combat.
+	if type == Wavecontrol.RAILGUN:
+		return TacticsScript.railgun_target(global_position, player.global_position,
+			_railgun_arena(), RAILGUN_MIN_RANGE, strafe_direction)
 	# Formation is prioritized only if the tank is currently *in front* of
 	# this enemy from the player's perspective. Enemies closer than the tank
 	# always pursue their normal role, even inside the commitment window.
@@ -304,10 +327,6 @@ func _movement_goal() -> Vector2:
 					TANK_PURSUIT_WEIGHT
 				)
 			return player.global_position
-		Wavecontrol.RAILGUN:
-			return TacticsScript.ranged_target(
-				global_position, player.global_position, 340.0, 535.0, strafe_direction
-			)
 		Wavecontrol.MINESHIP:
 			return TacticsScript.ranged_target(
 				global_position, player.global_position, 275.0, 435.0, strafe_direction
@@ -357,6 +376,8 @@ func detect_player() -> void:
 	contact_damage_active = false
 
 func warning_RG() -> void:
+	if not railgun_entered:
+		return
 	if $RGShootTimer.time_left <= 3.0:
 		if !warning_sign.visible:
 			warning_sign.visible = true
@@ -374,7 +395,8 @@ const MINE_SLOW_FACTOR: float = 0.59049
 
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
-		detect_player()
+		if type != Wavecontrol.RAILGUN:
+			detect_player()
 	elif body is PlayerProjectileScript:
 		intercept_projectile(body as PlayerProjectileScript)
 
@@ -459,7 +481,9 @@ func _on_mine_timer_timeout() -> void:
 	await recovery.finished
 	mine_attack_active = false
 
-func _on_shoot_timer_timeout():
+func _on_shoot_timer_timeout() -> void:
+	if not alive or not railgun_entered or not is_instance_valid(player):
+		return
 	var bullet: RigidBody2D = bullet_scene.instantiate() as RigidBody2D
 	# Lead the player's current velocity by estimated projectile travel time.
 	var travel_seconds: float = railgun_muzzle.global_position.distance_to(
@@ -487,3 +511,42 @@ func _on_shield_regen_timeout():
 func _on_area_entered(area: Area2D):
 	if area.name == "AoeS" and type != Wavecontrol.SUPPORT:
 		detect_support()
+
+func _railgun_visual_margin() -> float:
+	var margin: float = RAILGUN_SCREEN_MARGIN
+	for sprite: AnimatedSprite2D in [skin, warning_sign]:
+		for animation: StringName in [sprite.animation]:
+			for frame: int in sprite.sprite_frames.get_frame_count(animation):
+				var texture: Texture2D = sprite.sprite_frames.get_frame_texture(animation, frame)
+				if texture != null:
+					var radius: float = (texture.get_size() * sprite.scale).length() * 0.5
+					margin = maxf(margin, sprite.position.length() + radius + 8.0)
+	return margin
+
+func _railgun_arena() -> Rect2:
+	var canvas: Transform2D = get_canvas_transform()
+	var inverse: Transform2D = canvas.affine_inverse()
+	var view: Rect2 = get_viewport_rect()
+	var first: Vector2 = inverse * view.position
+	var last: Vector2 = inverse * view.end
+	var world: Rect2 = Rect2(first, last - first).abs()
+	var margin: float = minf(railgun_margin, minf(world.size.x, world.size.y) * 0.45)
+	return world.grow(-margin)
+
+func _update_railgun_bounds() -> void:
+	var arena: Rect2 = _railgun_arena()
+	var bounded: Vector2 = TacticsScript.clamp_to_arena(global_position, arena)
+	if not railgun_entered:
+		if global_position.distance_to(bounded) <= 1.0:
+			global_position = bounded
+			railgun_entered = true
+			motion_velocity = Vector2.ZERO
+			$RGShootTimer.start()
+		return
+	# Prevent inertia, avoidance and incoming projectile dodges from ever
+	# pushing a fully visible Railgun back beyond the safe firing rectangle.
+	if not is_equal_approx(bounded.x, global_position.x):
+		motion_velocity.x = 0.0
+	if not is_equal_approx(bounded.y, global_position.y):
+		motion_velocity.y = 0.0
+	global_position = bounded

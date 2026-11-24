@@ -2,6 +2,8 @@ extends RigidBody2D
 
 const PlayerShipScript = preload("res://scripts/player.gd")
 const PlayerProjectileScript = preload("res://scripts/bullet.gd")
+const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
+@onready var mine_glow: ShipGlowScript = $GlowHalo
 
 var health: int = 10
 var primed: bool = true
@@ -10,6 +12,7 @@ var hpvis_time: float = 0.0
 
 func _ready():
 	$Skin.play("default")
+	mine_glow.match_sprite($Skin)
 	hpbar = get_node("%Healthbar") as ProgressBar
 	hpbar.max_value = health
 	hpbar.value = health
@@ -29,6 +32,8 @@ func explosion() -> void:
 	if !primed:
 		return
 	primed = false
+	# Do not leave the small armed-mine glow on the explosion artwork.
+	mine_glow.hide()
 	$Node2D.visible = false
 	$%ExplisionCollision.set_deferred("disabled", false)
 	$%MineCollision.set_deferred("disabled", true)

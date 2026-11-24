@@ -118,6 +118,24 @@ func _run() -> void:
 	_check(retreat.x > 80.0, "Ranged enemies should retreat when too close")
 	var approach: Vector2 = Tactics.ranged_target(Vector2(900, 0), player, 250.0, 450.0, 1.0)
 	_check(approach.x < 900.0, "Ranged enemies should approach when too far away")
+	# Railguns hold a safe firing position and retreat inside the viewport.
+	var arena: Rect2 = Rect2(155, 155, 1390, 590)
+	var distant: Vector2 = Vector2(1450, 450)
+	_check(Tactics.railgun_target(distant, Vector2(400, 450), arena, 650.0, 1.0) == distant,
+		"Railgun holds its rear firing position instead of closing range")
+	var close_ship: Vector2 = Vector2(1000, 450)
+	var close_player: Vector2 = Vector2(800, 450)
+	var escape: Vector2 = Tactics.railgun_target(close_ship, close_player, arena, 650.0, 1.0)
+	_check(escape.distance_to(close_player) > close_ship.distance_to(close_player),
+		"Railgun retreats when the player approaches")
+	var edge_ship: Vector2 = Vector2(1545, 450)
+	var edge_player: Vector2 = Vector2(1400, 450)
+	var edge_escape: Vector2 = Tactics.railgun_target(edge_ship, edge_player, arena, 650.0, 1.0)
+	_check(edge_escape == Tactics.clamp_to_arena(edge_escape, arena) and
+		edge_escape.distance_to(edge_player) > edge_ship.distance_to(edge_player),
+		"Railgun retreats sideways at the boundary rather than leaving the screen")
+	var entry: Vector2 = Tactics.railgun_target(Vector2(1800, 450), close_player, arena, 650.0, 1.0)
+	_check(entry.is_equal_approx(Vector2(1545, 450)), "Railgun enters fully from the right before holding position")
 	if failures > 0:
 		push_error(str(failures) + " enemy tactics tests failed")
 	get_tree().quit(1 if failures > 0 else 0)

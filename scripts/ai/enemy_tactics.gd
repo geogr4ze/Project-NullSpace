@@ -264,3 +264,30 @@ static func speed_flank_target(
 		x_margin, viewport_size.x - x_margin
 	)
 	return Vector2(target_x, edge_y)
+
+# Long-range enemies enter the arena, then keep their distance rather than
+# chasing. Retreat along the best available direction, including sideways
+# along an edge when a direct escape would take them outside.
+static func clamp_to_arena(position: Vector2, arena: Rect2) -> Vector2:
+	return position.clamp(arena.position, arena.end)
+
+static func railgun_target(position: Vector2, player_position: Vector2,
+		arena: Rect2, minimum_range: float, strafe_side: float) -> Vector2:
+	var inside: Vector2 = clamp_to_arena(position, arena)
+	if not position.is_equal_approx(inside):
+		return inside
+	if position.distance_to(player_position) >= minimum_range:
+		return position
+	var away: Vector2 = (position - player_position).normalized()
+	if away.is_zero_approx():
+		away = Vector2.RIGHT
+	var best: Vector2 = position
+	var best_score: float = position.distance_to(player_position)
+	for i: int in 8:
+		var direction: Vector2 = away.rotated(float(i) * TAU / 8.0 * strafe_side)
+		var candidate: Vector2 = clamp_to_arena(position + direction * 240.0, arena)
+		var score: float = candidate.distance_to(player_position)
+		if score > best_score + 0.01:
+			best_score = score
+			best = candidate
+	return best
