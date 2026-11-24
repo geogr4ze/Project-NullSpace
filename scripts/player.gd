@@ -51,6 +51,7 @@ var shield_conf: bool = false
 
 @onready var player_skin: AnimatedSprite2D = $PlayerSkin
 @onready var ship_glow: ShipGlowScript = $GlowHalo
+@onready var laser_beam: Node2D = $LaserBeam
 @onready var shield_skin: AnimatedSprite2D = $ShieldSkin
 @onready var overheat_bar: ProgressBar = $%Overheatbar
 @onready var health_bar: ProgressBar = $%Healthbar
@@ -130,6 +131,9 @@ func _physics_process(delta: float) -> void:
 		elif Input.is_action_just_pressed("Fire"):
 			fire()
 	_update_laser_heat(delta)
+	# Render one steady beam at the muzzle; moving projectiles still do damage.
+	laser_beam.visible = (Modecontrol.mode == Modecontrol.MODE2
+		and firing_m2 and laser_fired_this_tick and !m2_kill)
 
 func _process(delta: float) -> void:
 	if death:
@@ -212,6 +216,7 @@ func hp_update(bar_type: int) -> void:
 		_shield_act()
 	if bar[0] <= 0 and !death:
 		death = true
+		laser_beam.visible = false
 		Signalbus.player_death.emit()
 
 func _on_healing_timer_timeout() -> void:
@@ -294,6 +299,7 @@ var m2_kill: bool = false
 var charge_time_m2: float = 0.0
 
 func _reset_laser_charge() -> void:
+	laser_beam.visible = false
 	firing_m2 = false
 	charge_time_m2 = 0.0
 	frameindex_m2 = 0

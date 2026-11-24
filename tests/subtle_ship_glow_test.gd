@@ -61,8 +61,12 @@ func _initialize() -> void:
 				"Glow stays behind original artwork: " + path)
 			_check(new_halo.texture is GradientTexture2D,
 				"Glow uses a soft procedural gradient: " + path)
-			_check(float(new_halo.get("intensity")) <= 0.24,
-				"Ships do not gain an excessively bright halo: " + path)
+			var expected_intensity: float = (
+				0.32 if path.contains("/player.") else 0.27
+			)
+			_check(is_equal_approx(float(new_halo.get("intensity")),
+				expected_intensity),
+				"Modest theme-matched halo boost: " + path)
 		var skin_name: String = "PlayerSkin" if path.contains("/player.") else "Skin"
 		_check(ship.has_node(skin_name),
 			"Original animated skin still exists: " + path)

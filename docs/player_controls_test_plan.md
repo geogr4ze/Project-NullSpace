@@ -24,7 +24,7 @@ screen-boundary clamping, dash cooldown and weapon firing rules remain.
 Old A/D steering and the Shift slow-turn binding are removed. Mouse aiming
 remains immediate with default and wave weapons. Holding Fire while the
 large laser is selected now limits angular turn speed: it decreases from
-90 degrees/second at the start of charge to 32 degrees/second when firing.
+72 degrees/second at the start of charge to 18 degrees/second when firing.
 Laser overheat, releasing Fire and changing modes restore immediate aiming.
 
 ## Speed enemy speed
