@@ -46,6 +46,24 @@ func _initialize() -> void:
 	_check((guard_goal - tank_position).dot(
 		player_position - tank_position) > 0.0,
 		"Protecting a support never makes a tank retreat from the player")
+	# Tanks do not dodge harmless shielded weapons, including while a
+	# previous laser dodge timer is running after switching weapon modes.
+	_check(!Tactics.can_evade_weapon(Wavecontrol.TANK, Modecontrol.DEFAULT),
+		"Tank ignores default fire")
+	_check(!Tactics.can_evade_weapon(Wavecontrol.TANK, Modecontrol.MODE1),
+		"Tank ignores wave fire")
+	_check(Tactics.can_evade_weapon(Wavecontrol.TANK, Modecontrol.MODE2),
+		"Tank evades the damaging laser")
+	for non_tank: int in [
+		Wavecontrol.BASIC, Wavecontrol.SPEED, Wavecontrol.SUPPORT,
+		Wavecontrol.RAILGUN, Wavecontrol.MINESHIP
+	]:
+		_check(Tactics.can_evade_weapon(non_tank, Modecontrol.DEFAULT),
+			"Non-tank enemies still evade default fire")
+		_check(Tactics.can_evade_weapon(non_tank, Modecontrol.MODE1),
+			"Non-tank enemies still evade wave fire")
+		_check(Tactics.can_evade_weapon(non_tank, Modecontrol.MODE2),
+			"Non-tank enemies still evade laser fire")
 	# Only enemies inside the player's forward firing lane try to dodge.
 	var center_dodge: Vector2 = Tactics.firing_lane_escape(
 		player, Vector2.RIGHT, Vector2(250, 0), 100.0, 950.0, 1.0

@@ -17,7 +17,8 @@ Enemy movement remains frame-rate independent; existing attack timers, projectil
 
 ## Shared rules
 
-- When the player holds Fire (including charging either special weapon), enemies within 100 px laterally of the ship's forward line and within 950 px ahead add sideways evasion steering. A 0.5-second memory also responds to single-tap shots. Evasion is strongest near the center of the firing corridor and drops to zero at its edges, so normal pursuit and formation behavior remain active.
+- When the player holds Fire (including charging either special weapon), non-tank enemies within 100 px laterally of the ship's forward line and within 950 px ahead add stronger sideways evasion steering (weight 2.3, previously 1.8). A 0.6-second memory (previously 0.5) also responds to single-tap shots. Evasion is strongest near the center of the firing corridor and drops to zero at its edges, so normal pursuit and formation behavior remain active.
+- Tanks only evade the **large laser (Mode 2 in code, mode 3 in the UI)**. They do not evade default or wave fire, which their active shields absorb harmlessly. Switching away from the laser cancels any remaining tank dodge memory.
 - Default and wave bullets are completely consumed by active tank shields. All shield-vs-hull projectile handling shares a single entry point, including a supplementary swept-hit ray for high-speed bullets.
 
 - A shared `EnemySquadManager` assigns tank/support pairs every 0.25 seconds. It pairs each support with **at most one tank**, and each tank with **at most one support**, favoring nearby combinations and preserving existing assignments when sensible.
@@ -50,6 +51,7 @@ godot --headless --path . --script res://tests/enemy_squad_manager_test.gd
 ## In-game checks
 
 - Hold Fire while facing an enemy: it should curve sideways out of the gun's forward corridor. Rotate away or stop firing: the enemy should resume its normal role. Check that enemies behind the player or far outside the lane do not dodge randomly.
+- Test a tank while firing each weapon: default and wave shots should not trigger evasive movement; the large laser should trigger lateral evasion while aimed at the tank. Switch from the laser to default immediately after releasing Fire: the tank should stop dodging harmless fire. Other enemy types should keep dodging all three weapons.
 - Fire a basic bullet and a charged wave at an active tank shield from multiple angles: both should disappear on contact, without damaging the tank or continuing to pierce through it. Confirm the tank shield only loses HP from the large laser. Test a fast-moving or rotating tank.
 - Speed enemies should move noticeably faster (+12.5% to base speed) while still turning smoothly and preserving their intercept behavior.
 

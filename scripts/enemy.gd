@@ -32,8 +32,8 @@ const SUPPORT_TARGET_DISTANCE: float = 420.0
 const AVOIDANCE_WEIGHT: float = 0.75
 const FIRING_LANE_HALF_WIDTH: float = 100.0
 const FIRING_LANE_RANGE: float = 950.0
-const FIRING_LANE_DODGE_WEIGHT: float = 1.8
-const FIRING_LANE_REACTION_TIME: float = 0.5
+const FIRING_LANE_DODGE_WEIGHT: float = 2.3
+const FIRING_LANE_REACTION_TIME: float = 0.6
 const TURN_RESPONSE_NEAR: float = 8.0
 const TURN_RESPONSE_FAR: float = 4.0
 const TURN_DISTANCE_REFERENCE: float = 750.0
@@ -126,10 +126,14 @@ func _physics_process(delta: float) -> void:
 	if direction_to_goal.length() > 12.0:
 		preferred_velocity = direction_to_goal.normalized() * speed
 		preferred_velocity *= clampf(direction_to_goal.length() / 65.0, 0.0, 1.0)
-	# React to the direction of the player's gun while Fire is held,
-	# including the charge-up of the two special weapons. A short memory
-	# lets ships finish their dodge after a single default shot.
-	if Input.is_action_pressed("Fire"):
+	# Tanks ignore default and wave fire: their shields already absorb those
+	# projectiles. All other enemies evade every weapon, while tanks only
+	# evade the large laser (including its charge-up). Clear a tank's dodge
+	# memory immediately when the player switches away from the laser.
+	var can_evade_weapon: bool = TacticsScript.can_evade_weapon(type, Modecontrol.mode)
+	if !can_evade_weapon:
+		firing_lane_dodge_time = 0.0
+	elif Input.is_action_pressed("Fire"):
 		firing_lane_dodge_time = FIRING_LANE_REACTION_TIME
 	else:
 		firing_lane_dodge_time = maxf(0.0, firing_lane_dodge_time - delta)
