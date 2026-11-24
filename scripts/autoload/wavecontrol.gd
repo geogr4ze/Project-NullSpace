@@ -4,11 +4,12 @@ var test_enable: bool = false # Enable explicitly to run the test wave.
 var test_random: bool = true
 var selection_T: int = 5
 var test_SN: int = 20
-const ENEMY_TYPE_COUNT: int = 6
+const WaveLoader = preload("res://scripts/waves/wave_loader.gd")
+const WaveSpawner = preload("res://scripts/waves/wave_spawner.gd")
 
 #Wave System
 var wave: int = 1
-var max_wave: int = 25
+const max_wave: int = 50
 var spawnrate: float = 0.01 # in seconds
 # Enemy types must be declared before the initial value.
 enum {BASIC = 0, SPEED, SUPPORT, TANK, RAILGUN, MINESHIP}
@@ -17,12 +18,12 @@ var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 # Enemy dictionary: speed, score, reward, health, and animation.
 var enemies: Dictionary = {
-	BASIC: {"enemy_speed": 0.45, "score": 1, "reward": 1, "health": 3, "enemy_skin": "basic"}, 
-	SPEED: {"enemy_speed": 1.8, "speed_multiplier": 1.5, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
-	SUPPORT: {"enemy_speed": 0.1, "score": 4, "reward": 10, "health": 20, "enemy_skin": "support"},
-	TANK: {"enemy_speed": 0.2, "score": 8, "reward": 30, "health": 75, "enemy_skin": "tank"},
-	RAILGUN: {"enemy_speed": 0.05, "score": 20, "reward": 40, "health": 100, "enemy_skin": "railgun"},
-	MINESHIP: {"enemy_speed": 0.1, "score": 25, "reward": 35, "health": 50, "enemy_skin": "mineship"}
+	BASIC: {"id": "basic", "threat": 1, "enemy_speed": 0.45, "score": 1, "reward": 1, "health": 3, "enemy_skin": "basic"}, 
+	SPEED: {"id": "speed", "threat": 2, "enemy_speed": 1.8, "speed_multiplier": 1.5, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
+	SUPPORT: {"id": "support", "threat": 4, "enemy_speed": 0.1, "score": 4, "reward": 10, "health": 20, "enemy_skin": "support"},
+	TANK: {"id": "tank", "threat": 7, "enemy_speed": 0.2, "score": 8, "reward": 30, "health": 75, "enemy_skin": "tank"},
+	RAILGUN: {"id": "railgun", "threat": 9, "enemy_speed": 0.05, "score": 20, "reward": 40, "health": 100, "enemy_skin": "railgun"},
+	MINESHIP: {"id": "mineship", "threat": 6, "enemy_speed": 0.1, "score": 25, "reward": 35, "health": 50, "enemy_skin": "mineship"}
 }
  
 func set_type(type_number: int):
@@ -30,9 +31,13 @@ func set_type(type_number: int):
 
 var total_enemy_count: int
 var enemy_kc: int = 0
-var wave_file_path: String = "res://data/waves/waveinfo.txt"
-# Number of enemies meant to spawn that round
-var enemy_per_round: Array[int] = []
+const WAVE_FILE_PATH: String = "res://data/waves/waves.json"
+var campaign: Array[Dictionary] = []
+# Remaining counts keyed by registered enemy type, not fixed columns.
+var enemy_per_round: Dictionary = {}
+var max_alive: int = 0
+var spawned_enemy_count: int = 0
+var wave_threat: int = 0
 var selection: int
 var spawn_in_progress: bool = false
 var wave_active: bool = false
@@ -58,6 +63,7 @@ func stop_run() -> void:
 
 func _ready():
 	rng.randomize()
+	campaign = WaveLoader.load_campaign(WAVE_FILE_PATH, enemies, max_wave)
 	new_enemy_totals()
 	Signalbus.kc_point.connect(kill_count)
 	# Test spawning is started by Main after its signal handlers are connected.
@@ -67,37 +73,28 @@ func _ready():
 # Collects total number of enemies that are meant to spawn
 func new_enemy_totals() -> void:
 	total_enemy_count = 0
-	enemy_per_round.resize(ENEMY_TYPE_COUNT)
-	enemy_per_round.fill(0)
-	var file: FileAccess = FileAccess.open(wave_file_path, FileAccess.READ)
-	if file == null:
-		push_error("Could not open wave data: " + wave_file_path)
+	spawned_enemy_count = 0
+	max_alive = 0
+	wave_threat = 0
+	enemy_per_round.clear()
+	if wave < 1 or wave > campaign.size():
 		return
-	for i: int in range(wave - 1):
-		if file.eof_reached():
-			push_error("Wave data is missing wave " + str(wave))
-			return
-		file.get_line()
-	var counts: PackedStringArray = file.get_line().strip_edges().split(",")
-	if counts.size() != ENEMY_TYPE_COUNT:
-		push_error("Invalid enemy counts for wave " + str(wave))
-		return
-	for i: int in ENEMY_TYPE_COUNT:
-		if not counts[i].strip_edges().is_valid_int() or counts[i].to_int() < 0:
-			push_error("Invalid enemy count for wave " + str(wave))
-			enemy_per_round.fill(0)
-			total_enemy_count = 0
-			return
-		enemy_per_round[i] = counts[i].to_int()
-		total_enemy_count += enemy_per_round[i]
+	var definition: Dictionary = campaign[wave - 1]
+	enemy_per_round = definition["counts"].duplicate()
+	total_enemy_count = definition["total"]
+	wave_threat = definition["threat"]
+	spawnrate = definition["spawn_interval"]
+	max_alive = definition["max_alive"]
 
 func kill_count() -> void:
-	if test_enable or finished or not wave_active:
+	if test_enable or finished or not wave_active or enemy_kc >= spawned_enemy_count:
 		return
 	enemy_kc += 1
 	if enemy_kc < total_enemy_count:
 		return
 	var completed_wave: int = wave
+	spawn_generation += 1
+	spawn_in_progress = false
 	wave_active = false
 	enemy_kc = 0
 	wave += 1
@@ -111,20 +108,14 @@ func kill_count() -> void:
 
 # Choose only from enemy types that still have spawns remaining.
 func get_enemy() -> int:
-	return rng.randi_range(0, ENEMY_TYPE_COUNT - 1)
+	var types: Array = enemies.keys()
+	return int(types[rng.randi_range(0, types.size() - 1)])
 
 func get_next_wave_enemy() -> int:
-	var remaining: int = 0
-	for i: int in ENEMY_TYPE_COUNT:
-		remaining += enemy_per_round[i]
-	if remaining <= 0:
-		return -1
-	var roll: int = rng.randi_range(0, remaining - 1)
-	for i: int in ENEMY_TYPE_COUNT:
-		roll -= enemy_per_round[i]
-		if roll < 0:
-			return i
-	return -1
+	return WaveSpawner.choose_enemy(enemy_per_round, rng)
+
+func has_spawn_capacity() -> bool:
+	return WaveSpawner.has_capacity(spawned_enemy_count, enemy_kc, max_alive)
 
 func can_start_wave() -> bool:
 	return not finished and not test_enable and not wave_active and not spawn_in_progress and wave <= max_wave and total_enemy_count > 0
@@ -136,16 +127,22 @@ func spawn_enemy() -> void:
 	spawn_in_progress = true
 	spawn_generation += 1
 	var generation: int = spawn_generation
-	var count: int = total_enemy_count
 	Signalbus.next_wave.emit()
-	for i: int in count:
+	while generation == spawn_generation and wave_active and not finished and spawned_enemy_count < total_enemy_count:
 		await get_tree().create_timer(spawnrate, false).timeout
-		if generation != spawn_generation or finished:
+		if generation != spawn_generation or finished or not wave_active:
 			return
+		if not has_spawn_capacity():
+			continue
 		var enemy_type: int = get_next_wave_enemy()
 		if enemy_type < 0:
+			push_error("Wave roster exhausted before expected spawn count")
 			break
 		enemy_per_round[enemy_type] -= 1
+		spawned_enemy_count += 1
+		# Mark the final spawn before emitting, in case a listener defeats it immediately.
+		if spawned_enemy_count == total_enemy_count:
+			spawn_in_progress = false
 		Signalbus.new_enemy.emit(enemy_type)
 	if generation == spawn_generation:
 		spawn_in_progress = false
