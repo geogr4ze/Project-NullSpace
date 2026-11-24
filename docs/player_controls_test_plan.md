@@ -8,7 +8,7 @@ together, so attacks use the same mouse-aimed heading.
 
 | Input | Action |
 |---|---|
-| Move mouse | Aim the nose of the ship toward the cursor, immediately |
+| Move mouse | Aim toward the cursor (slower while charging or firing the laser) |
 | W | Move forward in the direction the ship is facing |
 | S | Move backward, away from its nose |
 | A | Strafe left perpendicular to the ship's nose |
@@ -21,9 +21,11 @@ WASD may be combined diagonally, but its input is normalized so diagonals do
 not exceed the configured `max_speed`. Existing movement acceleration,
 screen-boundary clamping, dash cooldown and weapon firing rules remain.
 
-Old A/D steering and the Shift slow-turn binding are removed. Weapon charge and
-overheat no longer modify the former keyboard turn speed; cursor aiming stays
-responsive regardless of weapon mode.
+Old A/D steering and the Shift slow-turn binding are removed. Mouse aiming
+remains immediate with default and wave weapons. Holding Fire while the
+large laser is selected now limits angular turn speed: it decreases from
+90 degrees/second at the start of charge to 32 degrees/second when firing.
+Laser overheat, releasing Fire and changing modes restore immediate aiming.
 
 ## Speed enemy speed
 
@@ -54,8 +56,9 @@ input bindings and retention of Fire/Dash.
 3. Hold W+A, W+D, S+A and S+D: diagonal movement should not be faster than W.
 4. Fire all three weapon modes while moving and strafing: bullets should
    launch toward the cursor using the existing muzzle position.
-5. Charge the wave and laser: aiming should still respond immediately to
-   cursor movement, even during overheat/cooldown.
+5. Charge the wave: aiming responds immediately. Charge and fire the laser:
+   aiming slows progressively to prevent instant screen-wide sweeps. Test
+   immediate recovery after releasing Fire and during overheat.
 6. Hold E dash while changing aim: the dash stays forward in the aim direction;
    confirm cooldown, energy drain and wall boundaries remain unchanged.
 7. Check enemy bullets, mines, tank shield blocking and predictive projectile

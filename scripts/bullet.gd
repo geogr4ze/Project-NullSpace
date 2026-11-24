@@ -17,6 +17,15 @@ func _ready() -> void:
 	var mode_data: Dictionary = Modecontrol.modes[weapon_mode]
 	$Skin.animation = mode_data["bullet_skin"]
 	pierce = mode_data["pierce"]
+	# The laser has a straight luminous core instead of a textured moving
+	# sprite. Blue particles add motion without wobbling the damaging beam.
+	# Neither visual changes the authored projectile collision shape.
+	var show_beam: bool = weapon_mode == Modecontrol.MODE2
+	$Skin.visible = !show_beam
+	$LaserOuterGlow.visible = show_beam
+	$LaserBlueBand.visible = show_beam
+	$LaserWhiteCore.visible = show_beam
+	$LaserBlueSparks.emitting = show_beam
 	var authored_shape: CollisionShape2D
 	if weapon_mode == Modecontrol.DEFAULT:
 		authored_shape = $BulletCollision
