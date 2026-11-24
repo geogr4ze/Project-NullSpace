@@ -56,6 +56,13 @@ var strafe_direction: float = 1.0
 var motion_velocity: Vector2 = Vector2.ZERO
 var firing_lane_dodge_time: float = 0.0
 
+# Controlled by EnemySquadManager when five or more Speed enemies are visible.
+# State 0: individual intercept, 1: move to assigned edge, 2: pincer strike.
+var flank_state: int = 0
+var flank_side: int = 0
+var flank_lane: int = 0
+var flank_group_size: int = 1
+
 func configure_enemy(enemy_type: int) -> void:
 	type = enemy_type
 
@@ -264,6 +271,17 @@ func _movement_goal() -> Vector2:
 	if type != Wavecontrol.TANK and _tank_in_front(cover_tank):
 		return TacticsScript.formation_target(
 			player.global_position, cover_tank.global_position, cover_lane
+		)
+
+	# Group staging overrides the ordinary Speed intercept, but the tank
+	# cover rule above still wins when a protected tank is in front.
+	if type == Wavecontrol.SPEED and flank_state == 1 and flank_side != 0:
+		return TacticsScript.speed_flank_target(
+			player.global_position,
+			get_viewport().get_visible_rect().size,
+			flank_side,
+			flank_lane,
+			flank_group_size
 		)
 
 	match type:

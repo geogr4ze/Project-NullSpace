@@ -167,3 +167,65 @@ static func firing_lane_escape(
 # roles continue to respond to all player weapons.
 static func can_evade_weapon(enemy_type: int, player_weapon_mode: int) -> bool:
 	return enemy_type != Wavecontrol.TANK or player_weapon_mode == Modecontrol.MODE2
+
+# An Object can be queued/freed while a tank still holds a reference to it.
+# Check validity before accessing or casting it.
+static func valid_object_id(candidate: Variant) -> int:
+	if !is_instance_valid(candidate):
+		return 0
+	return candidate.get_instance_id()
+
+# Keep surviving flank assignments stable while distributing newly visible
+# speed enemies across two balanced sides. A group never grows more than one
+# ship larger than the other.
+static func assign_speed_flanks(
+		speed_ids: Array[int],
+		previous_sides: Dictionary
+	) -> Dictionary:
+	var sorted_ids: Array[int] = speed_ids.duplicate()
+	sorted_ids.sort()
+	var capacity: int = ceili(float(sorted_ids.size()) * 0.5)
+	var assignments: Dictionary = {}
+	var left_count: int = 0
+	var right_count: int = 0
+	for ship_id: int in sorted_ids:
+		var old_side: int = int(previous_sides.get(ship_id, 0))
+		if old_side == -1 and left_count < capacity:
+			assignments[ship_id] = -1
+			left_count += 1
+		elif old_side == 1 and right_count < capacity:
+			assignments[ship_id] = 1
+			right_count += 1
+	for ship_id: int in sorted_ids:
+		if assignments.has(ship_id):
+			continue
+		var side: int = -1 if left_count <= right_count else 1
+		assignments[ship_id] = side
+		if side < 0:
+			left_count += 1
+		else:
+			right_count += 1
+	return assignments
+
+# Staging targets keep the flanks near opposite horizontal screen edges while
+# spreading members into separate lanes. They approach from above/below the
+# player's y-position before both groups turn toward the player.
+static func speed_flank_target(
+		player_position: Vector2,
+		viewport_size: Vector2,
+		side: int,
+		lane_index: int,
+		lane_count: int
+	) -> Vector2:
+	var edge_margin: float = minf(85.0, viewport_size.x * 0.15)
+	var y_margin: float = minf(85.0, viewport_size.y * 0.15)
+	var edge_x: float = edge_margin if side < 0 else viewport_size.x - edge_margin
+	var y_offset: float = -190.0 if side < 0 else 190.0
+	var lane_offset: float = (
+		float(lane_index) - float(maxi(lane_count, 1) - 1) * 0.5
+	) * 70.0
+	var target_y: float = clampf(
+		player_position.y + y_offset + lane_offset,
+		y_margin, viewport_size.y - y_margin
+	)
+	return Vector2(edge_x, target_y)
