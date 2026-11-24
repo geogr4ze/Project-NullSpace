@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cr1avnkq2ad15"]
 
 [ext_resource type="Script" uid="uid://ds4aon3rw8rpv" path="res://scripts/enemy.gd" id="1_eyyi7"]
+[ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="50_glow"]
 [ext_resource type="Texture2D" uid="uid://c6fa2xijtjstw" path="res://assets/enemies/Enemy_basic.png" id="2_wsd4a"]
 [ext_resource type="Texture2D" uid="uid://dnkvm60fwlcma" path="res://assets/enemies/mine_ship/MineShip (5).png" id="3_07pct"]
 [ext_resource type="Texture2D" uid="uid://3t186vhshxbx" path="res://assets/enemies/railgun/Railgun Animation-2.png.png" id="3_mukef"]
@@ -309,6 +310,18 @@ animations = [{
 "speed": 16.0
 }]
 
+[sub_resource type="Gradient" id="Gradient_ship_halo"]
+offsets = PackedFloat32Array(0, 0.42, 1)
+colors = PackedColorArray(1, 1, 1, 0.32, 1, 1, 1, 0.1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ship_halo"]
+gradient = SubResource("Gradient_ship_halo")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
 [node name="Enemy" type="Area2D" unique_id=1997102230]
 process_mode = 1
 top_level = true
@@ -356,6 +369,14 @@ disabled = true
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_xl7wb")
 disabled = true
+
+[node name="GlowHalo" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+scale = Vector2(1.05, 0.88)
+texture = SubResource("GradientTexture2D_ship_halo")
+script = ExtResource("50_glow")
+intensity = 0.20
 
 [node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1151313046]
 position = Vector2(-9.53674e-07, 5.96046e-08)

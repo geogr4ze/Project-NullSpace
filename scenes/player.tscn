@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://btufqd8r4aj6d"]
 
 [ext_resource type="Script" uid="uid://tclyrb4y7ton" path="res://scripts/player.gd" id="1_d5hlx"]
+[ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="50_glow"]
 [ext_resource type="Texture2D" uid="uid://c4ymbhre3xcxx" path="res://assets/player/Player_mode0.png" id="2_hv3sw"]
 [ext_resource type="Texture2D" uid="uid://bg8lvx3jolokd" path="res://assets/player/mode2/Player Mode2 Animation-17.png.png" id="2_u4dl4"]
 [ext_resource type="Texture2D" uid="uid://cntjcawwrkrfj" path="res://assets/player/mode2/Player Mode2 Animation-16.png.png" id="3_ynwet"]
@@ -305,10 +306,30 @@ animations = [{
 "speed": 16.0
 }]
 
+[sub_resource type="Gradient" id="Gradient_ship_halo"]
+offsets = PackedFloat32Array(0, 0.42, 1)
+colors = PackedColorArray(1, 1, 1, 0.32, 1, 1, 1, 0.1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ship_halo"]
+gradient = SubResource("Gradient_ship_halo")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
 [node name="Player" type="CharacterBody2D" unique_id=1498829141]
 process_mode = 1
 collision_mask = 0
 script = ExtResource("1_d5hlx")
+
+[node name="GlowHalo" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+scale = Vector2(1.1, 0.92)
+texture = SubResource("GradientTexture2D_ship_halo")
+script = ExtResource("50_glow")
+intensity = 0.24
 
 [node name="PlayerSkin" type="AnimatedSprite2D" parent="." unique_id=2067628723]
 scale = Vector2(0.098, 0.098)

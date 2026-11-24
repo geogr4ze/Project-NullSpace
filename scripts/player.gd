@@ -3,6 +3,7 @@ extends CharacterBody2D
 # Use a local script type instead of a global class registration.
 const WeaponCooldownScript = preload("res://scripts/combat/weapon_cooldown.gd")
 const PlayerControlsScript = preload("res://scripts/combat/player_controls.gd")
+const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
 
 # Misc Variables
 var death: bool = false
@@ -49,6 +50,7 @@ var shield_act: bool = false
 var shield_conf: bool = false
 
 @onready var player_skin: AnimatedSprite2D = $PlayerSkin
+@onready var ship_glow: ShipGlowScript = $GlowHalo
 @onready var shield_skin: AnimatedSprite2D = $ShieldSkin
 @onready var overheat_bar: ProgressBar = $%Overheatbar
 @onready var health_bar: ProgressBar = $%Healthbar
@@ -72,6 +74,7 @@ func _ready():
 	delay = Modecontrol.modes[0]["delay"]
 	player_skin.animation = Modecontrol.modes[0]["skin"]
 	shield_skin.animation = Modecontrol.modes[0]["skin"]
+	ship_glow.match_sprite(player_skin)
 	modul[0] = health_bar
 	modul[1] = shield_bar
 	for i: int in 2:
@@ -103,6 +106,7 @@ func _change_mode(mode: int) -> void:
 	delay = Modecontrol.modes[mode]["delay"]
 	player_skin.animation = Modecontrol.modes[mode]["skin"]
 	shield_skin.animation = Modecontrol.modes[mode]["skin"]
+	ship_glow.match_sprite(player_skin)
 	if bar[1] <= 0 or m2_kill or !shield_conf:
 		shield_skin.frame = 7
 
