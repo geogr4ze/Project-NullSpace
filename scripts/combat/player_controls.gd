@@ -24,7 +24,7 @@ static func relative_move_direction(
 # The laser should not sweep freely across the playfield. Turning is
 # progressively constrained during charge and tightly capped while firing.
 const LASER_CHARGE_TURN_RADIANS: float = PI * 72.0 / 180.0
-const LASER_FIRE_TURN_RADIANS: float = PI * 18.0 / 180.0
+const LASER_FIRE_TURN_RADIANS: float = PI * 8.0 / 180.0
 # Smoothly accelerate to normal mouse tracking after releasing the laser.
 const LASER_RELEASE_RAMP_SECONDS: float = 0.42
 const LASER_RELEASE_FAST_RADIANS: float = PI * 540.0 / 180.0
