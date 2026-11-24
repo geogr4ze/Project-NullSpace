@@ -31,16 +31,34 @@ func _initialize() -> void:
 
 		_check(glow.visible == (mode != Modecontrol.MODE2),
 			"Default and wave glow while invisible laser shots do not")
-		_check(glow.z_index < skin.z_index,
-			"Projectile glow stays behind its original sprite")
+		# Background and projectile both use z=0. A negative effect z-index
+		# hides the glow and wake under the full-screen background TextureRect.
+		_check(glow.z_index == 0 and trail.z_index == 0,
+			"Both effects stay on top of the opaque arena background")
+		_check(glow.get_index() < skin.get_index() and
+			trail.get_index() < skin.get_index(),
+			"Glow and wake draw before the original sprite at the same z-index")
 		_check(glow.texture is GradientTexture2D,
 			"Projectile glow uses a softly fading radial gradient")
 		_check(trail.emitting == (mode == Modecontrol.MODE1),
 			"Only moving wave projectiles emit a particle wake")
 		_check(!trail.local_coords,
 			"Wave particles remain in world space as the wave moves")
-		_check(trail.lifetime > 0.0 and trail.amount > 0,
-			"Wave trail uses nonzero fading particles")
+		_check(trail.texture is GradientTexture2D,
+			"Wave trail has a visible particle texture instead of tiny points")
+		_check(trail.lifetime >= 0.55 and trail.amount >= 70,
+			"Wave trail emits enough particles to form a visible wake")
+		if mode == Modecontrol.MODE1:
+			_check(float(glow.get("intensity")) >= 0.90,
+				"Wave halo is visibly brighter than the default glow")
+			_check(glow.scale.x >= 2.3 and glow.scale.y >= 1.5,
+				"Wave glow is large enough to surround the original artwork")
+			_check(trail.position.y > glow.position.y,
+				"Wave particles originate behind the wave in local +Y")
+			var gradient_texture: GradientTexture2D = trail.texture as GradientTexture2D
+			_check(gradient_texture.width >= 24 and
+				gradient_texture.height >= 24,
+				"Wave particles have clearly visible soft discs")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")

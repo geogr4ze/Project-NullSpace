@@ -50,7 +50,7 @@ blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_projectile_halo"]
 offsets = PackedFloat32Array(0, 0.42, 1)
-colors = PackedColorArray(1, 1, 1, 0.60, 1, 1, 1, 0.20, 1, 1, 1, 0)
+colors = PackedColorArray(1, 1, 1, 0.76, 1, 1, 1, 0.28, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_projectile_halo"]
 gradient = SubResource("Gradient_projectile_halo")
@@ -60,9 +60,21 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
+[sub_resource type="Gradient" id="Gradient_wave_particle_texture"]
+offsets = PackedFloat32Array(0, 0.32, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.78, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_wave_particle"]
+gradient = SubResource("Gradient_wave_particle_texture")
+width = 24
+height = 24
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
 [sub_resource type="Gradient" id="Gradient_wave_trail_fade"]
-offsets = PackedFloat32Array(0, 0.24, 1)
-colors = PackedColorArray(1, 1, 1, 0.75, 1, 1, 1, 0.45, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0, 0.20, 0.65, 1)
+colors = PackedColorArray(1, 1, 1, 0.92, 1, 1, 1, 0.82, 1, 1, 1, 0.40, 1, 1, 1, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b5jmy"]
 size = Vector2(1, 1)
@@ -101,29 +113,33 @@ scale = Vector2(0.2, 0.09)
 
 [node name="ProjectileGlow" type="Sprite2D" parent="."]
 visible = false
-z_index = -1
+# Keep the effect in the projectile's normal canvas layer. A negative z
+# index puts it behind the opaque arena TextureRect, not just the bullet.
+z_index = 0
 material = SubResource("CanvasItemMaterial_projectile_fx")
 texture = SubResource("GradientTexture2D_projectile_halo")
 script = ExtResource("10_projectile_glow")
 intensity = 0.62
 
 [node name="WaveTrail" type="CPUParticles2D" parent="."]
-z_index = -1
+# Scene order draws this before Skin, but z=0 keeps it above background.
+z_index = 0
 emitting = false
 material = SubResource("CanvasItemMaterial_projectile_fx")
+texture = SubResource("GradientTexture2D_wave_particle")
 position = Vector2(0, 100)
-amount = 26
-lifetime = 0.48
+amount = 78
+lifetime = 0.60
 local_coords = false
 emission_shape = 3
-emission_rect_extents = Vector2(55, 6)
+emission_rect_extents = Vector2(62, 7)
 direction = Vector2(0, 1)
-spread = 26.0
+spread = 40.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 18.0
-initial_velocity_max = 60.0
-scale_amount_min = 2.0
-scale_amount_max = 4.0
+initial_velocity_min = 24.0
+initial_velocity_max = 70.0
+scale_amount_min = 0.55
+scale_amount_max = 1.15
 color_ramp = SubResource("Gradient_wave_trail_fade")
 
 [node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1345641507]
