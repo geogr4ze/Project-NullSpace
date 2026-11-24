@@ -28,20 +28,21 @@ func _ready() -> void:
 	# Reuse the ship glow's cached sprite-color sampler, but keep the original
 	# bullet artwork and its collision untouched.
 	if weapon_mode == Modecontrol.DEFAULT or weapon_mode == Modecontrol.MODE1:
-		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.48
+		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.20
 		projectile_glow.match_sprite($Skin)
 		if weapon_mode == Modecontrol.DEFAULT:
 			projectile_glow.scale = Vector2(0.24, 0.42)
 			projectile_glow.position = Vector2.ZERO
 		else:
-			# A restrained halo just beyond the original wave silhouette.
-			# Keep the artwork untouched and preserve the corrected z-index.
-			projectile_glow.scale = Vector2(1.95, 1.30)
+			# Keep just a faint blue edge around the original wave pixels.
+			# Normal blending prevents additive bloom overpowering the sprite.
+			projectile_glow.scale = Vector2(1.82, 1.20)
 			projectile_glow.position = Vector2(0, 45.0)
-			# Match the wave sprite's sampled hue, but use restrained, narrow
-			# energy streaks rather than bright white glowing particle orbs.
-			var tint: Color = projectile_glow.self_modulate
-			wave_trail.color = Color.from_hsv(tint.h, 0.42, 0.86, 0.72)
+			projectile_glow.material = null
+			# The authored particle color ramp uses the dark-blue pixels seen
+			# in the game's starfield and the blue wave projectile palette.
+			# White modulation preserves those colors instead of lightening them.
+			wave_trail.color = Color.WHITE
 	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
 	if weapon_mode == Modecontrol.MODE1:
 		# Ensure freshly spawned wave shots start the particle system.

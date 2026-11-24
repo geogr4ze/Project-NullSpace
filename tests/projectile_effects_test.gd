@@ -48,24 +48,34 @@ func _initialize() -> void:
 			"Wave trail has a visible particle texture instead of tiny points")
 		_check(trail.lifetime >= 0.30 and trail.lifetime <= 0.42 and
 			trail.amount >= 28 and trail.amount <= 42,
-			"Wave trail uses a short, restrained particle wake")
+			"Wave trail retains a short, restrained particle wake")
+		_check(trail.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
+			"Wave trail pixels retain sharp nearest-neighbor edges")
 		_check(trail.material == null,
 			"Wave streaks use normal blending rather than additive bloom")
 		if mode == Modecontrol.MODE1:
-			_check(float(glow.get("intensity")) <= 0.52 and
-				float(glow.get("intensity")) >= 0.42,
-				"Wave halo is toned down without disappearing")
-			_check(glow.scale.x <= 2.05 and glow.scale.y <= 1.35,
-				"Wave halo stays close to the original projectile artwork")
+			_check(float(glow.get("intensity")) <= 0.22 and
+				float(glow.get("intensity")) >= 0.18,
+				"Wave halo is now a faint outline, not a bright aura")
+			_check(glow.material == null,
+				"Wave halo uses normal blending instead of additive glow")
+			_check(glow.scale.x <= 1.90 and glow.scale.y <= 1.25,
+				"Wave halo stays tight around the unchanged artwork")
 			_check(trail.position.y > glow.position.y,
 				"Wave particles originate behind the wave in local +Y")
 			var gradient_texture: GradientTexture2D = trail.texture as GradientTexture2D
-			_check(gradient_texture.width <= 4 and
-				gradient_texture.height >= 10 and
-				gradient_texture.height <= 16,
-				"Wave particles are thin energy streaks, not soft discs")
-			_check(trail.color.a <= 0.75,
-				"Wave particles use a muted theme-matched tint")
+			_check(gradient_texture.width == 3 and
+				gradient_texture.height == 3,
+				"Wave particles are square pixels, not streaks or soft discs")
+			_check(trail.color == Color.WHITE,
+				"Wave particles preserve the authored dark-blue color ramp")
+			var ramp: Gradient = trail.color_ramp
+			_check(ramp != null and ramp.colors.size() == 3,
+				"Wave trail cycles through an authored three-tone blue palette")
+			if ramp != null and ramp.colors.size() == 3:
+				_check(ramp.colors[0].b > ramp.colors[0].r and
+					ramp.colors[0].b < 0.55 and ramp.colors[1].b < 0.4,
+					"Wave pixels use dark blues rather than bright cyan")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")

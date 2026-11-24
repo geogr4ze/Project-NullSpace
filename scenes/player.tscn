@@ -350,20 +350,20 @@ z_index = 1
 material = SubResource("CanvasItemMaterial_continuous_laser")
 points = PackedVector2Array(0, 0, 0, -2200)
 width = 46.0
-default_color = Color(0.06, 0.43, 1, 0.14)
+default_color = Color(0.055, 0.26, 0.56, 0.12)
 antialiased = true
 
 [node name="BlueBand" type="Line2D" parent="LaserBeam"]
 material = SubResource("CanvasItemMaterial_continuous_laser")
 points = PackedVector2Array(0, 0, 0, -2200)
 width = 24.0
-default_color = Color(0.12, 0.7, 1, 0.58)
+default_color = Color(0.075, 0.47, 0.83, 0.54)
 antialiased = true
 
 [node name="Core" type="Line2D" parent="LaserBeam"]
 points = PackedVector2Array(0, 0, 0, -2200)
 width = 10.0
-default_color = Color(0.84, 0.97, 1, 1)
+default_color = Color(0.68, 0.86, 1, 1)
 antialiased = true
 
 [node name="Node2D" type="Node2D" parent="." unique_id=1664092000]

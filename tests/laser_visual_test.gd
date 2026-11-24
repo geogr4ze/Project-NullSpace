@@ -25,6 +25,16 @@ func _initialize() -> void:
 			var outer: Line2D = beam.get_node("OuterGlow") as Line2D
 			var core: Line2D = beam.get_node("Core") as Line2D
 			_check(outer.width > core.width, "Glow envelops the solid core")
+			var band: Line2D = beam.get_node("BlueBand") as Line2D
+			_check(outer.default_color.b > outer.default_color.r and
+				outer.default_color.b < 0.65,
+				"Laser outer glow uses the restrained deep blue palette")
+			_check(band.default_color.b > band.default_color.g and
+				band.default_color.g < 0.6,
+				"Laser band stays blue instead of bright cyan")
+			_check(core.default_color.b > core.default_color.r and
+				core.default_color.a >= 0.99,
+				"Laser core stays solid and legible")
 		player.free()
 
 	var bullet_scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
