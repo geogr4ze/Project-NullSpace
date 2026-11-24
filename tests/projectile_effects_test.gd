@@ -47,16 +47,24 @@ func _initialize() -> void:
 		_check(trail.texture is GradientTexture2D,
 			"Wave trail has a visible particle texture instead of tiny points")
 		_check(trail.lifetime >= 0.30 and trail.lifetime <= 0.42 and
-			trail.amount >= 28 and trail.amount <= 42,
-			"Wave trail retains a short, restrained particle wake")
+			trail.amount >= 58 and trail.amount <= 66,
+			"Wave emits enough pixels to fill the tip-to-tip wake")
+		_check(trail.emission_rect_extents.x >= 90.0 and
+			trail.emission_rect_extents.y <= 4.0,
+			"Wave particle source spans tip to tip without a thick vertical band")
 		_check(trail.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
 			"Wave trail pixels retain sharp nearest-neighbor edges")
 		_check(trail.material == null,
 			"Wave streaks use normal blending rather than additive bloom")
+		if mode == Modecontrol.DEFAULT:
+			_check(float(glow.get("intensity")) <= 0.34,
+				"Default bullet glow is reduced")
+			_check(glow.material == null,
+				"Default bullet glow uses normal instead of additive blending")
 		if mode == Modecontrol.MODE1:
-			_check(float(glow.get("intensity")) <= 0.22 and
-				float(glow.get("intensity")) >= 0.18,
-				"Wave halo is now a faint outline, not a bright aura")
+			_check(float(glow.get("intensity")) <= 0.09 and
+				float(glow.get("intensity")) >= 0.07,
+				"Wave halo is barely visible instead of overpowering the pixels")
 			_check(glow.material == null,
 				"Wave halo uses normal blending instead of additive glow")
 			_check(glow.scale.x <= 1.90 and glow.scale.y <= 1.25,
@@ -71,11 +79,16 @@ func _initialize() -> void:
 				"Wave particles preserve the authored dark-blue color ramp")
 			var ramp: Gradient = trail.color_ramp
 			_check(ramp != null and ramp.colors.size() == 3,
-				"Wave trail cycles through an authored three-tone blue palette")
+				"Wave trail uses one blue color with three alpha levels")
 			if ramp != null and ramp.colors.size() == 3:
-				_check(ramp.colors[0].b > ramp.colors[0].r and
-					ramp.colors[0].b < 0.55 and ramp.colors[1].b < 0.4,
-					"Wave pixels use dark blues rather than bright cyan")
+				for sample: Color in ramp.colors:
+					_check(is_equal_approx(sample.r, 0.0) and
+						is_equal_approx(sample.g, 115.0 / 255.0) and
+						is_equal_approx(sample.b, 1.0),
+						"Wave pixels use exact player darkest blue #0073FF")
+				_check(ramp.colors[0].a > ramp.colors[1].a and
+					is_zero_approx(ramp.colors[2].a),
+					"Wave pixels fade out without a color change")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")

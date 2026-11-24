@@ -28,20 +28,22 @@ func _ready() -> void:
 	# Reuse the ship glow's cached sprite-color sampler, but keep the original
 	# bullet artwork and its collision untouched.
 	if weapon_mode == Modecontrol.DEFAULT or weapon_mode == Modecontrol.MODE1:
-		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.20
+		projectile_glow.intensity = 0.32 if weapon_mode == Modecontrol.DEFAULT else 0.08
 		projectile_glow.match_sprite($Skin)
 		if weapon_mode == Modecontrol.DEFAULT:
 			projectile_glow.scale = Vector2(0.24, 0.42)
 			projectile_glow.position = Vector2.ZERO
+			# The regular shot should have a soft tint, not additive bloom.
+			projectile_glow.material = null
 		else:
 			# Keep just a faint blue edge around the original wave pixels.
 			# Normal blending prevents additive bloom overpowering the sprite.
 			projectile_glow.scale = Vector2(1.82, 1.20)
 			projectile_glow.position = Vector2(0, 45.0)
 			projectile_glow.material = null
-			# The authored particle color ramp uses the dark-blue pixels seen
-			# in the game's starfield and the blue wave projectile palette.
-			# White modulation preserves those colors instead of lightening them.
+			# The particle ramp uses the exact darkest blue from the
+			# player's mode-2 sprite (#0073FF), with alpha-only fading.
+			# White modulation preserves that original color.
 			wave_trail.color = Color.WHITE
 	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
 	if weapon_mode == Modecontrol.MODE1:
