@@ -61,21 +61,21 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
 [sub_resource type="Gradient" id="Gradient_wave_particle_texture"]
-# Thin energy dashes instead of oversized glowing circles.
-offsets = PackedFloat32Array(0, 0.22, 0.76, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.88, 1, 1, 1, 0.60, 1, 1, 1, 0)
+# A hard-edged pixel, not a glowing orb or elongated spark.
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_wave_particle"]
 gradient = SubResource("Gradient_wave_particle_texture")
 width = 3
-height = 12
+height = 3
 fill = 0
-fill_from = Vector2(0.5, 0)
-fill_to = Vector2(0.5, 1)
 
 [sub_resource type="Gradient" id="Gradient_wave_trail_fade"]
-offsets = PackedFloat32Array(0, 0.24, 1)
-colors = PackedColorArray(1, 1, 1, 0.55, 1, 1, 1, 0.40, 1, 1, 1, 0)
+# Dark navy-to-blue shades from the existing starfield/wave aesthetic.
+# These pixels fade instead of turning into bright cyan or white sparks.
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(0.0862745, 0.247059, 0.454902, 0.78, 0.054902, 0.176471, 0.341176, 0.48, 0.027451, 0.082353, 0.188235, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b5jmy"]
 size = Vector2(1, 1)
@@ -123,9 +123,10 @@ script = ExtResource("10_projectile_glow")
 intensity = 0.62
 
 [node name="WaveTrail" type="CPUParticles2D" parent="."]
-# Draw above the arena and behind the wave sprite, with normal blending.
+# Small sharp pixels remain behind the moving wave, above the backdrop.
 z_index = 0
 emitting = false
+texture_filter = 1
 texture = SubResource("GradientTexture2D_wave_particle")
 position = Vector2(0, 92)
 amount = 34
@@ -134,12 +135,12 @@ local_coords = false
 emission_shape = 3
 emission_rect_extents = Vector2(50, 4)
 direction = Vector2(0, 1)
-spread = 20.0
+spread = 22.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 10.0
-initial_velocity_max = 32.0
-scale_amount_min = 0.85
-scale_amount_max = 1.25
+initial_velocity_min = 8.0
+initial_velocity_max = 26.0
+scale_amount_min = 0.95
+scale_amount_max = 1.45
 color_ramp = SubResource("Gradient_wave_trail_fade")
 
 [node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1345641507]
