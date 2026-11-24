@@ -75,6 +75,21 @@ func _run() -> void:
 			"Original animated skin still exists: " + path)
 		ship.free()
 
+	var mine_scene: PackedScene = load("res://scenes/enemy_mine.tscn") as PackedScene
+	_check(mine_scene != null, "Mine scene loads")
+	if mine_scene != null:
+		var mine: RigidBody2D = mine_scene.instantiate() as RigidBody2D
+		get_tree().root.add_child(mine)
+		var mine_halo: Sprite2D = mine.get_node("GlowHalo") as Sprite2D
+		var mine_skin: AnimatedSprite2D = mine.get_node("Skin") as AnimatedSprite2D
+		_check(mine_halo.visible and mine_halo.get_index() < mine_skin.get_index(),
+			"Armed mines have a visible theme-matched halo behind the artwork")
+		_check(mine_halo.z_index == 0 and is_equal_approx(float(mine_halo.get("intensity")), 0.27),
+			"Mine glow is subtle and remains above the opaque arena background")
+		mine.call("explosion")
+		_check(not mine_halo.visible, "Mine glow disappears when it explodes")
+		mine.free()
+
 	halo.free()
 	skin.free()
 	if failures > 0:

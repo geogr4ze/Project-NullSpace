@@ -10,6 +10,20 @@
 [ext_resource type="Texture2D" uid="uid://d361ccn75eax0" path="res://assets/enemies/abilities/explosion/Void Explosion Skins-5.png.png" id="8_6lumf"]
 [ext_resource type="Theme" uid="uid://ccvaedgyc116f" path="res://resources/ui/hp_bar_theme.tres" id="9_taejy"]
 
+[ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="10_mine_glow"]
+
+[sub_resource type="Gradient" id="Gradient_mine_halo"]
+offsets = PackedFloat32Array(0, 0.42, 1)
+colors = PackedColorArray(1, 1, 1, 0.32, 1, 1, 1, 0.10, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_mine_halo"]
+gradient = SubResource("Gradient_mine_halo")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ftx1c"]
 friction = 0.0
 bounce = 1.0
@@ -82,6 +96,14 @@ unique_name_in_owner = true
 scale = Vector2(0.195, 0.195)
 shape = SubResource("CircleShape2D_8s0yl")
 disabled = true
+
+[node name="GlowHalo" type="Sprite2D" parent="."]
+visible = false
+z_index = 0
+scale = Vector2(0.9, 0.9)
+texture = SubResource("GradientTexture2D_mine_halo")
+script = ExtResource("10_mine_glow")
+intensity = 0.27
 
 [node name="Skin" type="AnimatedSprite2D" parent="." unique_id=2088699964]
 scale = Vector2(0.098, 0.098)
