@@ -25,6 +25,27 @@ func _initialize() -> void:
 		"Formation slots must stay behind the tank")
 	_check(left.y < center.y and right.y > center.y,
 		"Different lanes must spread enemies behind the tank")
+	# Turning by interpolation must respect time rather than rendering FPS.
+	var one_step: float = Tactics.smooth_heading(0.0, PI / 2.0, 5.0, 1.0 / 60.0)
+	_check(one_step > 0.0 and one_step < PI / 2.0,
+		"Smooth turning advances without snapping to the destination")
+	var sixty_steps: float = 0.0
+	for i: int in 60:
+		sixty_steps = Tactics.smooth_heading(sixty_steps, PI / 2.0, 5.0, 1.0 / 60.0)
+	var thirty_steps: float = 0.0
+	for i: int in 30:
+		thirty_steps = Tactics.smooth_heading(thirty_steps, PI / 2.0, 5.0, 1.0 / 30.0)
+	_check(absf(sixty_steps - thirty_steps) < 0.001,
+		"Turn smoothing is independent of rendering frame rate")
+	var player_position: Vector2 = Vector2.ZERO
+	var tank_position: Vector2 = Vector2(500.0, 0.0)
+	var support_position: Vector2 = Vector2(900.0, 150.0)
+	var guard_goal: Vector2 = Tactics.tank_defense_target(
+		tank_position, player_position, support_position, 150.0, 0.7
+	)
+	_check((guard_goal - tank_position).dot(
+		player_position - tank_position) > 0.0,
+		"Protecting a support never makes a tank retreat from the player")
 	var predicted: Vector2 = Tactics.predicted_intercept(
 		Vector2(400, 0), player, Vector2(200, 0), 200.0)
 	_check(predicted.x > player.x, "Fast enemies should lead a moving player")
