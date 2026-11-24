@@ -161,3 +161,9 @@ static func firing_lane_escape(
 		side = 1.0
 	var urgency: float = 1.0 - absf(lateral_distance) / width
 	return tangent * side * urgency
+
+# The tank shield absorbs default and wave shots without taking damage.
+# Only the large laser warrants evasive movement for tanks. Other enemy
+# roles continue to respond to all player weapons.
+static func can_evade_weapon(enemy_type: int, player_weapon_mode: int) -> bool:
+	return enemy_type != Wavecontrol.TANK or player_weapon_mode == Modecontrol.MODE2
