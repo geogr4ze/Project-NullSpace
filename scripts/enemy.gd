@@ -3,12 +3,14 @@ extends Area2D
 const PlayerShipScript = preload("res://scripts/player.gd")
 const PlayerProjectileScript = preload("res://scripts/bullet.gd")
 const TacticsScript = preload("res://scripts/ai/enemy_tactics.gd")
+const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
 
 var bullet_scene: PackedScene = preload("res://scenes/enemy_bullet.tscn")
 var mine_scene: PackedScene = preload("res://scenes/enemy_mine.tscn")
 @onready var player: PlayerShipScript = $"../Player"
 @onready var hpbar: ProgressBar = $Node2D/ProgressBar
 @onready var skin: AnimatedSprite2D = $Skin
+@onready var ship_glow: ShipGlowScript = $GlowHalo
 @onready var warning_sign: AnimatedSprite2D = $%Warning_Sign
 @onready var railgun_muzzle: Marker2D = $RGMuzzle
 @onready var mine_spawn: Marker2D = $MineSpawn
@@ -93,6 +95,10 @@ func _ready():
 		$MineShipCollision.shape
 	]
 	skin.animation = Wavecontrol.enemies[type]["enemy_skin"]
+	ship_glow.match_sprite(skin)
+	# Large hulls need a wider but equally faint halo. No sprite scaling.
+	if type == Wavecontrol.TANK or type == Wavecontrol.RAILGUN or type == Wavecontrol.MINESHIP:
+		ship_glow.scale = Vector2(1.65, 1.05)
 	$CollisionShape2D.shape = shapes[type]
 	if type != Wavecontrol.MINESHIP:
 		skin.play()
