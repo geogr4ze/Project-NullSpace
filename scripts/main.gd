@@ -34,6 +34,11 @@ func _ready():
 	Signalbus.player_death.connect(_death)
 	Signalbus.dash.connect(_on_dash)
 	Modecontrol.mode_changed.connect(_change_bp)
+	if Wavecontrol.test_enable:
+		# Autoloads initialize before the start screen. Start test enemies
+		# only after Main and the UI have connected to Signalbus.
+		Signalbus.test_mode.emit()
+		Wavecontrol.test_spawn()
 
 func _death() -> void:
 	get_tree().paused = true

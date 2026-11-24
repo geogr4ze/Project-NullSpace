@@ -16,6 +16,8 @@ const DASH_SPEED: float = 600.0
 const LASER_CHARGE_TIME: float = 1.25
 const LASER_HEAT_PER_SECOND: float = 1.2
 const LASER_COOL_PER_SECOND: float = 0.2
+const LASER_OVERHEAT_COOL_PER_SECOND: float = 1.0
+const MODE1_CHARGE_TIME: float = 0.7
 
 # Mobility Variables
 @export var acceleration: float = 1.5
@@ -56,6 +58,8 @@ var shield_conf: bool = false
 @onready var ui_anchor: Node2D = $Node2D
 @onready var healing_timer: Timer = $HealingTimer
 @onready var shield_regen_timer: Timer = $ShieldRegen
+var wave_last_frame: int = 0
+var laser_last_frame: int = 0
 
 func _ready():
 	Signalbus.hit.connect(_on_hit)
@@ -79,6 +83,8 @@ func _ready():
 	rotation_degrees = 90
 	healing_timer.wait_time = healdelay
 	overheat_bar.max_value = maxoverheat
+	wave_last_frame = maxi(0, player_skin.sprite_frames.get_frame_count(&"mode1") - 1)
+	laser_last_frame = maxi(0, player_skin.sprite_frames.get_frame_count(&"mode2") - 1)
 	_on_shield()
 
 func _update_screen_size() -> void:
@@ -89,6 +95,11 @@ func start(pos: Vector2) -> void:
 	show()
 
 func _change_mode(mode: int) -> void:
+	if mode != Modecontrol.MODE1:
+		charge_time_m1 = 0.0
+		frameindex_m1 = 0
+	if mode != Modecontrol.MODE2:
+		_reset_laser_charge()
 	energy_cost = Modecontrol.modes[mode]["energy"]
 	delay = Modecontrol.modes[mode]["delay"]
 	player_skin.animation = Modecontrol.modes[mode]["skin"]
@@ -107,9 +118,16 @@ func _physics_process(delta: float) -> void:
 	# Combat updates at the fixed physics tick, independent of render FPS.
 	shot_timer.advance(delta)
 	handle_fire_modes()
-	if Modecontrol.mode == 2:
+	if Modecontrol.mode != Modecontrol.MODE2:
+		# Heat recovers even while another weapon is selected.
+		var cool_rate: float = LASER_OVERHEAT_COOL_PER_SECOND if m2_kill else LASER_COOL_PER_SECOND
+		_cool_laser(delta, cool_rate)
+		if m2_kill and overheat_bar.value <= 0.0:
+			m2_kill = false
+			_reset_laser_charge()
+	if Modecontrol.mode == Modecontrol.MODE2:
 		mode2_control(delta)
-	elif Modecontrol.mode == 1:
+	elif Modecontrol.mode == Modecontrol.MODE1:
 		mode1_control(delta)
 	else:
 		if Input.is_action_pressed("Fire") and Shopcontrol.autofire:
@@ -259,13 +277,37 @@ var firing_m2: bool = false
 var m2_kill: bool = false
 var charge_time_m2: float = 0.0
 
+func _reset_laser_charge() -> void:
+	firing_m2 = false
+	charge_time_m2 = 0.0
+	frameindex_m2 = 0
+
+func _cool_laser(delta: float, cooling_rate: float) -> void:
+	overheat_bar.value = maxf(0.0, overheat_bar.value - cooling_rate * delta)
+
 func mode2_control(delta: float) -> void:
-	if Input.is_action_pressed("Fire") and !m2_kill:
+	# Overheating forces recovery even while Fire remains held.
+	if m2_kill:
+		rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
+		if player_skin.animation != "CD_mode2":
+			player_skin.play("CD_mode2")
+		_cool_laser(delta, LASER_OVERHEAT_COOL_PER_SECOND)
+		if overheat_bar.value <= 0.0:
+			m2_kill = false
+			_reset_laser_charge()
+			player_skin.animation = "mode2"
+			player_skin.frame = 0
+			if shield_conf:
+				_shield_act()
+		return
+
+	if Input.is_action_pressed("Fire"):
 		if bar[1] > 0:
 			_shield_deact()
 		rotation_speed = maxf(0.1, rotation_speed - 6.0 * delta)
 		charge_time_m2 = minf(LASER_CHARGE_TIME, charge_time_m2 + delta)
-		frameindex_m2 = mini(25, int(charge_time_m2 / 0.05))
+		frameindex_m2 = mini(laser_last_frame,
+			roundi(charge_time_m2 / LASER_CHARGE_TIME * float(laser_last_frame)))
 		if !firing_m2:
 			player_skin.frame = frameindex_m2
 		if charge_time_m2 >= LASER_CHARGE_TIME:
@@ -273,28 +315,21 @@ func mode2_control(delta: float) -> void:
 				player_skin.play("Stage2_mode2")
 			firing_m2 = true
 			if fire():
-				overheat_bar.value = minf(maxoverheat, overheat_bar.value + LASER_HEAT_PER_SECOND * delta)
+				overheat_bar.value = minf(maxoverheat,
+					overheat_bar.value + LASER_HEAT_PER_SECOND * delta)
 			if overheat_bar.value >= maxoverheat:
 				m2_kill = true
-				firing_m2 = false
-				charge_time_m2 = 0.0
-				frameindex_m2 = 0
+				_reset_laser_charge()
+				rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
+				player_skin.play("CD_mode2")
 		return
 
-	rotation_speed = Modecontrol.modes[Modecontrol.mode]["player_movement"]
-	firing_m2 = false
-	charge_time_m2 = 0.0
-	frameindex_m2 = 0
-	if m2_kill:
-		if player_skin.animation != "CD_mode2":
-			player_skin.play("CD_mode2")
-	else:
-		player_skin.animation = "mode2"
-		player_skin.frame = 0
-	overheat_bar.value = maxf(0.0, overheat_bar.value - LASER_COOL_PER_SECOND * delta)
-	if overheat_bar.value <= 0.0:
-		m2_kill = false
-	if shield_conf and !m2_kill:
+	rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
+	_reset_laser_charge()
+	player_skin.animation = "mode2"
+	player_skin.frame = 0
+	_cool_laser(delta, LASER_COOL_PER_SECOND)
+	if shield_conf:
 		_shield_act()
 
 var frameindex_m1: int = 0
@@ -302,10 +337,12 @@ var charge_time_m1: float = 0.0
 
 func mode1_control(delta: float) -> void:
 	if Input.is_action_pressed("Fire"):
-		charge_time_m1 = minf(0.7, charge_time_m1 + delta)
-		frameindex_m1 = mini(14, int(charge_time_m1 / 0.05))
+		charge_time_m1 = minf(MODE1_CHARGE_TIME, charge_time_m1 + delta)
+		frameindex_m1 = mini(wave_last_frame,
+			roundi(charge_time_m1 / MODE1_CHARGE_TIME * float(wave_last_frame)))
 		player_skin.frame = frameindex_m1
-		if frameindex_m1 >= 14 and fire():
+		# Fire based on elapsed time, never on an animation frame index.
+		if charge_time_m1 >= MODE1_CHARGE_TIME and fire():
 			charge_time_m1 = 0.0
 			frameindex_m1 = 0
 			player_skin.frame = 0
