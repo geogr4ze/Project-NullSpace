@@ -10,13 +10,15 @@ tank shield collision, or weapon energy values have been changed.
   and changed to normal blending to avoid a strong additive bloom.
 - **Wave shots:** very faint blue halo reduced from **0.20 → 0.08** at the
   original tight 1.82 × 1.20 scale and normal blending, preserving its sprite.
-- **Wave trail:** **62** crisp 3 × 3 pixels emitted across a tip-to-tip
-  span of **184 game units** (emission rectangle ±92 horizontally), rather
-  than 34 pixels across only 100 units. The color is exactly **#0073FF**
-  (RGB 0, 115, 255), the darkest blue sampled from the project's own
-  `Player Mode2 Animation-1.png.png` art. The only color change over
-  the 0.36-second life is a reduction in alpha, not a shift toward cyan.
-  `local_coords = false` keeps already emitted pixels behind the wave.
+- **Wave trail:** **78** crisp 3 × 3 pixels emitted at *random* positions
+  across a **184 × 52 unit rectangle** (±92 wide, ±26 deep), centered
+  behind the wave. The former ±3 vertical half-extent made the effect
+  look like a single horizontal line despite having random X positions.
+  The color remains exact player blue **#0073FF**, fading only by alpha.
+  Pixels start at **0.94 alpha** when emitted, decrease through **0.66**
+  and **0.27**, and finish at **0 alpha** after **0.46 seconds**.
+  `local_coords = false` keeps emitted pixels in world space as the
+  wave moves away, making older distant particles naturally more faded.
 - **Laser:** the same three seamless Line2D layers, with outer and inner
   band colors shifted slightly toward the existing blue palette. The core
   remains an opaque pale blue so the laser stays strong and readable.
@@ -55,9 +57,11 @@ godot --headless --path . --script res://tests/subtle_ship_glow_test.gd
    confirm it rotates back continuously rather than snapping.
 2. Fire default bullets. Their original sprites and hitboxes must be
    visible, with a much dimmer non-additive glow.
-3. Fire wave bullets. The halo should be barely visible, and the pixel
-   wake should span from the wave's left tip to its right tip, not emit
-   from one narrow edge. The wake should use the exact player blue #0073FF.
+3. Fire wave bullets. The halo should remain barely visible. The pixel
+   wake should spawn in scattered random positions across the full width
+   and depth behind the crescent, not form a single straight line.
+   Fresh pixels closest to the wave should appear strongest and older
+   pixels farther behind should fade away smoothly, all in #0073FF.
 4. Fire the laser and confirm the clean solid beam is slightly more
    blue and less cyan, without changing the way it fires or aims.
 5. Ensure no wave particles appear for default or laser shots.

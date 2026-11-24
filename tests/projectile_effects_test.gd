@@ -46,12 +46,16 @@ func _initialize() -> void:
 			"Wave particles remain in world space as the wave moves")
 		_check(trail.texture is GradientTexture2D,
 			"Wave trail has a visible particle texture instead of tiny points")
-		_check(trail.lifetime >= 0.30 and trail.lifetime <= 0.42 and
-			trail.amount >= 58 and trail.amount <= 66,
-			"Wave emits enough pixels to fill the tip-to-tip wake")
+		_check(trail.lifetime >= 0.42 and trail.lifetime <= 0.50 and
+			trail.amount >= 72 and trail.amount <= 84,
+			"Wave emits enough pixels to form a dispersed fading wake")
+		_check(trail.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE,
+			"Wave particles are born at random positions within a rectangle")
 		_check(trail.emission_rect_extents.x >= 90.0 and
-			trail.emission_rect_extents.y <= 4.0,
-			"Wave particle source spans tip to tip without a thick vertical band")
+			trail.emission_rect_extents.y >= 24.0,
+			"Wave particle source spans the full width and a substantial depth")
+		_check(trail.emission_rect_extents.y < trail.emission_rect_extents.x,
+			"Wave wake is spread across the crest rather than one vertical column")
 		_check(trail.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
 			"Wave trail pixels retain sharp nearest-neighbor edges")
 		_check(trail.material == null,
@@ -78,17 +82,23 @@ func _initialize() -> void:
 			_check(trail.color == Color.WHITE,
 				"Wave particles preserve the authored dark-blue color ramp")
 			var ramp: Gradient = trail.color_ramp
-			_check(ramp != null and ramp.colors.size() == 3,
-				"Wave trail uses one blue color with three alpha levels")
-			if ramp != null and ramp.colors.size() == 3:
+			_check(ramp != null and ramp.colors.size() == 4,
+				"Wave trail has multiple alpha stops for a smooth age fade")
+			if ramp != null and ramp.colors.size() == 4:
 				for sample: Color in ramp.colors:
 					_check(is_equal_approx(sample.r, 0.0) and
 						is_equal_approx(sample.g, 115.0 / 255.0) and
 						is_equal_approx(sample.b, 1.0),
 						"Wave pixels use exact player darkest blue #0073FF")
-				_check(ramp.colors[0].a > ramp.colors[1].a and
-					is_zero_approx(ramp.colors[2].a),
-					"Wave pixels fade out without a color change")
+				_check(ramp.colors[0].a >= 0.9 and
+					ramp.colors[0].a > ramp.colors[1].a and
+					ramp.colors[1].a > ramp.colors[2].a and
+					ramp.colors[2].a > ramp.colors[3].a and
+					is_zero_approx(ramp.colors[3].a),
+					"Wave pixels start nearly opaque, then continuously fade to zero")
+				_check(is_equal_approx(ramp.get_offset(0), 0.0) and
+					is_equal_approx(ramp.get_offset(3), 1.0),
+					"Wave alpha fading lasts the full particle lifetime")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")
