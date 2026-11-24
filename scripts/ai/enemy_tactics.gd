@@ -67,3 +67,66 @@ static func ranged_target(
 	# Orbit while at a safe firing range instead of sitting motionless.
 	var tangent: Vector2 = Vector2(-direction.y, direction.x) * strafe_direction
 	return enemy_position + tangent * 90.0
+
+# Smooth interpolation is proportional to angular error, independent of frame
+# rate. A larger responsiveness yields a faster turn without a single-frame snap.
+static func smooth_heading(
+		current_angle: float,
+		desired_angle: float,
+		responsiveness: float,
+		delta: float
+	) -> float:
+	var weight: float = 1.0 - exp(-maxf(responsiveness, 0.0) * maxf(delta, 0.0))
+	return lerp_angle(current_angle, desired_angle, weight)
+
+# Greedy one-to-one matching. Every candidate has stable tank_id/support_id
+# values, a score (lower is better), and optional tank/support node references.
+# The same ordered inputs always produce identical assignments.
+static func assign_unique_supports(
+		candidates: Array[Dictionary]
+	) -> Array[Dictionary]:
+	var ranked: Array[Dictionary] = candidates.duplicate()
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var sa: float = float(a["score"])
+		var sb: float = float(b["score"])
+		if !is_equal_approx(sa, sb):
+			return sa < sb
+		var ta: int = int(a["tank_id"])
+		var tb: int = int(b["tank_id"])
+		if ta != tb:
+			return ta < tb
+		return int(a["support_id"]) < int(b["support_id"])
+	)
+	var used_tanks: Dictionary = {}
+	var used_supports: Dictionary = {}
+	var matched: Array[Dictionary] = []
+	for candidate: Dictionary in ranked:
+		var tank_id: int = int(candidate["tank_id"])
+		var support_id: int = int(candidate["support_id"])
+		if used_tanks.has(tank_id) or used_supports.has(support_id):
+			continue
+		matched.append(candidate)
+		used_tanks[tank_id] = true
+		used_supports[support_id] = true
+	return matched
+
+# Pursuit is always the stronger component. Steering toward the ally's front
+# screen position modifies the route, but cannot reverse its playerward motion.
+static func tank_defense_target(
+		tank_position: Vector2,
+		player_position: Vector2,
+		support_position: Vector2,
+		screen_distance: float,
+		pursuit_weight: float
+	) -> Vector2:
+	var toward_player: Vector2 = (player_position - tank_position).normalized()
+	if toward_player == Vector2.ZERO:
+		return tank_position
+	var ally_to_player: Vector2 = (player_position - support_position).normalized()
+	var screening_point: Vector2 = support_position + ally_to_player * screen_distance
+	var toward_screen: Vector2 = (screening_point - tank_position).normalized()
+	var chase_weight: float = clampf(pursuit_weight, 0.51, 1.0)
+	var blended: Vector2 = (
+		toward_player * chase_weight + toward_screen * (1.0 - chase_weight)
+	).normalized()
+	return tank_position + blended * 200.0

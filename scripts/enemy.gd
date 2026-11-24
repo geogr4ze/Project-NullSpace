@@ -29,8 +29,15 @@ var RGbullet_speed: float = -1000.0
 const AI_DECISION_INTERVAL: float = 0.2
 const AI_COMMITMENT: float = 0.5
 const SUPPORT_TARGET_DISTANCE: float = 420.0
-const TANK_PROTECTION_DISTANCE: float = 430.0
 const AVOIDANCE_WEIGHT: float = 0.75
+const TURN_RESPONSE_NEAR: float = 8.0
+const TURN_RESPONSE_FAR: float = 4.0
+const TURN_DISTANCE_REFERENCE: float = 750.0
+const SPEED_TURN_MULTIPLIER: float = 1.25
+const STEERING_ACCELERATION_MULTIPLIER: float = 5.0
+const STEERING_ACCELERATION_MINIMUM: float = 200.0
+const TANK_PURSUIT_WEIGHT: float = 0.70
+const TANK_SCREENING_DISTANCE: float = 150.0
 
 var ai_elapsed: float = 0.0
 var decision_timer: float = 0.0
@@ -42,6 +49,7 @@ var protection_target: Area2D
 var separation: Vector2 = Vector2.ZERO
 var cover_lane: int = 0
 var strafe_direction: float = 1.0
+var motion_velocity: Vector2 = Vector2.ZERO
 
 func configure_enemy(enemy_type: int) -> void:
 	type = enemy_type
@@ -111,14 +119,32 @@ func _physics_process(delta: float) -> void:
 	if direction_to_goal.length() > 12.0:
 		preferred_velocity = direction_to_goal.normalized() * speed
 		preferred_velocity *= clampf(direction_to_goal.length() / 65.0, 0.0, 1.0)
-	var movement_velocity: Vector2 = (
+	var desired_velocity: Vector2 = (
 		preferred_velocity + separation * speed * AVOIDANCE_WEIGHT
 	).limit_length(speed)
-	global_position += movement_velocity * delta
+	# Steering acceleration prevents sudden sideways movement when an intercept
+	# point changes; turning and movement follow the same physics delta.
+	var acceleration: float = maxf(
+		STEERING_ACCELERATION_MINIMUM, speed * STEERING_ACCELERATION_MULTIPLIER
+	)
+	motion_velocity = motion_velocity.move_toward(desired_velocity, acceleration * delta)
+	global_position += motion_velocity * delta
 
-	# Keep the ship and the existing railgun muzzle oriented toward the player,
-	# independently of its current strafing or formation movement.
-	look_at(player.global_position)
+	# Speed ships point where they are actually flying, not straight toward
+	# the player's old position. Other ships preserve player-facing attacks.
+	var desired_heading: float = (player.global_position - global_position).angle()
+	if type == Wavecontrol.SPEED and motion_velocity.length_squared() > 4.0:
+		desired_heading = motion_velocity.angle()
+	var distance_to_player: float = global_position.distance_to(player.global_position)
+	var distance_ratio: float = clampf(
+		distance_to_player / TURN_DISTANCE_REFERENCE, 0.0, 1.0
+	)
+	var response: float = lerpf(
+		TURN_RESPONSE_NEAR, TURN_RESPONSE_FAR, distance_ratio
+	)
+	if type == Wavecontrol.SPEED:
+		response *= SPEED_TURN_MULTIPLIER
+	rotation = TacticsScript.smooth_heading(rotation, desired_heading, response, delta)
 	$Node2D.global_rotation = 0
 	if type == Wavecontrol.RAILGUN:
 		warning_RG()
@@ -149,8 +175,6 @@ func _update_ai_decision() -> void:
 	var closest_tank_distance: float = INF
 	var new_healing_target: Area2D
 	var most_urgent_heal: float = INF
-	var new_protection_target: Area2D
-	var closest_protection_distance: float = INF
 	var avoidance: Vector2 = Vector2.ZERO
 
 	for node: Node in get_tree().get_nodes_in_group("enemy_ai"):
@@ -189,20 +213,8 @@ func _update_ai_decision() -> void:
 					new_healing_target = ally
 					most_urgent_heal = urgency
 
-		if type == Wavecontrol.TANK and ally_type != Wavecontrol.TANK:
-			var ally_player_distance: float = ally.global_position.distance_to(
-				player.global_position)
-			var tank_player_distance: float = global_position.distance_to(
-				player.global_position)
-			if (distance < TANK_PROTECTION_DISTANCE
-					and ally_player_distance > tank_player_distance + 35.0
-					and distance < closest_protection_distance):
-				new_protection_target = ally
-				closest_protection_distance = distance
-
 	separation = avoidance.limit_length(1.0)
 	healing_target = new_healing_target
-	protection_target = new_protection_target
 
 	# Losing positional cover always cancels the formation immediately.
 	# A short re-entry delay prevents border oscillation without forcing
@@ -244,12 +256,15 @@ func _movement_goal() -> Vector2:
 				global_position, player.global_position, 290.0, 425.0, strafe_direction
 			)
 		Wavecontrol.TANK:
+			# Protection steers the pursuit path without cancelling player chase.
 			if is_instance_valid(protection_target):
-				var protected_position: Vector2 = protection_target.global_position
-				var front: Vector2 = (
-					protected_position - player.global_position
-				).normalized()
-				return protected_position - front * 150.0
+				return TacticsScript.tank_defense_target(
+					global_position,
+					player.global_position,
+					protection_target.global_position,
+					TANK_SCREENING_DISTANCE,
+					TANK_PURSUIT_WEIGHT
+				)
 			return player.global_position
 		Wavecontrol.RAILGUN:
 			return TacticsScript.ranged_target(
