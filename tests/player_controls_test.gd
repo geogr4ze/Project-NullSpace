@@ -45,6 +45,23 @@ func _initialize() -> void:
 		"Laser charge begins with a 72-degree/second limit")
 	_check(is_equal_approx(firing_rate, deg_to_rad(18.0)),
 		"Active laser is capped at 18 degrees/second")
+	var release_start_rate: float = Controls.laser_release_turn_rate(0.0)
+	var release_middle_rate: float = Controls.laser_release_turn_rate(0.21)
+	var release_fast_rate: float = Controls.laser_release_turn_rate(0.42)
+	_check(is_equal_approx(release_start_rate, firing_rate),
+		"Laser release begins with the current firing turn speed")
+	_check(release_middle_rate > release_start_rate and
+		release_middle_rate < release_fast_rate,
+		"Laser release gradually accelerates toward the cursor")
+	_check(is_equal_approx(release_fast_rate, deg_to_rad(540.0)),
+		"Release recovery reaches fast aiming after the easing interval")
+	_check(is_equal_approx(Controls.laser_release_turn_rate(2.0),
+		release_fast_rate),
+		"Recovery turn speed is bounded")
+	_check(is_equal_approx(Controls.capped_aim_rotation(
+		0.0, PI, release_start_rate, 1.0 / 60.0
+	), release_start_rate / 60.0),
+		"First release frame does not snap to a distant cursor")
 	_check(charged_rate > firing_rate,
 		"Laser rotation becomes slower as the charge progresses")
 	_check(is_equal_approx(Controls.laser_turn_rate(0.5),
