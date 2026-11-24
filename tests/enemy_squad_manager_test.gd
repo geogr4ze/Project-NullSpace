@@ -54,42 +54,51 @@ func _initialize() -> void:
 	# A fifth visible speed triggers two balanced, stable flanks.
 	var ids: Array[int] = [10, 11, 12, 13, 14]
 	var flanks: Dictionary = Tactics.assign_speed_flanks(ids, {})
-	var left_count: int = 0
-	var right_count: int = 0
+	var top_count: int = 0
+	var bottom_count: int = 0
 	for speed_id: int in ids:
 		if int(flanks[speed_id]) == -1:
-			left_count += 1
+			top_count += 1
 		elif int(flanks[speed_id]) == 1:
-			right_count += 1
+			bottom_count += 1
 	_check("five Speed enemies split 3-2",
-		left_count == 3 and right_count == 2)
+		top_count == 3 and bottom_count == 2)
 	_check("flank assignment remains stable without deaths",
 		Tactics.assign_speed_flanks(ids, flanks) == flanks)
 	var crowded_previous: Dictionary = {
 		10: -1, 11: -1, 12: -1, 13: -1, 14: 1
 	}
 	var balanced: Dictionary = Tactics.assign_speed_flanks(ids, crowded_previous)
-	var left_rebalanced: int = 0
-	var right_rebalanced: int = 0
+	var top_rebalanced: int = 0
+	var bottom_rebalanced: int = 0
 	for side: Variant in balanced.values():
 		if int(side) < 0:
-			left_rebalanced += 1
+			top_rebalanced += 1
 		else:
-			right_rebalanced += 1
+			bottom_rebalanced += 1
 	_check("existing flanks rebalance when heavily uneven",
-		left_rebalanced == 3 and right_rebalanced == 2)
+		top_rebalanced == 3 and bottom_rebalanced == 2)
 
 	var arena: Vector2 = Vector2(1700.0, 900.0)
 	var center: Vector2 = Vector2(850.0, 450.0)
-	var left: Vector2 = Tactics.speed_flank_target(center, arena, -1, 0, 3)
-	var left_next: Vector2 = Tactics.speed_flank_target(center, arena, -1, 1, 3)
-	var right: Vector2 = Tactics.speed_flank_target(center, arena, 1, 0, 2)
-	_check("left group stages at left edge", left.x < arena.x * 0.15)
-	_check("right group stages at right edge", right.x > arena.x * 0.85)
-	_check("pincer staging lanes are distinct", left.y != left_next.y)
+	var top: Vector2 = Tactics.speed_flank_target(center, arena, -1, 0, 3)
+	var top_next: Vector2 = Tactics.speed_flank_target(center, arena, -1, 1, 3)
+	var bottom: Vector2 = Tactics.speed_flank_target(center, arena, 1, 0, 2)
+	_check("top group stages at top edge", top.y < arena.y * 0.15)
+	_check("bottom group stages at bottom edge", bottom.y > arena.y * 0.85)
+	_check("pincer staging lanes spread horizontally", top.x != top_next.x)
+	_check("top and bottom wings align horizontally with player",
+		absf(top.x - center.x) < 100.0
+		and absf(bottom.x - center.x) < 100.0)
 	_check("all flank staging positions remain inside viewport",
-		Rect2(Vector2.ZERO, arena).has_point(left)
-		and Rect2(Vector2.ZERO, arena).has_point(right))
+		Rect2(Vector2.ZERO, arena).has_point(top)
+		and Rect2(Vector2.ZERO, arena).has_point(bottom))
+	var player_near_right: Vector2 = Vector2(1680, 420)
+	var constrained_top: Vector2 = Tactics.speed_flank_target(
+		player_near_right, arena, -1, 2, 3
+	)
+	_check("staging stays on screen when player nears an edge",
+		Rect2(Vector2.ZERO, arena).has_point(constrained_top))
 	quit(1 if errors > 0 else 0)
 
 func _check(description: String, ok: bool) -> void:
