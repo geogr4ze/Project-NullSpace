@@ -46,8 +46,8 @@ func _run() -> void:
 	var firing_rate: float = Controls.laser_turn_rate(1.0)
 	_check(is_equal_approx(charged_rate, deg_to_rad(72.0)),
 		"Laser charge begins with a 72-degree/second limit")
-	_check(is_equal_approx(firing_rate, deg_to_rad(18.0)),
-		"Active laser is capped at 18 degrees/second")
+	_check(is_equal_approx(firing_rate, deg_to_rad(8.0)),
+		"Active laser is capped at 8 degrees/second")
 	var release_start_rate: float = Controls.laser_release_turn_rate(0.0)
 	var release_middle_rate: float = Controls.laser_release_turn_rate(0.21)
 	var release_fast_rate: float = Controls.laser_release_turn_rate(0.42)
@@ -62,7 +62,7 @@ func _run() -> void:
 		release_fast_rate),
 		"Recovery turn speed is bounded")
 	_check(is_equal_approx(Controls.capped_aim_rotation(
-		0.0, PI, release_start_rate, 1.0 / 60.0
+		0.0, PI / 2.0, release_start_rate, 1.0 / 60.0
 	), release_start_rate / 60.0),
 		"First release frame does not snap to a distant cursor")
 	_check(charged_rate > firing_rate,
@@ -88,9 +88,9 @@ func _run() -> void:
 	_check(wrap_angle > PI - 0.02,
 		"Capped laser turn uses shortest angle across -PI/PI")
 	var finished: float = Controls.capped_aim_rotation(
-		0.0, 0.01, firing_rate, 1.0 / 30.0
+		0.0, 0.001, firing_rate, 1.0 / 30.0
 	)
-	_check(is_equal_approx(finished, 0.01),
+	_check(is_equal_approx(finished, 0.001),
 		"Laser does not overshoot the desired cursor heading")
 	var zero_dt: float = Controls.capped_aim_rotation(
 		0.0, 2.0, firing_rate, 0.0

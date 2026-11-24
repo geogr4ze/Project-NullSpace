@@ -67,33 +67,50 @@ func _run() -> void:
 			"Non-tank enemies still evade wave fire")
 		_check(Tactics.can_evade_weapon(non_tank, Modecontrol.MODE2),
 			"Non-tank enemies still evade laser fire")
-	# Only enemies inside the player's forward firing lane try to dodge.
-	var center_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(250, 0), 100.0, 950.0, 1.0
+	# Evasion is based on existing bullets and relative motion, not aim.
+	var velocity: Vector2 = Vector2(1000, 0)
+	var center_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(250, 0), Vector2.ZERO, 100.0, 0.7, 1.0
 	)
-	_check(center_dodge.y > 0.9 and absf(center_dodge.x) < 0.01,
-		"An enemy directly ahead should evade sideways")
-	var side_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(250, -45), 100.0, 950.0, 1.0
+	_check(center_dodge.y > 0.5 and absf(center_dodge.x) < 0.01,
+		"An approaching center hit causes a sideways dodge")
+	var side_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(250, -45), Vector2.ZERO, 100.0, 0.7, 1.0
 	)
-	_check(side_dodge.y < 0.0, "Evade toward the nearest edge of the firing lane")
-	var outside_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(250, 130), 100.0, 950.0, 1.0
+	_check(side_dodge.y < 0.0, "Dodge away from the predicted collision")
+	var outside_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(250, 130), Vector2.ZERO, 100.0, 0.7, 1.0
 	)
-	_check(outside_dodge == Vector2.ZERO, "Do not dodge if outside the firing lane")
-	var behind_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(-200, 0), 100.0, 950.0, -1.0
+	_check(outside_dodge == Vector2.ZERO, "No dodge for a predicted miss")
+	var behind_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(-200, 0), Vector2.ZERO, 100.0, 0.7, -1.0
 	)
-	_check(behind_dodge == Vector2.ZERO, "Do not dodge shots aimed away from enemies")
-	var far_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(1200, 0), 100.0, 950.0, 1.0
+	_check(behind_dodge == Vector2.ZERO, "No dodge for a receding projectile")
+	var far_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(1200, 0), Vector2.ZERO, 100.0, 0.7, 1.0
 	)
-	_check(far_dodge == Vector2.ZERO, "Do not dodge outside the firing range")
-	var quarter_dodge: Vector2 = Tactics.firing_lane_escape(
-		player, Vector2.RIGHT, Vector2(250, 50), 100.0, 950.0, 1.0
+	_check(far_dodge == Vector2.ZERO, "No dodge beyond prediction horizon")
+	var quarter_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(250, 50), Vector2.ZERO, 100.0, 0.7, 1.0
 	)
 	_check(quarter_dodge.y > 0.0 and quarter_dodge.y < center_dodge.y,
-		"Evade less aggressively near the edge of the lane")
+		"Glancing collisions produce weaker dodges")
+	var near_dodge: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(100, 0), Vector2.ZERO, 100.0, 0.7, 1.0
+	)
+	_check(near_dodge.length() > center_dodge.length(), "Earlier impact is more urgent")
+	var moving_into_path: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(500, 150), Vector2(0, -300), 30.0, 0.7, -1.0
+	)
+	_check(moving_into_path.length() > 0.5, "Predict collisions with moving enemies")
+	var moving_away: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(500, 0), Vector2(0, 300), 30.0, 0.7, 1.0
+	)
+	_check(moving_away == Vector2.ZERO, "No dodge when enemy motion avoids collision")
+	var equal_velocity: Vector2 = Tactics.projectile_evasion(
+		player, velocity, Vector2(100, 0), velocity, 30.0, 0.7, 1.0
+	)
+	_check(equal_velocity == Vector2.ZERO, "No approach at equal velocities")
 	var predicted: Vector2 = Tactics.predicted_intercept(
 		Vector2(400, 0), player, Vector2(200, 0), 200.0)
 	_check(predicted.x > player.x, "Fast enemies should lead a moving player")

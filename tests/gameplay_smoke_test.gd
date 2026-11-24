@@ -37,8 +37,7 @@ func _run() -> void:
 	_check(overlay != null and overlay.process_mode == Node.PROCESS_MODE_ALWAYS, "game-over overlay can process while paused")
 	if overlay != null:
 		overlay.call("_restart")
-		await get_tree().process_frame
-		await get_tree().process_frame
+		await get_tree().scene_changed
 		_check(not get_tree().paused and Wavecontrol.wave == 1 and not Wavecontrol.finished, "restart resumes a clean run")
 		_check(get_tree().current_scene != null and get_tree().current_scene.get_instance_id() != original_scene_id, "gameplay scene was reloaded")
 	else:

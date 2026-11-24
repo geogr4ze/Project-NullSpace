@@ -35,9 +35,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          failures=0
           for test in tests/*_test.gd; do
             echo "::group::$test"
-            timeout 90s godot --headless --rendering-method gl_compatibility --path . res://tests/test_runner.tscn -- "res://$test" 2>&1 | tee /tmp/test.log
-            if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/test.log; then exit 1; fi
+            if timeout 90s godot --headless --rendering-method gl_compatibility --path . res://tests/test_runner.tscn -- "res://$test" 2>&1 | tee /tmp/test.log; then
+              if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/test.log; then
+                echo "::error file=$test::Script error"
+                failures=$((failures + 1))
+              else
+                echo "PASS: $test"
+              fi
+            else
+              echo "::error file=$test::Test failed"
+              failures=$((failures + 1))
+            fi
             echo "::endgroup::"
           done
+          echo "$failures test scripts failed"
+          test "$failures" -eq 0
