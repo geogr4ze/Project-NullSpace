@@ -41,6 +41,10 @@ func _initialize() -> void:
 	# angle changes even if the cursor jumps to the opposite side.
 	var charged_rate: float = Controls.laser_turn_rate(0.0)
 	var firing_rate: float = Controls.laser_turn_rate(1.0)
+	_check(is_equal_approx(charged_rate, deg_to_rad(72.0)),
+		"Laser charge begins with a 72-degree/second limit")
+	_check(is_equal_approx(firing_rate, deg_to_rad(18.0)),
+		"Active laser is capped at 18 degrees/second")
 	_check(charged_rate > firing_rate,
 		"Laser rotation becomes slower as the charge progresses")
 	_check(is_equal_approx(Controls.laser_turn_rate(0.5),

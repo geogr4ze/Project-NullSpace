@@ -306,6 +306,9 @@ animations = [{
 "speed": 16.0
 }]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_continuous_laser"]
+blend_mode = 1
+
 [sub_resource type="Gradient" id="Gradient_ship_halo"]
 offsets = PackedFloat32Array(0, 0.42, 1)
 colors = PackedColorArray(1, 1, 1, 0.32, 1, 1, 1, 0.1, 1, 1, 1, 0)
@@ -329,7 +332,7 @@ z_index = -1
 scale = Vector2(1.1, 0.92)
 texture = SubResource("GradientTexture2D_ship_halo")
 script = ExtResource("50_glow")
-intensity = 0.24
+intensity = 0.32
 
 [node name="PlayerSkin" type="AnimatedSprite2D" parent="." unique_id=2067628723]
 scale = Vector2(0.098, 0.098)
@@ -337,6 +340,31 @@ sprite_frames = SubResource("SpriteFrames_imlnl")
 
 [node name="Muzzle" type="Marker2D" parent="." unique_id=924380720]
 position = Vector2(0, -31)
+
+[node name="LaserBeam" type="Node2D" parent="."]
+visible = false
+position = Vector2(0, -31)
+z_index = 1
+
+[node name="OuterGlow" type="Line2D" parent="LaserBeam"]
+material = SubResource("CanvasItemMaterial_continuous_laser")
+points = PackedVector2Array(0, 0, 0, -2200)
+width = 46.0
+default_color = Color(0.06, 0.43, 1, 0.14)
+antialiased = true
+
+[node name="BlueBand" type="Line2D" parent="LaserBeam"]
+material = SubResource("CanvasItemMaterial_continuous_laser")
+points = PackedVector2Array(0, 0, 0, -2200)
+width = 24.0
+default_color = Color(0.12, 0.7, 1, 0.58)
+antialiased = true
+
+[node name="Core" type="Line2D" parent="LaserBeam"]
+points = PackedVector2Array(0, 0, 0, -2200)
+width = 10.0
+default_color = Color(0.84, 0.97, 1, 1)
+antialiased = true
 
 [node name="Node2D" type="Node2D" parent="." unique_id=1664092000]
 
