@@ -1,65 +1,74 @@
 extends Node2D
 
-var pressed_button1: bool = true
-var pressed_button2: bool = true
-var auto_start: bool = false 
+var auto_start: bool = false
+var autoplay_generation: int = 0
+var shop_available: bool = true
+var ended: bool = false
 var click_scale: Vector2 = Vector2(0.005, 0.005)
 const SHOP_SCENE: PackedScene = preload("res://scenes/shop.tscn")
-var tab_targets: Dictionary = {}
+const HOVER_DISTANCE: float = 10.0
+const HOVER_DURATION: float = 0.1
+var tab_bases: Dictionary = {}
+var tab_shown: Dictionary = {}
+var tab_hovered: Dictionary = {}
 var tab_tweens: Dictionary = {}
 var click_tweens: Dictionary = {}
+var click_bases: Dictionary = {}
 var play: Texture2D = preload("res://assets/ui/buttons/Play + autoplay Skins-1.png.png")
 var pause: Texture2D = preload("res://assets/ui/buttons/Play + autoplay Skins-3.png.png")
 
-func _ready():
+func _ready() -> void:
 	Signalbus.wave_complete.connect(on_wave_complete)
 	Signalbus.test_mode.connect(on_test)
+	Signalbus.game_over.connect(_on_game_over)
+	for tab: Control in [$Play_PauseTab, $AutoPlayTab, $ShopTab]:
+		tab_bases[tab] = tab.position
+		tab_shown[tab] = true
+		tab_hovered[tab] = false
+	for button: Button in [$%Button1, $%Button2, $%Button3]:
+		click_bases[button] = button.scale
 
-func _process(_delta: float):
-	if Input.is_action_just_pressed("auto_next_wave") and pressed_button2:
-		extend($AutoPlayTab, 1)
+func _process(_delta: float) -> void:
+	if ended or Shopcontrol.shop_open:
+		return
+	if Input.is_action_just_pressed("auto_next_wave"):
 		autoplay_control()
-		await get_tree().create_timer(0.5).timeout
-		retract($AutoPlayTab, 1)
-	if Input.is_action_just_pressed("next_wave") and pressed_button1:
-		extend($Play_PauseTab, 1)
+	if Input.is_action_just_pressed("next_wave"):
 		play_pause_control()
-		await get_tree().create_timer(0.5).timeout
-		retract($Play_PauseTab, 1)
-	if Input.is_action_just_pressed("shop") and !Shopcontrol.shop_open:
-		extend($ShopTab, 0)
+	if Input.is_action_just_pressed("shop"):
 		shop_control()
-		await get_tree().create_timer(0.5).timeout
-		retract($ShopTab, 0)
 
-#Button functions---------------------------------------------------------------
+func _can_start() -> bool:
+	return not ended and not Shopcontrol.shop_open and Wavecontrol.can_start_wave()
+
 func play_pause_control() -> void:
-	pressed_button1 = false
-	if $%Button1.icon == play:
-		clicked($%Button1)
-		_next_wave()
-		pressed_button2 = false
-		autoplayhide()
-		playhide()
-		shophide()
-	elif $%Button1.icon == pause:
+	if ended or Shopcontrol.shop_open:
+		return
+	if auto_start:
 		clicked($%Button1)
 		auto_start = false
-		pressed_button2 = true
-		playhide()
+		autoplay_generation += 1
 		$%Button1.icon = play
+		if Wavecontrol.wave_active:
+			_set_controls(false, false, false)
+		else:
+			_set_controls(true, true, true)
+	elif _can_start():
+		clicked($%Button1)
+		_set_controls(false, false, false)
+		Wavecontrol.spawn_enemy()
 
 func autoplay_control() -> void:
-	pressed_button2 = false
+	if auto_start or not _can_start():
+		return
 	clicked($%Button2)
 	auto_start = true
-	_next_wave()
 	$%Button1.icon = pause
-	autoplayhide()
-	shophide()
+	_set_controls(true, false, false)
+	Wavecontrol.spawn_enemy()
 
 func shop_control() -> void:
-	if Shopcontrol.shop_open:
+	if ended or not shop_available or Shopcontrol.shop_open or Wavecontrol.wave_active:
 		return
 	var shop: Node2D = SHOP_SCENE.instantiate() as Node2D
 	if shop == null:
@@ -67,127 +76,93 @@ func shop_control() -> void:
 		return
 	Shopcontrol.shop_open = true
 	clicked($%Button3)
-	# Keep the existing gameplay scene alive so player/wave state survives.
 	get_parent().add_child(shop)
 	get_tree().paused = true
 
-#Play/Pause functions-----------------------------------------------------------
-func _on_button_1_pressed() -> void:
-	if pressed_button1 or auto_start:
-		play_pause_control()
+func _set_controls(show_play: bool, show_auto: bool, show_shop: bool) -> void:
+	shop_available = show_shop
+	_set_shown($Play_PauseTab, show_play)
+	_set_shown($AutoPlayTab, show_auto)
+	_set_shown($ShopTab, show_shop)
+	$%Button1.disabled = not show_play
+	$%Button2.disabled = not show_auto
+	$%Button3.disabled = not show_shop
 
-func playshow() -> void:
-	_move_tab($Play_PauseTab, Vector2.UP * 50.0, 0.5)
+func _set_shown(tab: Control, shown: bool) -> void:
+	tab_shown[tab] = shown
+	if not shown:
+		tab_hovered[tab] = false
+	_move_tab(tab, 0.5 if tab == $Play_PauseTab else 1.0)
 
-func playhide() -> void:
-	_move_tab($Play_PauseTab, Vector2.DOWN * 50.0, 0.5)
+func _set_hovered(tab: Control, hovered: bool) -> void:
+	tab_hovered[tab] = hovered and bool(tab_shown.get(tab, false))
+	_move_tab(tab, HOVER_DURATION)
 
-func _on_button_1_mouse_entered() -> void:
-	extend($Play_PauseTab, 1)
-
-func _on_button_1_mouse_exited() -> void:
-	retract($Play_PauseTab, 1)
-
-#Autoplay functions-------------------------------------------------------------
-func _on_button_2_pressed() -> void:
-	if pressed_button2:
-		autoplay_control()
-
-func autoplayshow() -> void:
-	show_button($AutoPlayTab, 1)
-
-func autoplayhide() -> void:
-	hide_button($AutoPlayTab, 1)
-
-func _on_button_2_mouse_entered() -> void:
-	extend($AutoPlayTab, 1)
-
-func _on_button_2_mouse_exited() -> void:
-	retract($AutoPlayTab, 1)
-
-#Shop functions-----------------------------------------------------------------
-func _on_button_3_pressed() -> void:
-	if !Shopcontrol.shop_open:
-		shop_control()
-
-func shopshow() -> void:
-	show_button($ShopTab, 0)
-
-func shophide() -> void:
-	hide_button($ShopTab, 0)
-
-func _on_button_3_mouse_entered() -> void:
-	extend($ShopTab, 0)
-
-func _on_button_3_mouse_exited() -> void:
-	retract($ShopTab, 0)
-
-# Helper functions — one tween per tab; no timer-per-pixel animation.
-const HOVER_DISTANCE: float = 10.0
-const TAB_DISTANCE: float = 100.0
-const HOVER_DURATION: float = 0.1
-const TAB_DURATION: float = 1.0
-var vectors: Array[Vector2] = [Vector2.RIGHT, Vector2.UP]
-
-func _move_tab(tab: Control, offset: Vector2, duration: float) -> void:
-	var key: int = tab.get_instance_id()
-	var target: Vector2 = tab_targets.get(key, tab.position)
-	target += offset
-	tab_targets[key] = target
-	if tab_tweens.has(key):
-		var previous: Tween = tab_tweens[key]
+func _move_tab(tab: Control, duration: float) -> void:
+	var direction: Vector2 = Vector2.RIGHT if tab == $ShopTab else Vector2.UP
+	var distance: float = 50.0 if tab == $Play_PauseTab else 100.0
+	var target: Vector2 = tab_bases[tab]
+	if not bool(tab_shown[tab]):
+		target -= direction * distance
+	elif bool(tab_hovered[tab]):
+		target += direction * HOVER_DISTANCE
+	if tab_tweens.has(tab):
+		var previous: Tween = tab_tweens[tab]
 		if previous.is_valid():
 			previous.kill()
 	var tween: Tween = create_tween()
 	tween.tween_property(tab, "position", target, duration)
-	tab_tweens[key] = tween
-
-func extend(tab: Control, vector_type: int) -> void:
-	_move_tab(tab, vectors[vector_type] * HOVER_DISTANCE, HOVER_DURATION)
-
-func retract(tab: Control, vector_type: int) -> void:
-	_move_tab(tab, -vectors[vector_type] * HOVER_DISTANCE, HOVER_DURATION)
-
-func show_button(tab: Control, vector_type: int) -> void:
-	_move_tab(tab, vectors[vector_type] * TAB_DISTANCE, TAB_DURATION)
-
-func hide_button(tab: Control, vector_type: int) -> void:
-	_move_tab(tab, -vectors[vector_type] * TAB_DISTANCE, TAB_DURATION)
+	tab_tweens[tab] = tween
 
 func clicked(button: Control) -> void:
-	var key: int = button.get_instance_id()
-	if click_tweens.has(key):
-		var previous: Tween = click_tweens[key]
+	if click_tweens.has(button):
+		var previous: Tween = click_tweens[button]
 		if previous.is_valid():
 			previous.kill()
-	var original_scale: Vector2 = button.scale
+	var original: Vector2 = click_bases[button]
 	var tween: Tween = create_tween()
-	tween.tween_property(button, "scale", original_scale - click_scale * 10.0, 0.1)
-	tween.tween_property(button, "scale", original_scale, 0.1)
-	click_tweens[key] = tween
+	tween.tween_property(button, "scale", original - click_scale * 10.0, 0.1)
+	tween.tween_property(button, "scale", original, 0.1)
+	click_tweens[button] = tween
 
-#Wave functions-----------------------------------------------------------------
-func on_wave_complete(wave: int) -> void:
+func _on_button_1_pressed() -> void:
+	play_pause_control()
+func _on_button_2_pressed() -> void:
+	autoplay_control()
+func _on_button_3_pressed() -> void:
+	shop_control()
+func _on_button_1_mouse_entered() -> void:
+	_set_hovered($Play_PauseTab, true)
+func _on_button_1_mouse_exited() -> void:
+	_set_hovered($Play_PauseTab, false)
+func _on_button_2_mouse_entered() -> void:
+	_set_hovered($AutoPlayTab, true)
+func _on_button_2_mouse_exited() -> void:
+	_set_hovered($AutoPlayTab, false)
+func _on_button_3_mouse_entered() -> void:
+	_set_hovered($ShopTab, true)
+func _on_button_3_mouse_exited() -> void:
+	_set_hovered($ShopTab, false)
+
+func on_wave_complete(completed_wave: int) -> void:
+	if ended or completed_wave >= Wavecontrol.max_wave:
+		return
 	if auto_start:
-		await get_tree().create_timer(2).timeout
-		_next_wave()
+		var generation: int = autoplay_generation
+		await get_tree().create_timer(2.0, false).timeout
+		if generation == autoplay_generation and auto_start and _can_start():
+			Wavecontrol.spawn_enemy()
 	else:
-		if wave <= 25:
-			pressed_button1 = true
-			pressed_button2 = true
-			autoplayshow()
-			playshow()
-			shopshow()
+		_set_controls(true, true, true)
 
-func _next_wave() -> void:
-	# Start the wave as soon as Play is pressed; the spawn loop staggers
-	# individual enemies using Wavecontrol.spawnrate.
-	Signalbus.next_wave.emit()
-	Wavecontrol.spawn_enemy()
+func _on_game_over(_won: bool) -> void:
+	ended = true
+	auto_start = false
+	autoplay_generation += 1
+	shop_available = false
+	hide()
 
 func on_test() -> void:
-	pressed_button1 = false
-	pressed_button2 = false
-	# The old code referenced AutoPlayButton/Play_PauseButton nodes that
-	# do not exist in buttonnodes.tscn. Hide the entire control group.
+	ended = true
+	shop_available = false
 	hide()

@@ -31,7 +31,7 @@ func update_wave(wave: int) -> void:
 	wave_tween.tween_property(wave_label, "modulate:a", 0.0, 1.0)
 
 func update_money(money: float) -> void:
-	$MoneyCount.text = "Money: $" + str(money)
+	$MoneyCount.text = "Money: $%d" % int(money)
 
 func update_energy(energy: int) -> void:
 	if energy <= 0:

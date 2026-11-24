@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Project NullSpace"
-run/main_scene="uid://bkdc5mcuu4yl5"
+run/main_scene="res://scenes/start_page.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/stretch/mode="disabled"
 
@@ -115,3 +115,5 @@ dash={
 2d_physics/layer_7="Energy"
 2d_physics/layer_8="EnemySupport"
 2d_physics/layer_9="Mouse"
+
+2d_physics/layer_10="TankShield"

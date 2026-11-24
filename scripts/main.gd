@@ -10,7 +10,9 @@ var bullet_scene: PackedScene = preload("res://scenes/bullet.tscn")
 var portal_scene: PackedScene = preload("res://scenes/portal.tscn")
 var score: int = 0
 var bullet_speed: float
-var energy_CA: int
+var energy_generation: int = 0
+var run_finished: bool = false
+const GameOverOverlay = preload("res://scripts/game_over_overlay.gd")
 
 @onready var ship: PlayerShipScript = $Player
 @onready var hud: GameHUDScript = $UI
@@ -18,7 +20,7 @@ var energy_CA: int
 @onready var enemy_spawn_location: PathFollow2D = $%EnemySpawnLocation
 
 func _ready():
-	bullet_speed = Modecontrol.modes[0]["bullet_speed"]
+	bullet_speed = Modecontrol.modes[Modecontrol.mode]["bullet_speed"]
 	ship.start($PlayerStartPos.position)
 	hud.update_energy(ship.energy)
 	Signalbus.new_enemy.connect(spawn_enemy)
@@ -32,6 +34,9 @@ func _ready():
 	Signalbus.next_wave.connect(_on_next_wave)
 	Signalbus.energy_low.connect(_on_energy_low)
 	Signalbus.player_death.connect(_death)
+	Signalbus.game_over.connect(_on_game_over)
+	Signalbus.shop_money_changed.connect(_refresh_money)
+	_refresh_money()
 	Signalbus.dash.connect(_on_dash)
 	Modecontrol.mode_changed.connect(_change_bp)
 	if Wavecontrol.test_enable:
@@ -41,23 +46,32 @@ func _ready():
 		Wavecontrol.test_spawn()
 
 func _death() -> void:
+	if not run_finished:
+		Signalbus.game_over.emit(false)
+
+func _on_game_over(won: bool) -> void:
+	if run_finished:
+		return
+	run_finished = true
+	energy_generation += 1
+	Wavecontrol.stop_run()
 	get_tree().paused = true
+	var overlay: CanvasLayer = GameOverOverlay.new()
+	add_child(overlay)
+	overlay.call("show_result", won)
+
 
 func _change_bp(mode: int) -> void:
 	bullet_speed = Modecontrol.modes[mode]["bullet_speed"]
 
-var energy_low: bool = true
-
 func _on_energy_low() -> void:
-	if energy_low:
-		energy_low = false
-		hud.update_energy_low(ship.energy)
-		await get_tree().create_timer(3).timeout
-		energy_low = true
+	hud.update_energy_low(ship.energy)
 
 func _on_money(reward_amount: int) -> void:
 	Shopcontrol.shopmoney += reward_amount * Shopcontrol.money_multi
-	@warning_ignore("narrowing_conversion")
+	_refresh_money()
+
+func _refresh_money() -> void:
 	hud.update_money(Shopcontrol.shopmoney)
 
 func _on_energy() -> void:
@@ -88,7 +102,7 @@ func _on_shot() -> void:
 		return
 	bullet.configure_mode(Modecontrol.mode)
 	var direction: float = ship.rotation
-	if Modecontrol.mode == 0:
+	if Modecontrol.mode == Modecontrol.DEFAULT:
 		direction += randf_range(-Shopcontrol.spread, Shopcontrol.spread)
 	bullet.position = muzzle.global_position
 	bullet.rotation = direction
@@ -97,13 +111,16 @@ func _on_shot() -> void:
 	add_child(bullet)
 
 func spawn_energy() -> void:
-	energy_CA = 1 + 2*(Wavecontrol.wave)
-	for i: int in energy_CA:
+	energy_generation += 1
+	var generation: int = energy_generation
+	var count: int = 1 + 2 * Wavecontrol.wave
+	for i: int in count:
+		if generation != energy_generation or run_finished:
+			return
 		var portal: Node2D = portal_scene.instantiate() as Node2D
-		var portal_sl: Vector2 = Vector2(randf_range(100, 1600), randf_range(100, 800))
-		portal.position = portal_sl
+		portal.position = Vector2(randf_range(100, 1600), randf_range(100, 800))
 		add_child(portal)
-		await get_tree().create_timer(randf_range(7, 15)).timeout
+		await get_tree().create_timer(randf_range(7, 15), false).timeout
 
 func spawn_enemy(enemy_type: int) -> void:
 	var enemy: EnemyShipScript = enemy_scene.instantiate() as EnemyShipScript

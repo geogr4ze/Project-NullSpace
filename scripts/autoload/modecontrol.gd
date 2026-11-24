@@ -7,9 +7,9 @@ enum {DEFAULT = 0, MODE1, MODE2}
 var mode: int = DEFAULT
 signal mode_changed(mode_number: int)
 var modes: Dictionary = {
-	DEFAULT: {"delay": 0.5,"bullet_speed": -1000,"energy": 3,"player_movement": 2, "pierce": 2, "skin": "default", "bullet_skin": "bullet"}, 
-	MODE1: {"delay": 1.5,"bullet_speed": -750,"energy": 8,"player_movement": 1.5, "pierce": 10, "skin": "mode1", "bullet_skin": "wave"},
-	MODE2: {"delay": 0.005,"bullet_speed": -8000,"energy": 15,"player_movement": 1.5, "pierce": 1000000, "skin": "mode2", "bullet_skin": "laser"}
+	DEFAULT: {"delay": 0.5,"bullet_speed": -1000,"energy": 3,"player_movement": 2, "pierce": 2, "damage": 1, "collision": default_collision, "skin": "default", "bullet_skin": "bullet"}, 
+	MODE1: {"delay": 1.5,"bullet_speed": -750,"energy": 8,"player_movement": 1.5, "pierce": 10, "damage": 2, "collision": mode1_collision, "skin": "mode1", "bullet_skin": "wave"},
+	MODE2: {"delay": 0.005,"bullet_speed": -8000,"energy": 15,"player_movement": 1.5, "pierce": 1000000, "damage": 1, "collision": mode2_collision, "skin": "mode2", "bullet_skin": "laser"}
 }
 
 func set_mode(mode_number: int) -> void:
@@ -20,3 +20,7 @@ func set_mode(mode_number: int) -> void:
 		return
 	mode = mode_number
 	mode_changed.emit(mode)
+
+func reset_run() -> void:
+	# No mode-change notification to the outgoing player during a reload.
+	mode = DEFAULT
