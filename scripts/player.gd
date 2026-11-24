@@ -1,3 +1,4 @@
+class_name PlayerShip
 extends CharacterBody2D
 
 # Misc Variables
@@ -45,6 +46,15 @@ var rdtype: Dictionary = {
 var shield_act: bool = false
 var shield_conf: bool = false
 
+@onready var player_skin: AnimatedSprite2D = $PlayerSkin
+@onready var shield_skin: AnimatedSprite2D = $ShieldSkin
+@onready var overheat_bar: ProgressBar = $%Overheatbar
+@onready var health_bar: ProgressBar = $%Healthbar
+@onready var shield_bar: ProgressBar = $%Shieldbar
+@onready var ui_anchor: Node2D = $Node2D
+@onready var healing_timer: Timer = $HealingTimer
+@onready var shield_regen_timer: Timer = $ShieldRegen
+
 func _ready():
 	Signalbus.hit.connect(_on_hit)
 	Signalbus.energy.connect(_on_energy)
@@ -54,19 +64,23 @@ func _ready():
 	Modecontrol.mode_changed.connect(_change_mode)
 	energy_cost = Modecontrol.modes[0]["energy"]
 	delay = Modecontrol.modes[0]["delay"]
-	$PlayerSkin.animation = Modecontrol.modes[0]["skin"]
-	$ShieldSkin.animation = Modecontrol.modes[0]["skin"]
+	player_skin.animation = Modecontrol.modes[0]["skin"]
+	shield_skin.animation = Modecontrol.modes[0]["skin"]
 	rotation_speed = Modecontrol.modes[0]["player_movement"]
-	modul[0] = $%Healthbar
-	modul[1] = $%Shieldbar
+	modul[0] = health_bar
+	modul[1] = shield_bar
 	for i: int in 2:
 		modul[i].max_value = bar[i]
 		modul[i].value = bar[i]
-	screen_size = get_viewport_rect().size
+	_update_screen_size()
+	get_viewport().size_changed.connect(_update_screen_size)
 	rotation_degrees = 90
-	$HealingTimer.wait_time = healdelay
-	$%Overheatbar.max_value = maxoverheat
+	healing_timer.wait_time = healdelay
+	overheat_bar.max_value = maxoverheat
 	_on_shield()
+
+func _update_screen_size() -> void:
+	screen_size = get_viewport_rect().size
 
 func start(pos: Vector2) -> void:
 	position = pos
@@ -75,10 +89,10 @@ func start(pos: Vector2) -> void:
 func _change_mode(mode: int) -> void:
 	energy_cost = Modecontrol.modes[mode]["energy"]
 	delay = Modecontrol.modes[mode]["delay"]
-	$PlayerSkin.animation = Modecontrol.modes[mode]["skin"]
-	$ShieldSkin.animation = Modecontrol.modes[mode]["skin"]
+	player_skin.animation = Modecontrol.modes[mode]["skin"]
+	shield_skin.animation = Modecontrol.modes[mode]["skin"]
 	if bar[1] <= 0 or m2_kill or !shield_conf:
-		$ShieldSkin.frame = 7
+		shield_skin.frame = 7
 	rotation_speed = Modecontrol.modes[mode]["player_movement"]
 
 func _physics_process(delta: float) -> void:
@@ -87,7 +101,7 @@ func _physics_process(delta: float) -> void:
 	handle_rotation(delta)
 	dash_control(delta)
 	handle_movement(delta)
-	$Node2D.global_rotation = 0
+	ui_anchor.global_rotation = 0
 	# Combat updates at the fixed physics tick, independent of render FPS.
 	shot_timer.advance(delta)
 	handle_fire_modes()
@@ -138,12 +152,12 @@ func _on_shield() -> void:
 func _shield_deact() -> void:
 	if shield_act and bar[1] > 0:
 		shield_act = false
-		$ShieldSkin.play()
+		shield_skin.play()
 
 func _shield_act() -> void:
 	if !shield_act and bar[1] > 0 and !m2_kill:
 		shield_act = true
-		$ShieldSkin.play_backwards()
+		shield_skin.play_backwards()
 
 func _on_energy() -> void:
 	energy += int(25 * Shopcontrol.energy_multi)
@@ -163,15 +177,15 @@ func damage_taken(type: int) -> void:
 	var damage: int = rdtype[type]["damage"]
 	if bar[1] > 0 and shield_act:
 		bar[1] = maxi(0, bar[1] - damage)
-		$ShieldRegen.start()
+		shield_regen_timer.start()
 		if bar[1] == 0:
 			shield_act = false
-			$ShieldSkin.play()
+			shield_skin.play()
 		hp_update(1)
 	else:
 		bar[0] = maxi(0, bar[0] - damage)
 		hit_timer = maxf(hit_timer, float(rdtype[type]["recov"]))
-		$HealingTimer.start()
+		healing_timer.start()
 		hp_update(0)
 
 func hp_update(bar_type: int) -> void:
@@ -191,7 +205,7 @@ func _on_healing_timer_timeout() -> void:
 		bar[0] += healing_amount
 	if bar[0] >= modul[0].max_value:
 		bar[0] = modul[0].max_value
-		$HealingTimer.stop()
+		healing_timer.stop()
 	hp_update(0)
 
 func _on_shield_regen_timeout() -> void:
@@ -199,7 +213,7 @@ func _on_shield_regen_timeout() -> void:
 		bar[1] += 5
 	if bar[1] >= modul[1].max_value:
 		bar[1] = modul[1].max_value
-		$ShieldRegen.stop()
+		shield_regen_timer.stop()
 	hp_update(1)
 
 # Mobility functions -------------------------------------------------------------------
@@ -224,19 +238,19 @@ func handle_movement(delta: float) -> void:
 # Mode functions -------------------------------------------------------------------
 func handle_fire_modes() -> void:
 	if !Input.is_action_pressed("Fire"): 
-		if !$ShieldSkin.is_playing() and !dashing:
+		if !shield_skin.is_playing() and !dashing:
 			if Input.is_action_just_pressed("default_shooting"):
 				Modecontrol.set_mode(0)
 				$Default.polygon = Modecontrol.default_collision
-				$%Overheatbar.visible = false
+				overheat_bar.visible = false
 			if Input.is_action_just_pressed("mode1_shooting") and Shopcontrol.bought_mode1: 
 				Modecontrol.set_mode(1)
 				$Default.polygon = Modecontrol.mode1_collision
-				$%Overheatbar.visible = false
+				overheat_bar.visible = false
 			if Input.is_action_just_pressed("mode2_shooting") and Shopcontrol.bought_mode2:
 				Modecontrol.set_mode(2)
 				$Default.polygon = Modecontrol.mode2_collision
-				$%Overheatbar.visible = true
+				overheat_bar.visible = true
 
 var frameindex_m2: int = 0
 var firing_m2: bool = false
@@ -244,7 +258,6 @@ var m2_kill: bool = false
 var charge_time_m2: float = 0.0
 
 func mode2_control(delta: float) -> void:
-	var heatbar: ProgressBar = $%Overheatbar
 	if Input.is_action_pressed("Fire") and !m2_kill:
 		if bar[1] > 0:
 			_shield_deact()
@@ -252,14 +265,14 @@ func mode2_control(delta: float) -> void:
 		charge_time_m2 = minf(LASER_CHARGE_TIME, charge_time_m2 + delta)
 		frameindex_m2 = mini(25, int(charge_time_m2 / 0.05))
 		if !firing_m2:
-			$PlayerSkin.frame = frameindex_m2
+			player_skin.frame = frameindex_m2
 		if charge_time_m2 >= LASER_CHARGE_TIME:
 			if !firing_m2:
-				$PlayerSkin.play("Stage2_mode2")
+				player_skin.play("Stage2_mode2")
 			firing_m2 = true
 			if fire():
-				heatbar.value = minf(maxoverheat, heatbar.value + LASER_HEAT_PER_SECOND * delta)
-			if heatbar.value >= maxoverheat:
+				overheat_bar.value = minf(maxoverheat, overheat_bar.value + LASER_HEAT_PER_SECOND * delta)
+			if overheat_bar.value >= maxoverheat:
 				m2_kill = true
 				firing_m2 = false
 				charge_time_m2 = 0.0
@@ -271,13 +284,13 @@ func mode2_control(delta: float) -> void:
 	charge_time_m2 = 0.0
 	frameindex_m2 = 0
 	if m2_kill:
-		if $PlayerSkin.animation != "CD_mode2":
-			$PlayerSkin.play("CD_mode2")
+		if player_skin.animation != "CD_mode2":
+			player_skin.play("CD_mode2")
 	else:
-		$PlayerSkin.animation = "mode2"
-		$PlayerSkin.frame = 0
-	heatbar.value = maxf(0.0, heatbar.value - LASER_COOL_PER_SECOND * delta)
-	if heatbar.value <= 0.0:
+		player_skin.animation = "mode2"
+		player_skin.frame = 0
+	overheat_bar.value = maxf(0.0, overheat_bar.value - LASER_COOL_PER_SECOND * delta)
+	if overheat_bar.value <= 0.0:
 		m2_kill = false
 	if shield_conf and !m2_kill:
 		_shield_act()
@@ -289,16 +302,16 @@ func mode1_control(delta: float) -> void:
 	if Input.is_action_pressed("Fire"):
 		charge_time_m1 = minf(0.7, charge_time_m1 + delta)
 		frameindex_m1 = mini(14, int(charge_time_m1 / 0.05))
-		$PlayerSkin.frame = frameindex_m1
+		player_skin.frame = frameindex_m1
 		if frameindex_m1 >= 14 and fire():
 			charge_time_m1 = 0.0
 			frameindex_m1 = 0
-			$PlayerSkin.frame = 0
+			player_skin.frame = 0
 	else:
 		charge_time_m1 = 0.0
 		frameindex_m1 = 0
-		$PlayerSkin.frame = 0
-		$PlayerSkin.animation = "mode1"
+		player_skin.frame = 0
+		player_skin.animation = "mode1"
 
 var shot_timer: WeaponCooldown = WeaponCooldown.new()
 

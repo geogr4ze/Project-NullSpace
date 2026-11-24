@@ -87,6 +87,10 @@ disabled = true
 scale = Vector2(0.098, 0.098)
 sprite_frames = SubResource("SpriteFrames_dabn1")
 
+
+[node name="Visibility" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-36, -36, 72, 72)
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1509502383]
 shape = SubResource("CircleShape2D_f4nsu")
 
@@ -105,3 +109,4 @@ value = 10.0
 show_percentage = false
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="screen_exited" from="Visibility" to="." method="_on_visibility_screen_exited"]

@@ -52,8 +52,12 @@ func fadeout() -> void:
 
 var hitflag: bool = true
 
+func _on_visibility_screen_exited() -> void:
+	if primed:
+		queue_free()
+
 func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body.name == "Player":
+	if body is PlayerShip:
 		if primed:
 			explosion()
 		if !hitflag:

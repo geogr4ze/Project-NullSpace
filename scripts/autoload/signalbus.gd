@@ -16,36 +16,35 @@ signal dash
 
 #UI signals
 @warning_ignore("unused_signal")
-signal score
+signal score(points: int)
 @warning_ignore("unused_signal")
 signal energy_low
 @warning_ignore("unused_signal")
 signal next_wave
 @warning_ignore("unused_signal")
-signal money
-
+signal money(amount: int)
 #enemy signals
 @warning_ignore("unused_signal")
-signal enemy_hit(body_hit)
+signal enemy_hit(body_hit: Node2D)
 @warning_ignore("unused_signal")
 signal kc_point
 @warning_ignore("unused_signal")
-signal new_enemy(enemy_type)
+signal new_enemy(enemy_type: int)
 @warning_ignore("unused_signal")
-signal shot_RG
+signal shot_RG(bullet: RigidBody2D)
 @warning_ignore("unused_signal")
-signal shield(body_hit)
+signal shield(body_hit: Node2D)
 @warning_ignore("unused_signal")
-signal mine_dispense
+signal mine_dispense(mine: RigidBody2D)
 @warning_ignore("unused_signal")
 signal mine_hit
 
 #game signals
 @warning_ignore("unused_signal")
-signal spawn_energy
+signal spawn_energy(energy: RigidBody2D)
 @warning_ignore("unused_signal")
 signal player_death
 @warning_ignore("unused_signal")
-signal wave_complete
+signal wave_complete(completed_wave: int)
 @warning_ignore("unused_signal")
 signal test_mode

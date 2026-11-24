@@ -1,9 +1,11 @@
 [gd_scene format=3 uid="uid://dgl66ykkffptm"]
 
-[ext_resource type="Script" uid="uid://blr4p07aanua4" path="res://scripts/autoload/shopcontrol.gd" id="1_5coy6"]
+[ext_resource type="Script" path="res://scripts/shop.gd" id="1_5coy6"]
 [ext_resource type="Texture2D" uid="uid://4g24qsch3f7a" path="res://assets/background/Space attack background v2.png" id="1_okntu"]
 
 [node name="Shop" type="Node2D" unique_id=2008765777]
+process_mode = 2
+z_index = 10
 script = ExtResource("1_5coy6")
 
 [node name="Exitbutton" type="Button" parent="." unique_id=1429790155]

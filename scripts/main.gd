@@ -7,13 +7,15 @@ var score: int = 0
 var bullet_speed: float
 var energy_CA: int
 
+@onready var ship: PlayerShip = $Player
+@onready var hud: GameHUD = $UI
 @onready var muzzle: Marker2D = $Player/Muzzle
 @onready var enemy_spawn_location: PathFollow2D = $%EnemySpawnLocation
 
 func _ready():
 	bullet_speed = Modecontrol.modes[0]["bullet_speed"]
-	$Player.start($PlayerStartPos.position)
-	$UI.update_energy($Player.energy)
+	ship.start($PlayerStartPos.position)
+	hud.update_energy(ship.energy)
 	Signalbus.new_enemy.connect(spawn_enemy)
 	Signalbus.energy.connect(_on_energy)
 	Signalbus.score.connect(_on_score)
@@ -39,25 +41,25 @@ var energy_low: bool = true
 func _on_energy_low() -> void:
 	if energy_low:
 		energy_low = false
-		$UI.update_energy_low($Player.energy)
+		hud.update_energy_low(ship.energy)
 		await get_tree().create_timer(3).timeout
 		energy_low = true
 
 func _on_money(reward_amount: int) -> void:
 	Shopcontrol.shopmoney += reward_amount * Shopcontrol.money_multi
 	@warning_ignore("narrowing_conversion")
-	$UI.update_money(Shopcontrol.shopmoney)
+	hud.update_money(Shopcontrol.shopmoney)
 
 func _on_energy() -> void:
-	$UI.update_energy($Player.energy)
+	hud.update_energy(ship.energy)
 
 func _on_next_wave() -> void:
-	$UI.update_wave(Wavecontrol.wave)
+	hud.update_wave(Wavecontrol.wave)
 	spawn_energy()
 
 func _on_score(score_type: int) -> void:
 	score += score_type
-	$UI.update_score(score)
+	hud.update_score(score)
 
 func _on_RGshot(bulletRG: RigidBody2D) -> void:
 	add_child(bulletRG)
@@ -66,13 +68,13 @@ func _on_mine_dispense(mine: RigidBody2D) -> void:
 	add_child(mine)
 
 func _on_dash() -> void:
-	$UI.update_energy($Player.energy)
+	hud.update_energy(ship.energy)
 
 func _on_shot() -> void:
-	$UI.update_energy($Player.energy)
+	hud.update_energy(ship.energy)
 	var bullet: PlayerProjectile = bullet_scene.instantiate() as PlayerProjectile
 	bullet.configure_mode(Modecontrol.mode)
-	var direction: float = $Player.rotation
+	var direction: float = ship.rotation
 	if Modecontrol.mode == 0:
 		direction += randf_range(-Shopcontrol.spread, Shopcontrol.spread)
 	bullet.position = muzzle.global_position
