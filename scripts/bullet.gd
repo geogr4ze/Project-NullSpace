@@ -8,12 +8,14 @@ const ENEMY_LAYER: int = 1 << 1
 const TANK_SHIELD_LAYER: int = 1 << 9
 const TANK_SWEEP_MASK: int = ENEMY_LAYER | TANK_SHIELD_LAYER
 const WavePixelTrail = preload("res://scripts/visuals/wave_pixel_trail.gd")
+const ProjectileBounds = preload("res://scripts/combat/projectile_bounds.gd")
 
 var weapon_mode: int = -1
 var damage: int = 1
 var pierce: int = 1
 var hit_targets: Dictionary = {}
 var previous_position: Vector2 = Vector2.ZERO
+var cleanup_radius: float = 32.0
 @onready var projectile_glow: ShipGlowScript = $ProjectileGlow
 @onready var wave_trail: WavePixelTrail = $WaveTrail
 
@@ -67,13 +69,43 @@ func _ready() -> void:
 	$CollisionShape2D.transform = authored_shape.transform
 	previous_position = global_position
 	add_to_group("player_projectiles")
-	$Visibility.screen_exited.connect(_on_screen_exited)
+	# Include the full hull hitbox and visible sprite/glow, not just its center.
+	var hitbox: CollisionShape2D = $CollisionShape2D
+	cleanup_radius = maxf(cleanup_radius, ProjectileBounds.rect_radius(
+		hitbox.transform, hitbox.shape.get_rect()
+	))
+	var skin: AnimatedSprite2D = $Skin
+	if skin.visible:
+		var texture: Texture2D = skin.sprite_frames.get_frame_texture(skin.animation, skin.frame)
+		if texture != null:
+			var size: Vector2 = texture.get_size()
+			var origin: Vector2 = skin.offset - size * 0.5 if skin.centered else skin.offset
+			cleanup_radius = maxf(cleanup_radius, ProjectileBounds.rect_radius(
+				skin.transform, Rect2(origin, size)
+			))
+	if projectile_glow.visible:
+		cleanup_radius = maxf(cleanup_radius, ProjectileBounds.rect_radius(
+			projectile_glow.transform, projectile_glow.get_rect()
+		))
+	if weapon_mode == Modecontrol.MODE1:
+		# Older pixels stay in world space. Allow the entire trailing wake
+		# to clear the viewport as well, including its maximum outward drift.
+		var speed: float = maxf(linear_velocity.length(), absf(float(mode_data["bullet_speed"])))
+		var wake_radius: float = wave_trail.position.length() + wave_trail.emission_rect_extents.length()
+		wake_radius += (speed + 26.0) * wave_trail.lifetime + 5.0
+		cleanup_radius = maxf(cleanup_radius, wake_radius)
+
+func is_outside_playfield() -> bool:
+	return ProjectileBounds.is_outside(self, cleanup_radius)
 
 # Area2D enter events can miss a fast projectile that crosses an entire
 # tank in one physics step. Sweep its travel segment against enemy areas
 # as a fallback; the tank handles its own shield/hull precedence.
 func _physics_process(_delta: float) -> void:
 	if is_queued_for_deletion():
+		return
+	if is_outside_playfield():
+		queue_free()
 		return
 	var current_position: Vector2 = global_position
 	if (previous_position.distance_squared_to(current_position) < 0.01
@@ -121,5 +153,3 @@ func register_hit(target: Node2D) -> bool:
 		queue_free()
 	return true
 
-func _on_screen_exited() -> void:
-	queue_free()

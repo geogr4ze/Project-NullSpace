@@ -93,10 +93,6 @@ scale = Vector2(2.03111, -0.775845)
 shape = SubResource("RectangleShape2D_xioi7")
 disabled = true
 
-[node name="Visibility" type="VisibleOnScreenNotifier2D" parent="." unique_id=542770244]
-position = Vector2(1.16825e-05, 45.5)
-scale = Vector2(0.2, 0.09)
-
 [node name="ProjectileGlow" type="Sprite2D" parent="."]
 visible = false
 # Keep the effect in the projectile's normal canvas layer. A negative z

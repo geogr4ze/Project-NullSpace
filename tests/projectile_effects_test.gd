@@ -21,6 +21,7 @@ func _run() -> void:
 		bullet.call("configure_mode", mode)
 		get_tree().root.add_child(bullet)
 
+		_check_offscreen_cleanup(bullet)
 		_check(int(bullet.get("damage")) == int(Modecontrol.modes[mode]["damage"]),
 			"Projectile snapshots configured damage")
 		var glow: Sprite2D = bullet.get_node("ProjectileGlow") as Sprite2D
@@ -83,6 +84,12 @@ func _run() -> void:
 			"Every mode keeps its original collision geometry")
 		bullet.free()
 
+	var enemy_scene: PackedScene = load("res://scenes/enemy_bullet.tscn") as PackedScene
+	var enemy_bullet: RigidBody2D = enemy_scene.instantiate() as RigidBody2D
+	get_tree().root.add_child(enemy_bullet)
+	_check_offscreen_cleanup(enemy_bullet)
+	enemy_bullet.free()
+
 	if failures > 0:
 		push_error(str(failures) + " projectile effects tests failed")
 	get_tree().quit(1 if failures > 0 else 0)
@@ -136,3 +143,24 @@ func _check_pixel_motion_and_fade(trail: WavePixelTrail) -> void:
 	trail.emitting = false
 	trail.advance(trail.lifetime)
 	_check(trail.pixels.is_empty(), "Expired pixels are removed")
+
+func _check_offscreen_cleanup(bullet: RigidBody2D) -> void:
+	var original: Vector2 = bullet.global_position
+	var viewport: Rect2 = bullet.get_viewport_rect()
+	var center: Vector2 = viewport.get_center()
+	var radius: float = float(bullet.get("cleanup_radius"))
+	var edges: Array[Vector2] = [
+		Vector2(viewport.position.x - 1.0, center.y),
+		Vector2(viewport.end.x + 1.0, center.y),
+		Vector2(center.x, viewport.position.y - 1.0),
+		Vector2(center.x, viewport.end.y + 1.0)
+	]
+	var directions: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]
+	for i: int in edges.size():
+		bullet.global_position = edges[i]
+		_check(not bool(bullet.call("is_outside_playfield")),
+			"Projectile survives just outside every viewport edge")
+		bullet.global_position = edges[i] + directions[i] * (radius + 40.0)
+		_check(bool(bullet.call("is_outside_playfield")),
+			"Projectile is eligible for cleanup beyond its full visual extent")
+	bullet.global_position = original
