@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           for test in tests/*_test.gd; do
             echo "::group::$test"
-            timeout 90s godot --headless --rendering-method gl_compatibility --path . --script "res://$test" 2>&1 | tee /tmp/test.log
+            timeout 90s godot --headless --rendering-method gl_compatibility --path . res://tests/test_runner.tscn -- "res://$test" 2>&1 | tee /tmp/test.log
             if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/test.log; then exit 1; fi
             echo "::endgroup::"
           done

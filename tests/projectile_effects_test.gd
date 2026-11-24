@@ -1,15 +1,15 @@
-extends SceneTree
-# Run: godot --headless --path . --script res://tests/projectile_effects_test.gd
+extends Node
+# Run: godot --headless --path . res://tests/test_runner.tscn -- res://tests/projectile_effects_test.gd
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
 	var scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
 	_check(scene != null, "Projectile scene loads")
 	if scene == null:
-		quit(1)
+		get_tree().quit(1)
 		return
 
 	for mode: int in [Modecontrol.DEFAULT, Modecontrol.MODE1, Modecontrol.MODE2]:
@@ -18,7 +18,7 @@ func _run() -> void:
 		if bullet == null:
 			continue
 		bullet.call("configure_mode", mode)
-		root.add_child(bullet)
+		get_tree().root.add_child(bullet)
 
 		_check(int(bullet.get("damage")) == int(Modecontrol.modes[mode]["damage"]),
 			"Projectile snapshots configured damage")
@@ -111,7 +111,7 @@ func _run() -> void:
 
 	if failures > 0:
 		push_error(str(failures) + " projectile effects tests failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(ok: bool, description: String) -> void:
 	if !ok:

@@ -1,8 +1,8 @@
-extends SceneTree
+extends Node
 
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
@@ -12,23 +12,24 @@ func _run() -> void:
 	var scene: PackedScene = load("res://scenes/main.tscn") as PackedScene
 	if scene == null:
 		printerr("FAIL: main scene failed to load")
-		quit(1)
+		get_tree().quit(1)
 		return
 	var main: Node2D = scene.instantiate() as Node2D
-	root.add_child(main)
-	current_scene = main
-	await process_frame
+	get_tree().root.add_child(main)
+	var original_scene_id: int = main.get_instance_id()
+	get_tree().current_scene = main
+	await get_tree().process_frame
 	var player: CharacterBody2D = main.get_node("Player")
 	var buttons: Node2D = main.get_node("UI/Buttons")
 	_check(int(player.get("health")) == 50 and int(player.get("shield")) == 25, "initial player stats")
 	buttons.call("play_pause_control")
 	_check(Wavecontrol.wave_active, "manual Play starts a wave")
 	buttons.call("shop_control")
-	_check(not Shopcontrol.shop_open and not paused, "shop cannot open during wave")
-	await create_timer(0.25).timeout
-	_check(get_node_count_in_group("enemy_ai") > 0, "wave spawns actual enemies")
+	_check(not Shopcontrol.shop_open and not get_tree().paused, "shop cannot open during wave")
+	await get_tree().create_timer(0.25).timeout
+	_check(get_tree().get_node_count_in_group("enemy_ai") > 0, "wave spawns actual enemies")
 	Signalbus.player_death.emit()
-	_check(paused and Wavecontrol.finished, "death stops run")
+	_check(get_tree().paused and Wavecontrol.finished, "death stops run")
 	var overlay: CanvasLayer
 	for child: Node in main.get_children():
 		if child is CanvasLayer and child.has_method("show_result"):
@@ -36,13 +37,13 @@ func _run() -> void:
 	_check(overlay != null and overlay.process_mode == Node.PROCESS_MODE_ALWAYS, "game-over overlay can process while paused")
 	if overlay != null:
 		overlay.call("_restart")
-		await process_frame
-		await process_frame
-		_check(not paused and Wavecontrol.wave == 1 and not Wavecontrol.finished, "restart resumes a clean run")
-		_check(current_scene != null and current_scene != main, "gameplay scene was reloaded")
+		await get_tree().process_frame
+		await get_tree().process_frame
+		_check(not get_tree().paused and Wavecontrol.wave == 1 and not Wavecontrol.finished, "restart resumes a clean run")
+		_check(get_tree().current_scene != null and get_tree().current_scene.get_instance_id() != original_scene_id, "gameplay scene was reloaded")
 	else:
-		paused = false
-	quit(1 if failures > 0 else 0)
+		get_tree().paused = false
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(ok: bool, description: String) -> void:
 	if not ok:

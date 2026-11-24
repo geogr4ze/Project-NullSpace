@@ -1,10 +1,10 @@
-extends SceneTree
+extends Node
 
 var failures: int = 0
 var victory_count: int = 0
 var completion_count: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
@@ -39,7 +39,7 @@ func _run() -> void:
 	Modecontrol.set_mode(Modecontrol.MODE2)
 	Modecontrol.reset_run()
 	_check(Modecontrol.mode == Modecontrol.DEFAULT, "weapon resets")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _on_game_over(won: bool) -> void:
 	if won:

@@ -1,10 +1,13 @@
-extends SceneTree
+extends Node
 # Run from repo root:
-# godot --headless --path . --script res://tests/player_controls_test.gd
+# godot --headless --path . res://tests/test_runner.tscn -- res://tests/player_controls_test.gd
 const Controls = preload("res://scripts/combat/player_controls.gd")
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var center: Vector2 = Vector2(500.0, 400.0)
 	_check(_same_angle(
 		Controls.aim_rotation(center, center + Vector2.UP * 100.0, 1.0), 0.0
@@ -118,7 +121,7 @@ func _initialize() -> void:
 		"Speed multiplier scales the base Speed enemy stat to 2.7")
 	if failures > 0:
 		push_error(str(failures) + " player controls tests failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _mapped_to_key(action_name: String, expected: Key) -> bool:
 	if !InputMap.has_action(action_name):

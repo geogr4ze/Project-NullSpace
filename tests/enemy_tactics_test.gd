@@ -1,9 +1,12 @@
-extends SceneTree
-# Run with: godot --headless --path . --script res://tests/enemy_tactics_test.gd
+extends Node
+# Run with: godot --headless --path . res://tests/test_runner.tscn -- res://tests/enemy_tactics_test.gd
 const Tactics = preload("res://scripts/ai/enemy_tactics.gd")
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var player: Vector2 = Vector2(0, 0)
 	var tank: Vector2 = Vector2(120, 0)
 	_check(Tactics.tank_is_in_front(player, tank, Vector2(270, 0)),
@@ -100,7 +103,7 @@ func _initialize() -> void:
 	_check(approach.x < 900.0, "Ranged enemies should approach when too far away")
 	if failures > 0:
 		push_error(str(failures) + " enemy tactics tests failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(condition: bool, description: String) -> void:
 	if !condition:
