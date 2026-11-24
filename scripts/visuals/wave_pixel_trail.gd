@@ -11,7 +11,8 @@ class Pixel:
 @export var amount: int = 78
 @export var lifetime: float = 0.46
 @export var emission_rect_extents: Vector2 = Vector2(92.0, 26.0)
-@export var color_ramp: Gradient
+const PIXEL_BLUE: Color = Color8(0, 115, 255)
+const START_ALPHA: float = 0.94
 
 var emitting: bool = false
 var pixels: Array[Pixel] = []
@@ -33,8 +34,11 @@ func start_emitting() -> void:
 	queue_redraw()
 
 func pixel_color(age: float) -> Color:
-	# Gradient starts at 94% alpha and ends at zero. Age never goes backward.
-	return color_ramp.sample(clampf(age / lifetime, 0.0, 1.0))
+	# Calculate opacity directly; no imported Gradient resource can reverse
+	# the fade or reorder the color stops. Preserve the original blue RGB.
+	var progress: float = clampf(age / lifetime, 0.0, 1.0)
+	var alpha: float = START_ALPHA * (1.0 - progress)
+	return Color(PIXEL_BLUE.r, PIXEL_BLUE.g, PIXEL_BLUE.b, alpha)
 
 func _process(delta: float) -> void:
 	advance(delta)

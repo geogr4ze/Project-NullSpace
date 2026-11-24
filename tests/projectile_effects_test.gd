@@ -78,24 +78,6 @@ func _run() -> void:
 			_check(trail.position.y > glow.position.y,
 				"Wave particles originate behind the wave in local +Y")
 			_check_pixel_motion_and_fade(trail)
-			var ramp: Gradient = trail.color_ramp
-			_check(ramp != null and ramp.colors.size() == 4,
-				"Wave trail has multiple alpha stops for a smooth age fade")
-			if ramp != null and ramp.colors.size() == 4:
-				for sample: Color in ramp.colors:
-					_check(is_equal_approx(sample.r, 0.0) and
-						is_equal_approx(sample.g, 115.0 / 255.0) and
-						is_equal_approx(sample.b, 1.0),
-						"Wave pixels use exact player darkest blue #0073FF")
-				_check(ramp.colors[0].a >= 0.9 and
-					ramp.colors[0].a > ramp.colors[1].a and
-					ramp.colors[1].a > ramp.colors[2].a and
-					ramp.colors[2].a > ramp.colors[3].a and
-					is_zero_approx(ramp.colors[3].a),
-					"Wave pixels start nearly opaque, then continuously fade to zero")
-				_check(is_equal_approx(ramp.get_offset(0), 0.0) and
-					is_equal_approx(ramp.get_offset(3), 1.0),
-					"Wave alpha fading lasts the full particle lifetime")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")
@@ -116,11 +98,22 @@ func _check_pixel_motion_and_fade(trail: WavePixelTrail) -> void:
 		return
 	# Exercise the actual rendering color function over an entire lifetime.
 	var previous_alpha: float = trail.pixel_color(0.0).a
-	_check(previous_alpha >= 0.9, "New pixels are almost opaque")
+	_check(is_equal_approx(previous_alpha, 0.94), "New pixels start at 94 percent opacity")
+	_check(is_equal_approx(trail.pixel_color(trail.lifetime * 0.5).a, 0.47),
+		"Half-life pixels have half their initial opacity")
+	_check(is_equal_approx(trail.pixel_color(-1.0).a, 0.94), "Negative age clamps to birth")
+	_check(is_zero_approx(trail.pixel_color(trail.lifetime * 2.0).a), "Expired age clamps to zero")
 	for step: int in range(1, 21):
 		var age: float = trail.lifetime * float(step) / 20.0
-		var alpha: float = trail.pixel_color(age).a
+		var sample: Color = trail.pixel_color(age)
+		var alpha: float = sample.a
 		_check(alpha < previous_alpha, "Rendered alpha strictly decreases with age")
+		_check(is_equal_approx(alpha, 0.94 * (1.0 - float(step) / 20.0)),
+			"Opacity follows the intended age curve")
+		_check(is_equal_approx(sample.r, 0.0) and
+			is_equal_approx(sample.g, 115.0 / 255.0) and
+			is_equal_approx(sample.b, 1.0),
+			"Rendered pixels retain exact #0073FF at every age")
 		previous_alpha = alpha
 	_check(is_zero_approx(previous_alpha), "Old pixels fade completely")
 	var pixel = trail.pixels[0]
