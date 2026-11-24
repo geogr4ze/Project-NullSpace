@@ -29,10 +29,7 @@ shape = SubResource("CapsuleShape2D_3bptq")
 scale = Vector2(0.098, 0.098)
 texture = ExtResource("2_a5oga")
 
-[node name="Visibility" type="VisibleOnScreenNotifier2D" parent="." unique_id=1429212992]
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1112910767]
 shape = SubResource("CircleShape2D_3bptq")
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
-[connection signal="screen_exited" from="Visibility" to="." method="_on_visibility_screen_exited"]
