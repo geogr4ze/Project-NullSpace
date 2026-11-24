@@ -1,9 +1,10 @@
+class_name GameHUD
 extends CanvasLayer
 
 var wave_tween: Tween
 var energy_warning_tween: Tween
 
-@onready var player: CharacterBody2D = $"../Player"
+@onready var player: PlayerShip = $"../Player"
 @onready var wave_label: Label = $NextWaveMessage
 
 func update_energy_low(energy: int) -> void:
@@ -16,7 +17,7 @@ func update_energy_low(energy: int) -> void:
 
 func _restore_energy_label() -> void:
 	if is_instance_valid(player):
-		update_energy(int(player.get("energy")))
+		update_energy(player.energy)
 
 func update_wave(wave: int) -> void:
 	wave_label.text = "Wave: " + str(wave)

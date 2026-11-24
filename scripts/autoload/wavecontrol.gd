@@ -57,19 +57,26 @@ func _ready():
 
 # Collects total number of enemies that are meant to spawn
 func new_enemy_totals() -> void:
+	total_enemy_count = 0
+	for i: int in ENEMY_TYPE_COUNT:
+		enemy_per_round[str(i)] = 0
 	var file: FileAccess = FileAccess.open(wave_file_path, FileAccess.READ)
 	if file == null:
 		push_error("Could not open wave data: " + wave_file_path)
 		return
-	var line_content: String = ""
-	total_enemy_count = 0
 	file_index = (wave - 1) * ENEMY_TYPE_COUNT
 	for i: int in file_index:
-		line_content = file.get_line()
+		if file.eof_reached():
+			push_error("Wave data is missing wave " + str(wave))
+			return
+		file.get_line()
 	for i: int in ENEMY_TYPE_COUNT:
-		line_content = file.get_line()
-		enemy_per_round[str(i)] = int(line_content)
-		total_enemy_count += int(line_content)
+		if file.eof_reached():
+			push_error("Missing enemy count for wave " + str(wave) + ", type " + str(i))
+			return
+		var amount: int = maxi(0, file.get_line().to_int())
+		enemy_per_round[str(i)] = amount
+		total_enemy_count += amount
 
 # Counter for total enemies that are meant to spawn.
 func kill_count() -> void:

@@ -17,12 +17,16 @@ func _ready() -> void:
 	var mode_data: Dictionary = Modecontrol.modes[weapon_mode]
 	$Skin.animation = mode_data["bullet_skin"]
 	pierce = mode_data["pierce"]
-	var shapes: Array[Shape2D] = [
-		$BulletCollision.shape,
-		$WaveCollision.shape,
-		$LaserCollision.shape
-	]
-	$CollisionShape2D.shape = shapes[weapon_mode]
+	if weapon_mode == Modecontrol.DEFAULT:
+		$CollisionShape2D.shape = $BulletCollision.shape
+	elif weapon_mode == Modecontrol.MODE1:
+		$CollisionShape2D.shape = $WaveCollision.shape
+	elif weapon_mode == Modecontrol.MODE2:
+		$CollisionShape2D.shape = $LaserCollision.shape
+	else:
+		push_error("Invalid projectile mode: " + str(weapon_mode))
+		queue_free()
+		return
 	$Visibility.screen_exited.connect(_on_screen_exited)
 
 func register_hit(target: Node2D) -> bool:

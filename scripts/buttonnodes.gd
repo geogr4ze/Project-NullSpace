@@ -4,8 +4,7 @@ var pressed_button1: bool = true
 var pressed_button2: bool = true
 var auto_start: bool = false 
 var click_scale: Vector2 = Vector2(0.005, 0.005)
-var shop_scene: String = "res://scenes/shop.tscn"
-var shop_loading: bool = false
+const SHOP_SCENE: PackedScene = preload("res://scenes/shop.tscn")
 var tab_targets: Dictionary = {}
 var tab_tweens: Dictionary = {}
 var click_tweens: Dictionary = {}
@@ -60,33 +59,17 @@ func autoplay_control() -> void:
 	shophide()
 
 func shop_control() -> void:
-	if shop_loading:
+	if Shopcontrol.shop_open:
 		return
-	shop_loading = true
-	clicked($%Button3)
+	var shop: Node2D = SHOP_SCENE.instantiate() as Node2D
+	if shop == null:
+		push_error("Shop scene could not be instantiated.")
+		return
 	Shopcontrol.shop_open = true
-
-	var request_error: int = ResourceLoader.load_threaded_request(shop_scene)
-	if request_error != OK:
-		push_error("Shop scene loading failed: " + str(request_error))
-		Shopcontrol.shop_open = false
-		shop_loading = false
-		return
-
-	var load_status: int = ResourceLoader.load_threaded_get_status(shop_scene)
-	while load_status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-		await get_tree().process_frame
-		load_status = ResourceLoader.load_threaded_get_status(shop_scene)
-
-	if load_status == ResourceLoader.THREAD_LOAD_LOADED:
-		var scene: PackedScene = ResourceLoader.load_threaded_get(shop_scene) as PackedScene
-		if scene != null:
-			get_tree().change_scene_to_packed(scene)
-			return
-
-	push_error("Shop scene could not be loaded.")
-	Shopcontrol.shop_open = false
-	shop_loading = false
+	clicked($%Button3)
+	# Keep the existing gameplay scene alive so player/wave state survives.
+	get_parent().add_child(shop)
+	get_tree().paused = true
 
 #Play/Pause functions-----------------------------------------------------------
 func _on_button_1_pressed() -> void:
@@ -204,9 +187,6 @@ func _next_wave() -> void:
 func on_test() -> void:
 	pressed_button1 = false
 	pressed_button2 = false
-	for i: int in 100:
-		$AutoPlayButton.position += Vector2(0, 1.0)
-		$%AutoPlaySkin.position += Vector2(0, 1.0)
-		$Play_PauseButton.position += Vector2(0, 1.0)
-		$%Play_PauseSkin.position += Vector2(0, 1.0)
-		await get_tree().create_timer(0.01).timeout
+	# The old code referenced AutoPlayButton/Play_PauseButton nodes that
+	# do not exist in buttonnodes.tscn. Hide the entire control group.
+	hide()

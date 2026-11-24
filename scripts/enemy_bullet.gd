@@ -8,7 +8,7 @@ func _on_visibility_screen_exited():
 
 # Player detection
 func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body.name == "Player" and hit:
+	if body is PlayerShip and hit:
 		hit = false
 		Signalbus.enemy_bullet_hit.emit()
 		queue_free()

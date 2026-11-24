@@ -12,7 +12,8 @@ func _ready():
 
 
 func _on_pickup_area_body_entered(_body: Node2D) -> void:
-	if !dead:
+	if !dead and _body is PlayerShip:
+		dead = true
 		Signalbus.energy.emit()
 		queue_free()
 
