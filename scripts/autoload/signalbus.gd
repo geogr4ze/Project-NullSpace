@@ -48,3 +48,11 @@ signal player_death
 signal wave_complete(completed_wave: int)
 @warning_ignore("unused_signal")
 signal test_mode
+
+@warning_ignore("unused_signal")
+signal game_over(won: bool)
+@warning_ignore("unused_signal")
+signal shop_money_changed
+
+@warning_ignore("unused_signal")
+signal ship_upgraded(id: String)

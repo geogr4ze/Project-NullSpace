@@ -1,0 +1,55 @@
+name: Godot tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  headless:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GODOT_VERSION: 4.7.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          curl --fail --location --retry 3 "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/${archive}.zip" -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          sudo install -m 0755 "/tmp/godot/${archive}" /usr/local/bin/godot
+          godot --version
+      - name: Import project and validate scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --rendering-method gl_compatibility --path . --editor --import 2>&1 | tee /tmp/import.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/import.log; then exit 1; fi
+      - name: Run headless regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          failures=0
+          for test in tests/*_test.gd; do
+            echo "::group::$test"
+            if timeout 90s godot --headless --rendering-method gl_compatibility --path . res://tests/test_runner.tscn -- "res://$test" 2>&1 | tee /tmp/test.log; then
+              if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/test.log; then
+                echo "::error file=$test::Script error"
+                failures=$((failures + 1))
+              else
+                echo "PASS: $test"
+              fi
+            else
+              echo "::error file=$test::Test failed"
+              failures=$((failures + 1))
+            fi
+            echo "::endgroup::"
+          done
+          echo "$failures test scripts failed"
+          test "$failures" -eq 0

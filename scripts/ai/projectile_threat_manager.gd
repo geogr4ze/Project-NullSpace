@@ -10,26 +10,26 @@ const COLLISION_SAFETY_MARGIN: float = 14.0
 func _physics_process(_delta: float) -> void:
 	var shots: Array[Node] = get_tree().get_nodes_in_group("player_projectiles")
 	for node: Node in get_tree().get_nodes_in_group("enemy_ai"):
-		var enemy: Area2D = node as Area2D
+		var enemy: EnemyShip = node as EnemyShip
 		if enemy == null or !is_instance_valid(enemy):
 			continue
-		if enemy.is_queued_for_deletion() or !bool(enemy.get("alive")):
+		if enemy.is_queued_for_deletion() or !enemy.alive:
 			continue
 		var best_dodge: Vector2 = Vector2.ZERO
 		if !shots.is_empty():
 			best_dodge = _find_incoming_threat(enemy, shots)
-		enemy.set("incoming_dodge", best_dodge)
+		enemy.incoming_dodge = best_dodge
 
 
-func _find_incoming_threat(enemy: Area2D, shots: Array[Node]) -> Vector2:
+func _find_incoming_threat(enemy: EnemyShip, shots: Array[Node]) -> Vector2:
 	var enemy_hitbox: CollisionShape2D = (
 		enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	)
 	if enemy_hitbox == null:
 		return Vector2.ZERO
-	var enemy_type: int = int(enemy.get("type"))
-	var enemy_velocity: Vector2 = enemy.get("motion_velocity")
-	var preferred_side: float = float(enemy.get("strafe_direction"))
+	var enemy_type: int = enemy.type
+	var enemy_velocity: Vector2 = enemy.motion_velocity
+	var preferred_side: float = enemy.strafe_direction
 	var enemy_id: int = enemy.get_instance_id()
 	var strongest: Vector2 = Vector2.ZERO
 
@@ -58,7 +58,7 @@ func _find_incoming_threat(enemy: Area2D, shots: Array[Node]) -> Vector2:
 			Vector2(-relative_velocity.y, relative_velocity.x) / sqrt(speed_squared)
 		)
 		var target_hitbox: CollisionShape2D = enemy_hitbox
-		if enemy_type == Wavecontrol.TANK and int(enemy.get("tank_shield_hp")) > 0:
+		if enemy_type == Wavecontrol.TANK and enemy.tank_shield_hp > 0:
 			var shield_hitbox: CollisionShape2D = (
 				enemy.get_node_or_null("TankShield/ShieldCollision") as CollisionShape2D
 			)

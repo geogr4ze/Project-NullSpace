@@ -1,12 +1,15 @@
-extends SceneTree
-# Run: godot --headless --path . --script res://tests/projectile_effects_test.gd
+extends Node
+# Run: godot --headless --path . res://tests/test_runner.tscn -- res://tests/projectile_effects_test.gd
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
 	_check(scene != null, "Projectile scene loads")
 	if scene == null:
-		quit(1)
+		get_tree().quit(1)
 		return
 
 	for mode: int in [Modecontrol.DEFAULT, Modecontrol.MODE1, Modecontrol.MODE2]:
@@ -15,8 +18,10 @@ func _initialize() -> void:
 		if bullet == null:
 			continue
 		bullet.call("configure_mode", mode)
-		root.add_child(bullet)
+		get_tree().root.add_child(bullet)
 
+		_check(int(bullet.get("damage")) == int(Modecontrol.modes[mode]["damage"]),
+			"Projectile snapshots configured damage")
 		var glow: Sprite2D = bullet.get_node("ProjectileGlow") as Sprite2D
 		var trail: CPUParticles2D = bullet.get_node("WaveTrail") as CPUParticles2D
 		var skin: AnimatedSprite2D = bullet.get_node("Skin") as AnimatedSprite2D
@@ -49,6 +54,8 @@ func _initialize() -> void:
 		_check(trail.lifetime >= 0.42 and trail.lifetime <= 0.50 and
 			trail.amount >= 72 and trail.amount <= 84,
 			"Wave emits enough pixels to form a dispersed fading wake")
+		if trail.emission_shape != CPUParticles2D.EMISSION_SHAPE_RECTANGLE or trail.emission_rect_extents != Vector2(92, 26):
+			printerr("Wave emitter mode %d: shape=%s, extents=%s" % [mode, trail.emission_shape, trail.emission_rect_extents])
 		_check(trail.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE,
 			"Wave particles are born at random positions within a rectangle")
 		_check(trail.emission_rect_extents.x >= 90.0 and
@@ -106,7 +113,7 @@ func _initialize() -> void:
 
 	if failures > 0:
 		push_error(str(failures) + " projectile effects tests failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(ok: bool, description: String) -> void:
 	if !ok:

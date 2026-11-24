@@ -35,22 +35,22 @@ func _physics_process(delta: float) -> void:
 	_assign_protectors()
 
 func _assign_protectors() -> void:
-	var tanks: Array[Area2D] = []
-	var supports: Array[Area2D] = []
-	var all_speeds: Array[Area2D] = []
-	var visible_speeds: Array[Area2D] = []
+	var tanks: Array[EnemyShip] = []
+	var supports: Array[EnemyShip] = []
+	var all_speeds: Array[EnemyShip] = []
+	var visible_speeds: Array[EnemyShip] = []
 	var screen_rect: Rect2 = get_viewport().get_visible_rect()
 	for node: Node in get_tree().get_nodes_in_group("enemy_ai"):
-		var enemy: Area2D = node as Area2D
+		var enemy: EnemyShip = node as EnemyShip
 		if enemy == null or !is_instance_valid(enemy):
 			continue
-		if !bool(enemy.get("alive")) or enemy.is_queued_for_deletion():
+		if !enemy.alive or enemy.is_queued_for_deletion():
 			continue
-		if int(enemy.get("type")) == Wavecontrol.TANK:
+		if enemy.type == Wavecontrol.TANK:
 			tanks.append(enemy)
-		elif int(enemy.get("type")) == Wavecontrol.SUPPORT:
+		elif enemy.type == Wavecontrol.SUPPORT:
 			supports.append(enemy)
-		elif int(enemy.get("type")) == Wavecontrol.SPEED:
+		elif enemy.type == Wavecontrol.SPEED:
 			all_speeds.append(enemy)
 			if screen_rect.has_point(
 				enemy.get_global_transform_with_canvas().origin
@@ -58,13 +58,13 @@ func _assign_protectors() -> void:
 				visible_speeds.append(enemy)
 
 	var candidates: Array[Dictionary] = []
-	for tank: Area2D in tanks:
+	for tank: EnemyShip in tanks:
 		# The previous support may have been freed during a combat tick.
-		# Never cast a potentially freed Variant directly to Area2D.
+		# Never cast a potentially freed Variant directly to EnemyShip.
 		var previous_id: int = TacticsScript.valid_object_id(
-			tank.get("protection_target")
+			tank.protection_target
 		)
-		for support: Area2D in supports:
+		for support: EnemyShip in supports:
 			var distance: float = tank.global_position.distance_to(
 				support.global_position)
 			if distance > MAX_SUPPORT_DISTANCE:
@@ -84,29 +84,29 @@ func _assign_protectors() -> void:
 
 	# Clear stale assignments first. A tank not paired this cycle chases
 	# the player instead, and never targets someone else's assigned support.
-	for tank: Area2D in tanks:
-		tank.set("protection_target", null)
+	for tank: EnemyShip in tanks:
+		tank.protection_target = null
 
 	for pair: Dictionary in TacticsScript.assign_unique_supports(candidates):
-		var defender: Area2D = pair["tank"] as Area2D
-		var protected_ally: Area2D = pair["support"] as Area2D
+		var defender: EnemyShip = pair["tank"] as EnemyShip
+		var protected_ally: EnemyShip = pair["support"] as EnemyShip
 		if is_instance_valid(defender) and is_instance_valid(protected_ally):
-			defender.set("protection_target", protected_ally)
+			defender.protection_target = protected_ally
 
 	_update_speed_pincer(all_speeds, visible_speeds)
 
 
-func _reset_speed_pincer(speeds: Array[Area2D]) -> void:
+func _reset_speed_pincer(speeds: Array[EnemyShip]) -> void:
 	pincer_attack_seconds = 0.0
 	pincer_reform_seconds = 0.0
-	for speed_ship: Area2D in speeds:
-		speed_ship.set("flank_state", 0)
-		speed_ship.set("flank_side", 0)
+	for speed_ship: EnemyShip in speeds:
+		speed_ship.flank_state = 0
+		speed_ship.flank_side = 0
 
 
 func _update_speed_pincer(
-		all_speeds: Array[Area2D],
-		visible_speeds: Array[Area2D]
+		all_speeds: Array[EnemyShip],
+		visible_speeds: Array[EnemyShip]
 	) -> void:
 	if visible_speeds.size() < SPEED_PINCER_MIN_COUNT or !is_instance_valid(player):
 		_reset_speed_pincer(all_speeds)
@@ -114,30 +114,30 @@ func _update_speed_pincer(
 
 	# Off-screen enemies do not join or count toward a pincer until they
 	# appear inside the viewport.
-	for speed_ship: Area2D in all_speeds:
+	for speed_ship: EnemyShip in all_speeds:
 		if !visible_speeds.has(speed_ship):
-			speed_ship.set("flank_state", 0)
-			speed_ship.set("flank_side", 0)
+			speed_ship.flank_state = 0
+			speed_ship.flank_side = 0
 
 	if pincer_reform_seconds > 0.0:
-		for speed_ship: Area2D in visible_speeds:
-			speed_ship.set("flank_state", 0)
+		for speed_ship: EnemyShip in visible_speeds:
+			speed_ship.flank_state = 0
 		return
 
-	visible_speeds.sort_custom(func(a: Area2D, b: Area2D) -> bool:
+	visible_speeds.sort_custom(func(a: EnemyShip, b: EnemyShip) -> bool:
 		return a.get_instance_id() < b.get_instance_id()
 	)
 	var ids: Array[int] = []
 	var old_sides: Dictionary = {}
-	for speed_ship: Area2D in visible_speeds:
+	for speed_ship: EnemyShip in visible_speeds:
 		var ship_id: int = speed_ship.get_instance_id()
 		ids.append(ship_id)
-		old_sides[ship_id] = int(speed_ship.get("flank_side"))
+		old_sides[ship_id] = speed_ship.flank_side
 	var sides: Dictionary = TacticsScript.assign_speed_flanks(ids, old_sides)
 
 	var top_count: int = 0
 	var bottom_count: int = 0
-	for speed_ship: Area2D in visible_speeds:
+	for speed_ship: EnemyShip in visible_speeds:
 		if int(sides[speed_ship.get_instance_id()]) < 0:
 			top_count += 1
 		else:
@@ -148,14 +148,14 @@ func _update_speed_pincer(
 	var ready_top: int = 0
 	var ready_bottom: int = 0
 	var screen_size: Vector2 = get_viewport().get_visible_rect().size
-	for speed_ship: Area2D in visible_speeds:
+	for speed_ship: EnemyShip in visible_speeds:
 		# -1 means top and +1 means bottom.
 		var flank_side: int = int(sides[speed_ship.get_instance_id()])
 		var lane: int = top_index if flank_side < 0 else bottom_index
 		var lane_count: int = top_count if flank_side < 0 else bottom_count
-		speed_ship.set("flank_side", flank_side)
-		speed_ship.set("flank_lane", lane)
-		speed_ship.set("flank_group_size", lane_count)
+		speed_ship.flank_side = flank_side
+		speed_ship.flank_lane = lane
+		speed_ship.flank_group_size = lane_count
 		if flank_side < 0:
 			top_index += 1
 		else:
@@ -178,5 +178,5 @@ func _update_speed_pincer(
 		# Both wings are positioned. Launch them together toward the player.
 		pincer_attack_seconds = SPEED_PINCER_ATTACK_SECONDS
 		attacking = true
-	for speed_ship: Area2D in visible_speeds:
-		speed_ship.set("flank_state", 2 if attacking else 1)
+	for speed_ship: EnemyShip in visible_speeds:
+		speed_ship.flank_state = 2 if attacking else 1

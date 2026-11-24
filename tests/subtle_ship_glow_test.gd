@@ -1,9 +1,12 @@
-extends SceneTree
-# Run with: godot --headless --path . --script res://tests/subtle_ship_glow_test.gd
+extends Node
+# Run with: godot --headless --path . res://tests/test_runner.tscn -- res://tests/subtle_ship_glow_test.gd
 const GlowScript = preload("res://scripts/visuals/ship_glow.gd")
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var halo: GlowScript = GlowScript.new()
 	var skin: AnimatedSprite2D = AnimatedSprite2D.new()
 	var frames: SpriteFrames = SpriteFrames.new()
@@ -76,7 +79,7 @@ func _initialize() -> void:
 	skin.free()
 	if failures > 0:
 		push_error(str(failures) + " ship glow checks failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(ok: bool, description: String) -> void:
 	if !ok:

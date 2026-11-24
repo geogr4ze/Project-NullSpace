@@ -5,3 +5,6 @@
 .DS_Store
 Thumbs.db
 *.swp
+
+# Temporary native plugin DLLs (not the actual plugin)
+addons/godot-git-plugin/lib/~*.dll

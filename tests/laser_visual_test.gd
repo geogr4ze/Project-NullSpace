@@ -1,8 +1,11 @@
-extends SceneTree
-# Run: godot --headless --path . --script res://tests/laser_visual_test.gd
+extends Node
+# Run: godot --headless --path . res://tests/test_runner.tscn -- res://tests/laser_visual_test.gd
 var failures: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var player_scene: PackedScene = load("res://scenes/player.tscn") as PackedScene
 	_check(player_scene != null, "Player scene loads")
 	if player_scene != null:
@@ -40,7 +43,7 @@ func _initialize() -> void:
 	var bullet_scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
 	_check(bullet_scene != null, "Projectile scene loads")
 	if bullet_scene == null:
-		quit(1)
+		get_tree().quit(1)
 		return
 	for mode: int in [Modecontrol.DEFAULT, Modecontrol.MODE1, Modecontrol.MODE2]:
 		var projectile: RigidBody2D = bullet_scene.instantiate() as RigidBody2D
@@ -48,7 +51,7 @@ func _initialize() -> void:
 		if projectile == null:
 			continue
 		projectile.call("configure_mode", mode)
-		root.add_child(projectile)
+		get_tree().root.add_child(projectile)
 		var laser: bool = mode == Modecontrol.MODE2
 		var sprite: AnimatedSprite2D = projectile.get_node("Skin") as AnimatedSprite2D
 		var collision: CollisionShape2D = (
@@ -73,7 +76,7 @@ func _initialize() -> void:
 		projectile.free()
 	if failures > 0:
 		push_error(str(failures) + " laser visual tests failed")
-	quit(1 if failures > 0 else 0)
+	get_tree().quit(1 if failures > 0 else 0)
 
 func _check(ok: bool, description: String) -> void:
 	if !ok:

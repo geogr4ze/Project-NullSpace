@@ -4,6 +4,11 @@ const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
 
 # Capture weapon properties on spawn, so switching modes does not change bullets
 # already in flight. Each projectile damages each target at most once.
+const ENEMY_LAYER: int = 1 << 1
+const TANK_SHIELD_LAYER: int = 1 << 9
+const TANK_SWEEP_MASK: int = ENEMY_LAYER | TANK_SHIELD_LAYER
+const WAVE_EMISSION_EXTENTS: Vector2 = Vector2(92.0, 26.0)
+
 var weapon_mode: int = -1
 var damage: int = 1
 var pierce: int = 1
@@ -21,6 +26,9 @@ func _ready() -> void:
 	var mode_data: Dictionary = Modecontrol.modes[weapon_mode]
 	$Skin.animation = mode_data["bullet_skin"]
 	pierce = mode_data["pierce"]
+	damage = mode_data["damage"]
+	if weapon_mode == Modecontrol.DEFAULT:
+		damage += Shopcontrol.upgrade_level("weapon")
 	# The one continuous laser visual is on Player. Keep moving laser
 	# projectiles and all their collisions, damage and pierce, but hide their
 	# individual sprites so the beam has no visible gaps or repeated tips.
@@ -45,6 +53,11 @@ func _ready() -> void:
 			# player's mode-2 sprite (#0073FF), with alpha-only fading.
 			# White modulation preserves that original color.
 			wave_trail.color = Color.WHITE
+	# Apply the real enum and extents before emission. The serialized values
+	# alone did not survive the CI scene load; keep the runtime configuration
+	# explicit so the wake always covers the whole wave crest.
+	wave_trail.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	wave_trail.emission_rect_extents = WAVE_EMISSION_EXTENTS
 	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
 	if weapon_mode == Modecontrol.MODE1:
 		# Ensure freshly spawned wave shots start the particle system.
@@ -83,7 +96,7 @@ func _physics_process(_delta: float) -> void:
 	var space: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
 	for i: int in 8:
 		var ray: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(
-			previous_position, current_position, 18, excluded
+			previous_position, current_position, TANK_SWEEP_MASK, excluded
 		)
 		ray.collide_with_areas = true
 		ray.collide_with_bodies = false
@@ -100,7 +113,7 @@ func _physics_process(_delta: float) -> void:
 		if hit_area.name == "TankShield":
 			target = hit_area.get_parent() as Area2D
 		if target != null and target.has_method("intercept_projectile") and (
-			int(target.get("type")) == Wavecontrol.TANK
+			target.is_in_group("enemy_tanks")
 		):
 			target.call("intercept_projectile", self)
 			if is_queued_for_deletion():

@@ -1,8 +1,11 @@
-extends SceneTree
+extends Node
 const Tactics = preload("res://scripts/ai/enemy_tactics.gd")
 var errors: int = 0
 
-func _initialize() -> void:
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var single_support: Array[Dictionary] = [
 		{"tank_id": 1, "support_id": 10, "score": 70.0},
 		{"tank_id": 2, "support_id": 10, "score": 80.0}
@@ -99,7 +102,7 @@ func _initialize() -> void:
 	)
 	_check("staging stays on screen when player nears an edge",
 		Rect2(Vector2.ZERO, arena).has_point(constrained_top))
-	quit(1 if errors > 0 else 0)
+	get_tree().quit(1 if errors > 0 else 0)
 
 func _check(description: String, ok: bool) -> void:
 	if !ok:
