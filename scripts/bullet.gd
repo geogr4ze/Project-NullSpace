@@ -7,7 +7,7 @@ const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
 const ENEMY_LAYER: int = 1 << 1
 const TANK_SHIELD_LAYER: int = 1 << 9
 const TANK_SWEEP_MASK: int = ENEMY_LAYER | TANK_SHIELD_LAYER
-const WAVE_EMISSION_EXTENTS: Vector2 = Vector2(92.0, 26.0)
+const WavePixelTrail = preload("res://scripts/visuals/wave_pixel_trail.gd")
 
 var weapon_mode: int = -1
 var damage: int = 1
@@ -15,7 +15,7 @@ var pierce: int = 1
 var hit_targets: Dictionary = {}
 var previous_position: Vector2 = Vector2.ZERO
 @onready var projectile_glow: ShipGlowScript = $ProjectileGlow
-@onready var wave_trail: CPUParticles2D = $WaveTrail
+@onready var wave_trail: WavePixelTrail = $WaveTrail
 
 func configure_mode(mode: int) -> void:
 	weapon_mode = mode
@@ -49,19 +49,7 @@ func _ready() -> void:
 			projectile_glow.scale = Vector2(1.82, 1.20)
 			projectile_glow.position = Vector2(0, 45.0)
 			projectile_glow.material = null
-			# The particle ramp uses the exact darkest blue from the
-			# player's mode-2 sprite (#0073FF), with alpha-only fading.
-			# White modulation preserves that original color.
-			wave_trail.color = Color.WHITE
-	# Apply the real enum and extents before emission. The serialized values
-	# alone did not survive the CI scene load; keep the runtime configuration
-	# explicit so the wake always covers the whole wave crest.
-	wave_trail.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	wave_trail.emission_rect_extents = WAVE_EMISSION_EXTENTS
-	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
-	if weapon_mode == Modecontrol.MODE1:
-		# Ensure freshly spawned wave shots start the particle system.
-		wave_trail.restart()
+			wave_trail.start_emitting()
 	var authored_shape: CollisionShape2D
 	if weapon_mode == Modecontrol.DEFAULT:
 		authored_shape = $BulletCollision

@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/visuals/ship_glow.gd" id="10_projectile_glow"]
 
 
+[ext_resource type="Script" path="res://scripts/visuals/wave_pixel_trail.gd" id="11_wave_trail"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_av2yl"]
 resource_name = "bullet"
 size = Vector2(4, 26.3289)
@@ -60,17 +62,6 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
-[sub_resource type="Gradient" id="Gradient_wave_particle_texture"]
-# A hard-edged pixel, not a glowing orb or elongated spark.
-offsets = PackedFloat32Array(0, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_wave_particle"]
-gradient = SubResource("Gradient_wave_particle_texture")
-width = 3
-height = 3
-fill = 0
-
 [sub_resource type="Gradient" id="Gradient_wave_trail_fade"]
 # Exact darkest blue (#0073FF) from the player art.
 # A fresh particle is most opaque; distance behind the wave increases with
@@ -123,25 +114,14 @@ texture = SubResource("GradientTexture2D_projectile_halo")
 script = ExtResource("10_projectile_glow")
 intensity = 0.62
 
-[node name="WaveTrail" type="CPUParticles2D" parent="."]
-# Small sharp pixels remain behind the moving wave, above the backdrop.
+[node name="WaveTrail" type="Node2D" parent="."]
 z_index = 0
-emitting = false
 texture_filter = 1
-texture = SubResource("GradientTexture2D_wave_particle")
 position = Vector2(0, 86)
+script = ExtResource("11_wave_trail")
 amount = 78
 lifetime = 0.46
-local_coords = false
-emission_shape = 3
 emission_rect_extents = Vector2(92, 26)
-direction = Vector2(0, 1)
-spread = 25.0
-gravity = Vector2(0, 0)
-initial_velocity_min = 8.0
-initial_velocity_max = 26.0
-scale_amount_min = 0.95
-scale_amount_max = 1.45
 color_ramp = SubResource("Gradient_wave_trail_fade")
 
 [node name="Skin" type="AnimatedSprite2D" parent="." unique_id=1345641507]
