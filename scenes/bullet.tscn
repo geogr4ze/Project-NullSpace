@@ -43,6 +43,13 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_laser_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_blue_sparks"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.15, 0.55, 1, 0, 0.38, 0.82, 1, 0.9, 0.12, 0.38, 1, 0)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b5jmy"]
 size = Vector2(1, 1)
 
@@ -83,6 +90,47 @@ scale = Vector2(0.12, 0.12)
 sprite_frames = SubResource("SpriteFrames_2dq5i")
 animation = &"laser"
 offset = Vector2(-16, -16)
+
+[node name="LaserOuterGlow" type="Line2D" parent="."]
+visible = false
+material = SubResource("CanvasItemMaterial_laser_add")
+points = PackedVector2Array(0, 0, 0, -290)
+width = 44.0
+default_color = Color(0.06, 0.39, 1, 0.19)
+antialiased = true
+
+[node name="LaserBlueBand" type="Line2D" parent="."]
+visible = false
+material = SubResource("CanvasItemMaterial_laser_add")
+points = PackedVector2Array(0, 0, 0, -290)
+width = 25.0
+default_color = Color(0.12, 0.68, 1, 0.68)
+antialiased = true
+
+[node name="LaserWhiteCore" type="Line2D" parent="."]
+visible = false
+points = PackedVector2Array(0, 0, 0, -290)
+width = 10.0
+default_color = Color(0.82, 0.97, 1, 1)
+antialiased = true
+
+[node name="LaserBlueSparks" type="CPUParticles2D" parent="."]
+emitting = false
+material = SubResource("CanvasItemMaterial_laser_add")
+position = Vector2(0, -145)
+amount = 12
+lifetime = 0.16
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(16, 142)
+direction = Vector2(1, 0)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 8.0
+initial_velocity_max = 38.0
+scale_amount_min = 1.3
+scale_amount_max = 2.8
+color_ramp = SubResource("Gradient_blue_sparks")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1951768700]
 shape = SubResource("RectangleShape2D_b5jmy")

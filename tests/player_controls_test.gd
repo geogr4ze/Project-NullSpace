@@ -37,6 +37,54 @@ func _initialize() -> void:
 	)
 	_check(is_equal_approx(diagonal.length(), 1.0),
 		"Diagonal WASD does not increase movement speed")
+	# Non-laser cursor aim remains immediate; holding the laser limits
+	# angle changes even if the cursor jumps to the opposite side.
+	var charged_rate: float = Controls.laser_turn_rate(0.0)
+	var firing_rate: float = Controls.laser_turn_rate(1.0)
+	_check(charged_rate > firing_rate,
+		"Laser rotation becomes slower as the charge progresses")
+	_check(is_equal_approx(Controls.laser_turn_rate(0.5),
+		(charged_rate + firing_rate) * 0.5),
+		"Laser charge turn speed ramps smoothly")
+	_check(is_equal_approx(Controls.laser_turn_rate(2.0), firing_rate),
+		"Charge progress clamps after laser starts firing")
+	var one_frame: float = Controls.capped_aim_rotation(
+		0.0, PI / 2.0, firing_rate, 1.0 / 60.0
+	)
+	_check(is_equal_approx(one_frame, firing_rate / 60.0),
+		"Active laser can turn only one allowed frame step")
+	var other_direction: float = Controls.capped_aim_rotation(
+		0.0, -PI / 2.0, firing_rate, 1.0 / 60.0
+	)
+	_check(is_equal_approx(other_direction, -firing_rate / 60.0),
+		"Laser aims toward the cursor in either direction")
+	var wrap_angle: float = Controls.capped_aim_rotation(
+		PI - 0.02, -PI + 0.02, firing_rate, 1.0 / 60.0
+	)
+	_check(wrap_angle > PI - 0.02,
+		"Capped laser turn uses shortest angle across -PI/PI")
+	var finished: float = Controls.capped_aim_rotation(
+		0.0, 0.01, firing_rate, 1.0 / 30.0
+	)
+	_check(is_equal_approx(finished, 0.01),
+		"Laser does not overshoot the desired cursor heading")
+	var zero_dt: float = Controls.capped_aim_rotation(
+		0.0, 2.0, firing_rate, 0.0
+	)
+	_check(is_zero_approx(zero_dt),
+		"Laser does not rotate without physics time")
+	var sixty_steps: float = 0.0
+	for step: int in 60:
+		sixty_steps = Controls.capped_aim_rotation(
+			sixty_steps, PI, firing_rate, 1.0 / 60.0
+		)
+	var thirty_steps: float = 0.0
+	for step: int in 30:
+		thirty_steps = Controls.capped_aim_rotation(
+			thirty_steps, PI, firing_rate, 1.0 / 30.0
+		)
+	_check(is_equal_approx(sixty_steps, thirty_steps),
+		"Laser turn speed is independent of frame rate")
 	_check(Controls.relative_move_direction(Vector2.ZERO, PI).is_zero_approx(),
 		"No keypress results in no commanded movement")
 	_check(_mapped_to_key("strafe_left", KEY_A), "A is mapped to strafe_left")

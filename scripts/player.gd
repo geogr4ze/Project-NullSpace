@@ -229,12 +229,24 @@ func _on_shield_regen_timeout() -> void:
 	hp_update(1)
 
 # Mobility functions -------------------------------------------------------------------
-func handle_rotation(_delta: float) -> void:
-	# Mouse aims the local-UP-facing sprite and its muzzle. Keyboard turning
-	# is disabled; switching weapons and charging the laser never limit aim.
-	global_rotation = PlayerControlsScript.aim_rotation(
+func handle_rotation(delta: float) -> void:
+	var cursor_heading: float = PlayerControlsScript.aim_rotation(
 		global_position, get_global_mouse_position(), global_rotation
 	)
+	# Keep ordinary mouse aim immediate. While charging/firing the laser,
+	# the ship must rotate toward the cursor at a limited angular speed.
+	# This prevents sweeping an active laser across the whole arena.
+	if (Modecontrol.mode == Modecontrol.MODE2
+			and Input.is_action_pressed("Fire") and !m2_kill):
+		var charge_fraction: float = charge_time_m2 / LASER_CHARGE_TIME
+		var max_turn_rate: float = PlayerControlsScript.laser_turn_rate(
+			charge_fraction
+		)
+		global_rotation = PlayerControlsScript.capped_aim_rotation(
+			global_rotation, cursor_heading, max_turn_rate, delta
+		)
+	else:
+		global_rotation = cursor_heading
 
 func handle_movement(delta: float) -> void:
 	# W/S move forward/back relative to the cursor-facing ship; A/D strafe.
