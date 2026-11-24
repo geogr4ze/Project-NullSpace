@@ -46,19 +46,26 @@ func _initialize() -> void:
 			"Wave particles remain in world space as the wave moves")
 		_check(trail.texture is GradientTexture2D,
 			"Wave trail has a visible particle texture instead of tiny points")
-		_check(trail.lifetime >= 0.55 and trail.amount >= 70,
-			"Wave trail emits enough particles to form a visible wake")
+		_check(trail.lifetime >= 0.30 and trail.lifetime <= 0.42 and
+			trail.amount >= 28 and trail.amount <= 42,
+			"Wave trail uses a short, restrained particle wake")
+		_check(trail.material == null,
+			"Wave streaks use normal blending rather than additive bloom")
 		if mode == Modecontrol.MODE1:
-			_check(float(glow.get("intensity")) >= 0.90,
-				"Wave halo is visibly brighter than the default glow")
-			_check(glow.scale.x >= 2.3 and glow.scale.y >= 1.5,
-				"Wave glow is large enough to surround the original artwork")
+			_check(float(glow.get("intensity")) <= 0.52 and
+				float(glow.get("intensity")) >= 0.42,
+				"Wave halo is toned down without disappearing")
+			_check(glow.scale.x <= 2.05 and glow.scale.y <= 1.35,
+				"Wave halo stays close to the original projectile artwork")
 			_check(trail.position.y > glow.position.y,
 				"Wave particles originate behind the wave in local +Y")
 			var gradient_texture: GradientTexture2D = trail.texture as GradientTexture2D
-			_check(gradient_texture.width >= 24 and
-				gradient_texture.height >= 24,
-				"Wave particles have clearly visible soft discs")
+			_check(gradient_texture.width <= 4 and
+				gradient_texture.height >= 10 and
+				gradient_texture.height <= 16,
+				"Wave particles are thin energy streaks, not soft discs")
+			_check(trail.color.a <= 0.75,
+				"Wave particles use a muted theme-matched tint")
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")

@@ -7,13 +7,14 @@ tank shield collision, or weapon energy values have been changed.
 ## Projectile visuals
 
 - **Default shots:** small soft halo behind the existing sprite.
-- **Wave shots:** stronger, wider halo (intensity 0.94; scale
-  2.40 × 1.55), behind the unchanged original artwork.
-- **Wave trail:** 78 glowing particles with a real 24 × 24 radial-gradient
-  texture, fading over 0.60 seconds. The emitter sits behind the wave and
-  uses `local_coords = false`, so already emitted particles remain in
-  world space while the projectile moves forward. Emission is explicitly
-  restarted on wave spawn.
+- **Wave shots:** toned-down, tighter halo (intensity **0.48**, scale
+  **1.95 × 1.30**), behind the unchanged original artwork. Previous settings
+  were 0.94 and 2.40 × 1.55, which made the effect overwhelm the wave.
+- **Wave trail:** **34** thin **3 × 12** energy streaks rather than 78 large
+  24 × 24 glowing orbs. They use normal (not additive) blending, a color
+  matching the sprite's sampled hue, and a short **0.36-second** fade.
+  The emitter stays behind the wave with `local_coords = false`, leaving
+  a brief, understated wake in world space. Emission still starts on spawn.
 - **Critical visibility fix:** `ProjectileGlow` and `WaveTrail` now use
   `z_index = 0`, just like the game's full-screen `TextureRect` backdrop.
   They were previously set to `-1`, which could render them underneath that
@@ -48,9 +49,9 @@ godot --headless --path . --script res://tests/subtle_ship_glow_test.gd
    confirm it rotates back continuously rather than snapping.
 2. Fire default bullets. Their original sprites and hitboxes must be visible,
    with a subtle surrounding glow.
-3. Fire wave bullets. The brightened halo should be clearly visible
-   against the arena backdrop, and the broad colored particle wake should
-   visibly remain behind the moving projectile.
+3. Fire wave bullets. The halo should be visible without overpowering
+   the sprite; narrow tinted streaks should briefly trail behind the wave,
+   not resemble round magical sparkles or floating smoke.
 4. Ensure no wave particles appear for default or laser shots.
 5. Check performance with numerous simultaneous shots, and confirm enemy
    collision, score, shield behavior and charge/heat remain unchanged.
