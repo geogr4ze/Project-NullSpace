@@ -46,6 +46,33 @@ func _initialize() -> void:
 	_check((guard_goal - tank_position).dot(
 		player_position - tank_position) > 0.0,
 		"Protecting a support never makes a tank retreat from the player")
+	# Only enemies inside the player's forward firing lane try to dodge.
+	var center_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(250, 0), 100.0, 950.0, 1.0
+	)
+	_check(center_dodge.y > 0.9 and absf(center_dodge.x) < 0.01,
+		"An enemy directly ahead should evade sideways")
+	var side_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(250, -45), 100.0, 950.0, 1.0
+	)
+	_check(side_dodge.y < 0.0, "Evade toward the nearest edge of the firing lane")
+	var outside_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(250, 130), 100.0, 950.0, 1.0
+	)
+	_check(outside_dodge == Vector2.ZERO, "Do not dodge if outside the firing lane")
+	var behind_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(-200, 0), 100.0, 950.0, -1.0
+	)
+	_check(behind_dodge == Vector2.ZERO, "Do not dodge shots aimed away from enemies")
+	var far_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(1200, 0), 100.0, 950.0, 1.0
+	)
+	_check(far_dodge == Vector2.ZERO, "Do not dodge outside the firing range")
+	var quarter_dodge: Vector2 = Tactics.firing_lane_escape(
+		player, Vector2.RIGHT, Vector2(250, 50), 100.0, 950.0, 1.0
+	)
+	_check(quarter_dodge.y > 0.0 and quarter_dodge.y < center_dodge.y,
+		"Evade less aggressively near the edge of the lane")
 	var predicted: Vector2 = Tactics.predicted_intercept(
 		Vector2(400, 0), player, Vector2(200, 0), 200.0)
 	_check(predicted.x > player.x, "Fast enemies should lead a moving player")

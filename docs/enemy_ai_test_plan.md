@@ -7,7 +7,7 @@ This feature branch starts from current `main`; it does not depend on older refa
 | Enemy | Movement/decision behavior |
 |---|---|
 | Basic | Pursues player; avoids stacking with nearby ships |
-| Speed | Steers toward predicted player interception, physically turns toward its actual flight direction, and uses tank cover only when behind an eligible tank |
+| Speed | Steers toward predicted player interception, physically turns toward its actual flight direction, uses tank cover only when behind an eligible tank; base speed increased from 1.6 to 1.8 (+12.5%) |
 | Support | Prioritizes damaged non-support allies inside 420 px search radius, follows them from a safer side; otherwise orbits at 290–425 px |
 | Tank | Keeps advancing on the player, while biasing its route to defend an assigned nearby support (one-to-one protection) |
 | Railgun | Tries to stay 340–535 px away, strafes within that band, leads shots using estimated flight time |
@@ -16,6 +16,9 @@ This feature branch starts from current `main`; it does not depend on older refa
 Enemy movement remains frame-rate independent; existing attack timers, projectile interactions, health, score, shield, and wave data are unchanged.
 
 ## Shared rules
+
+- When the player holds Fire (including charging either special weapon), enemies within 100 px laterally of the ship's forward line and within 950 px ahead add sideways evasion steering. A 0.5-second memory also responds to single-tap shots. Evasion is strongest near the center of the firing corridor and drops to zero at its edges, so normal pursuit and formation behavior remain active.
+- Default and wave bullets are completely consumed by active tank shields. All shield-vs-hull projectile handling shares a single entry point, including a supplementary swept-hit ray for high-speed bullets.
 
 - A shared `EnemySquadManager` assigns tank/support pairs every 0.25 seconds. It pairs each support with **at most one tank**, and each tank with **at most one support**, favoring nearby combinations and preserving existing assignments when sensible.
 - Defending a support alters the tank's chase direction rather than making it stop pursuing or reverse course. Tanks without a partner simply chase the player.
@@ -45,6 +48,10 @@ godot --headless --path . --script res://tests/enemy_squad_manager_test.gd
 ```
 
 ## In-game checks
+
+- Hold Fire while facing an enemy: it should curve sideways out of the gun's forward corridor. Rotate away or stop firing: the enemy should resume its normal role. Check that enemies behind the player or far outside the lane do not dodge randomly.
+- Fire a basic bullet and a charged wave at an active tank shield from multiple angles: both should disappear on contact, without damaging the tank or continuing to pierce through it. Confirm the tank shield only loses HP from the large laser. Test a fast-moving or rotating tank.
+- Speed enemies should move noticeably faster (+12.5% to base speed) while still turning smoothly and preserving their intercept behavior.
 
 1. Spawn one tank ahead of a basic enemy and line them up with the player. The basic should follow behind the tank, with other basic enemies in different lanes.
 2. Move the player around or dash past the basic so the basic is closer than the tank. It should immediately chase the player rather than backtracking to the tank.

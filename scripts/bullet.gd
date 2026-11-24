@@ -6,6 +6,7 @@ var weapon_mode: int = -1
 var damage: int = 1
 var pierce: int = 1
 var hit_targets: Dictionary = {}
+var previous_position: Vector2 = Vector2.ZERO
 
 func configure_mode(mode: int) -> void:
 	weapon_mode = mode
@@ -16,17 +17,63 @@ func _ready() -> void:
 	var mode_data: Dictionary = Modecontrol.modes[weapon_mode]
 	$Skin.animation = mode_data["bullet_skin"]
 	pierce = mode_data["pierce"]
+	var authored_shape: CollisionShape2D
 	if weapon_mode == Modecontrol.DEFAULT:
-		$CollisionShape2D.shape = $BulletCollision.shape
+		authored_shape = $BulletCollision
 	elif weapon_mode == Modecontrol.MODE1:
-		$CollisionShape2D.shape = $WaveCollision.shape
+		authored_shape = $WaveCollision
 	elif weapon_mode == Modecontrol.MODE2:
-		$CollisionShape2D.shape = $LaserCollision.shape
+		authored_shape = $LaserCollision
 	else:
 		push_error("Invalid projectile mode: " + str(weapon_mode))
 		queue_free()
 		return
+	# The authored wave/laser hitboxes use their own offsets and rotations.
+	# Copy the full local transform, not just the Shape2D resource.
+	$CollisionShape2D.shape = authored_shape.shape
+	$CollisionShape2D.transform = authored_shape.transform
+	previous_position = global_position
 	$Visibility.screen_exited.connect(_on_screen_exited)
+
+# Area2D enter events can miss a fast projectile that crosses an entire
+# tank in one physics step. Sweep its travel segment against enemy areas
+# as a fallback; the tank handles its own shield/hull precedence.
+func _physics_process(_delta: float) -> void:
+	if is_queued_for_deletion():
+		return
+	var current_position: Vector2 = global_position
+	if (previous_position.distance_squared_to(current_position) < 0.01
+		or get_tree().get_node_count_in_group("enemy_tanks") == 0):
+		previous_position = current_position
+		return
+	var excluded: Array[RID] = [get_rid()]
+	var space: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	for i: int in 8:
+		var ray: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(
+			previous_position, current_position, 18, excluded
+		)
+		ray.collide_with_areas = true
+		ray.collide_with_bodies = false
+		ray.hit_from_inside = true
+		var contact: Dictionary = space.intersect_ray(ray)
+		if contact.is_empty():
+			break
+		var hit_area: Area2D = contact["collider"] as Area2D
+		if hit_area == null:
+			break
+		# The shield sensor uses its own layer and larger shape. Route a ray
+		# hitting either that sensor or the hull to the same tank handler.
+		var target: Area2D = hit_area
+		if hit_area.name == "TankShield":
+			target = hit_area.get_parent() as Area2D
+		if target != null and target.has_method("intercept_projectile") and (
+			int(target.get("type")) == Wavecontrol.TANK
+		):
+			target.call("intercept_projectile", self)
+			if is_queued_for_deletion():
+				break
+		excluded.append(hit_area.get_rid())
+	previous_position = current_position
 
 func register_hit(target: Node2D) -> bool:
 	if is_queued_for_deletion() or pierce <= 0:

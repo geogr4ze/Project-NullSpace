@@ -16,7 +16,9 @@ These gameplay changes are based on the folder-reorganization branch, **not** th
 
 ## Damage and collisions
 - A default projectile affects a given enemy at most once and can pierce up to two *distinct* enemies; a wave projectile can pierce up to ten.
-- The tank shield blocks default/wave bullets without losing HP. Only the large mode 3 laser reduces shield HP; hull damage resumes when it breaks.
+- The tank shield must **fully absorb** default and wave shots: the projectile despawns on first shield contact, does not continue piercing, and neither tank health nor shield HP decreases. Only mode 3 laser shots reduce shield HP; hull damage resumes after the shield breaks. Test hits from left, right, angled positions, multiple projectiles in one tick, and during regen.
+- Wave/laser projectile collision shapes must use their authored offsets/rotation/scale. Check that the visible effects and collision shapes overlap.
+- The tank also checks the swept centerline of fast projectiles between physics ticks, including the outer shield sensor (layer 16) and the hull (layer 2), in addition to body-entered events. Test high laser speed and default/wave hits while the tank is moving.
 - Multiple bullets hitting an enemy on the same physics tick must not award money/score/kill count more than once.
 - Enemies stop at zero HP. Player shield and HP do not become negative. Player death pauses the scene exactly once.
 - Enemy railgun bullets disappear after hitting the player once.
