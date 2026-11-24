@@ -265,7 +265,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_l6wwd"]
-radius = 323.9119
+radius = 249.163
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_d3xy7"]
 radius = 61.0
@@ -406,8 +406,8 @@ collision_mask = 0
 [node name="AoeSkin" type="Sprite2D" parent="AoeS" unique_id=916700572]
 unique_name_in_owner = true
 visible = false
-self_modulate = Color(1, 1, 1, 0.2)
-scale = Vector2(0.1274, 0.1274)
+self_modulate = Color(1, 1, 1, 0.3)
+scale = Vector2(0.098, 0.098)
 texture = ExtResource("21_hadhx")
 
 [node name="AoeSCollision" type="CollisionShape2D" parent="AoeS" unique_id=1529209618]

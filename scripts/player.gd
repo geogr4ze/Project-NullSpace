@@ -12,7 +12,7 @@ const DASH_COOLDOWN := 3.0
 const DASH_SPEED := 600.0
 const LASER_CHARGE_TIME := 1.25
 const LASER_HEAT_PER_SECOND := 1.2
-const LASER_COOL_PER_SECOND := 1.0
+const LASER_COOL_PER_SECOND := 0.2
 
 # Mobility Variables
 @export var acceleration := 1.5
@@ -66,7 +66,6 @@ func _ready():
 	rotation_degrees = 90
 	$HealingTimer.wait_time = healdelay
 	$%Overheatbar.max_value = maxoverheat
-	$%Overheatbar.value = laser_heat
 	_on_shield()
 
 func start(pos) -> void:
@@ -93,17 +92,15 @@ func _physics_process(delta: float) -> void:
 	shot_cooldown_remaining = maxf(0.0, shot_cooldown_remaining - delta)
 	bullet_cooldown = shot_cooldown_remaining <= 0.0
 	handle_fire_modes()
-	laser_fired_this_tick = false
-	if Modecontrol.mode == Modecontrol.MODE2:
+	if Modecontrol.mode == 2:
 		mode2_control(delta)
-	elif Modecontrol.mode == Modecontrol.MODE1:
+	elif Modecontrol.mode == 1:
 		mode1_control(delta)
 	else:
 		if Input.is_action_pressed("Fire") and Shopcontrol.autofire:
 			fire()
 		elif Input.is_action_just_pressed("Fire"):
 			fire()
-	_update_laser_heat(delta)
 
 func _process(delta: float) -> void:
 	if death:
@@ -246,10 +243,9 @@ var frameindex_m2 := 0
 var firing_m2 := false
 var m2_kill := false
 var charge_time_m2 := 0.0
-var laser_heat := 0.0
-var laser_fired_this_tick := false
 
 func mode2_control(delta: float) -> void:
+	var heatbar = $%Overheatbar
 	if Input.is_action_pressed("Fire") and !m2_kill:
 		if bar[1] > 0:
 			_shield_deact()
@@ -262,7 +258,13 @@ func mode2_control(delta: float) -> void:
 			if !firing_m2:
 				$PlayerSkin.play("Stage2_mode2")
 			firing_m2 = true
-			laser_fired_this_tick = fire()
+			if fire():
+				heatbar.value = minf(maxoverheat, heatbar.value + LASER_HEAT_PER_SECOND * delta)
+			if heatbar.value >= maxoverheat:
+				m2_kill = true
+				firing_m2 = false
+				charge_time_m2 = 0.0
+				frameindex_m2 = 0
 		return
 
 	rotation_speed = Modecontrol.modes[Modecontrol.mode]["player_movement"]
@@ -275,27 +277,11 @@ func mode2_control(delta: float) -> void:
 	else:
 		$PlayerSkin.animation = "mode2"
 		$PlayerSkin.frame = 0
+	heatbar.value = maxf(0.0, heatbar.value - LASER_COOL_PER_SECOND * delta)
+	if heatbar.value <= 0.0:
+		m2_kill = false
 	if shield_conf and !m2_kill:
 		_shield_act()
-
-# Heat uses its own floating-point value instead of the ProgressBar's stepped
-# display value, and cools even when mode 3 is no longer selected.
-func _update_laser_heat(delta: float) -> void:
-	if laser_fired_this_tick:
-		laser_heat = minf(maxoverheat, laser_heat + LASER_HEAT_PER_SECOND * delta)
-		if laser_heat >= maxoverheat:
-			m2_kill = true
-			firing_m2 = false
-			charge_time_m2 = 0.0
-			frameindex_m2 = 0
-	else:
-		laser_heat = maxf(0.0, laser_heat - LASER_COOL_PER_SECOND * delta)
-
-	if m2_kill and laser_heat <= 0.0:
-		m2_kill = false
-		if shield_conf:
-			_shield_act()
-	$%Overheatbar.value = laser_heat
 
 var frameindex_m1 := 0
 var charge_time_m1 := 0.0

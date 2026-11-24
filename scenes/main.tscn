@@ -7,9 +7,9 @@
 
 [sub_resource type="Curve2D" id="Curve2D_131mk"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 904)
+"points": PackedVector2Array(0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 0, 0, 0, 0, 0, 1775, 904, 0, 0, 0, 0, 1775, 0)
 }
-point_count = 2
+point_count = 4
 
 [sub_resource type="GDScript" id="GDScript_fmopq"]
 script/source = "extends Node
