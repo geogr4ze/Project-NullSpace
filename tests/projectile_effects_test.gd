@@ -1,5 +1,6 @@
 extends Node
 # Run: godot --headless --path . res://tests/test_runner.tscn -- res://tests/projectile_effects_test.gd
+const WavePixelTrail = preload("res://scripts/visuals/wave_pixel_trail.gd")
 var failures: int = 0
 
 func _ready() -> void:
@@ -23,7 +24,7 @@ func _run() -> void:
 		_check(int(bullet.get("damage")) == int(Modecontrol.modes[mode]["damage"]),
 			"Projectile snapshots configured damage")
 		var glow: Sprite2D = bullet.get_node("ProjectileGlow") as Sprite2D
-		var trail: CPUParticles2D = bullet.get_node("WaveTrail") as CPUParticles2D
+		var trail: WavePixelTrail = bullet.get_node("WaveTrail") as WavePixelTrail
 		var skin: AnimatedSprite2D = bullet.get_node("Skin") as AnimatedSprite2D
 		var hitbox: CollisionShape2D = bullet.get_node("CollisionShape2D") as CollisionShape2D
 		var authored: CollisionShape2D
@@ -47,26 +48,20 @@ func _run() -> void:
 			"Projectile glow uses a softly fading radial gradient")
 		_check(trail.emitting == (mode == Modecontrol.MODE1),
 			"Only moving wave projectiles emit a particle wake")
-		_check(!trail.local_coords,
-			"Wave particles remain in world space as the wave moves")
-		_check(trail.texture is GradientTexture2D,
-			"Wave trail has a visible particle texture instead of tiny points")
 		_check(trail.lifetime >= 0.42 and trail.lifetime <= 0.50 and
 			trail.amount >= 72 and trail.amount <= 84,
 			"Wave emits enough pixels to form a dispersed fading wake")
-		if trail.emission_shape != CPUParticles2D.EMISSION_SHAPE_RECTANGLE or trail.emission_rect_extents != Vector2(92, 26):
-			printerr("Wave emitter mode %d: shape=%s, extents=%s" % [mode, trail.emission_shape, trail.emission_rect_extents])
-		_check(trail.emission_shape == CPUParticles2D.EMISSION_SHAPE_RECTANGLE,
-			"Wave particles are born at random positions within a rectangle")
 		_check(trail.emission_rect_extents.x >= 90.0 and
 			trail.emission_rect_extents.y >= 24.0,
-			"Wave particle source spans the full width and a substantial depth")
+			"Wave source spans its full width and a substantial depth")
 		_check(trail.emission_rect_extents.y < trail.emission_rect_extents.x,
-			"Wave wake is spread across the crest rather than one vertical column")
+			"Wave wake is spread across the crest rather than a column")
 		_check(trail.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
-			"Wave trail pixels retain sharp nearest-neighbor edges")
+			"Wave trail pixels retain sharp edges")
 		_check(trail.material == null,
-			"Wave streaks use normal blending rather than additive bloom")
+			"Wave pixels use normal blending rather than additive bloom")
+		_check(not trail.pixels.is_empty() if mode == Modecontrol.MODE1 else trail.pixels.is_empty(),
+			"Only wave mode creates visible particles")
 		if mode == Modecontrol.DEFAULT:
 			_check(float(glow.get("intensity")) <= 0.34,
 				"Default bullet glow is reduced")
@@ -82,30 +77,7 @@ func _run() -> void:
 				"Wave halo stays tight around the unchanged artwork")
 			_check(trail.position.y > glow.position.y,
 				"Wave particles originate behind the wave in local +Y")
-			var gradient_texture: GradientTexture2D = trail.texture as GradientTexture2D
-			_check(gradient_texture.width == 3 and
-				gradient_texture.height == 3,
-				"Wave particles are square pixels, not streaks or soft discs")
-			_check(trail.color == Color.WHITE,
-				"Wave particles preserve the authored dark-blue color ramp")
-			var ramp: Gradient = trail.color_ramp
-			_check(ramp != null and ramp.colors.size() == 4,
-				"Wave trail has multiple alpha stops for a smooth age fade")
-			if ramp != null and ramp.colors.size() == 4:
-				for sample: Color in ramp.colors:
-					_check(is_equal_approx(sample.r, 0.0) and
-						is_equal_approx(sample.g, 115.0 / 255.0) and
-						is_equal_approx(sample.b, 1.0),
-						"Wave pixels use exact player darkest blue #0073FF")
-				_check(ramp.colors[0].a >= 0.9 and
-					ramp.colors[0].a > ramp.colors[1].a and
-					ramp.colors[1].a > ramp.colors[2].a and
-					ramp.colors[2].a > ramp.colors[3].a and
-					is_zero_approx(ramp.colors[3].a),
-					"Wave pixels start nearly opaque, then continuously fade to zero")
-				_check(is_equal_approx(ramp.get_offset(0), 0.0) and
-					is_equal_approx(ramp.get_offset(3), 1.0),
-					"Wave alpha fading lasts the full particle lifetime")
+			_check_pixel_motion_and_fade(trail)
 		_check(hitbox.shape == authored.shape and
 			hitbox.transform.is_equal_approx(authored.transform),
 			"Every mode keeps its original collision geometry")
@@ -119,3 +91,48 @@ func _check(ok: bool, description: String) -> void:
 	if !ok:
 		failures += 1
 		printerr("FAIL: " + description)
+
+func _check_pixel_motion_and_fade(trail: WavePixelTrail) -> void:
+	if trail.pixels.is_empty():
+		_check(false, "Wave creates fresh pixels immediately")
+		return
+	# Exercise the actual rendering color function over an entire lifetime.
+	var previous_alpha: float = trail.pixel_color(0.0).a
+	_check(is_equal_approx(previous_alpha, 0.94), "New pixels start at 94 percent opacity")
+	_check(is_equal_approx(trail.pixel_color(trail.lifetime * 0.5).a, 0.47),
+		"Half-life pixels have half their initial opacity")
+	_check(is_equal_approx(trail.pixel_color(-1.0).a, 0.94), "Negative age clamps to birth")
+	_check(is_zero_approx(trail.pixel_color(trail.lifetime * 2.0).a), "Expired age clamps to zero")
+	for step: int in range(1, 21):
+		var age: float = trail.lifetime * float(step) / 20.0
+		var sample: Color = trail.pixel_color(age)
+		var alpha: float = sample.a
+		_check(alpha < previous_alpha, "Rendered alpha strictly decreases with age")
+		_check(is_equal_approx(alpha, 0.94 * (1.0 - float(step) / 20.0)),
+			"Opacity follows the intended age curve")
+		_check(is_equal_approx(sample.r, 0.0) and
+			is_equal_approx(sample.g, 115.0 / 255.0) and
+			is_equal_approx(sample.b, 1.0),
+			"Rendered pixels retain exact #0073FF at every age")
+		previous_alpha = alpha
+	_check(is_zero_approx(previous_alpha), "Old pixels fade completely")
+	var pixel = trail.pixels[0]
+	var initial_position: Vector2 = pixel.world_position
+	var initial_velocity: Vector2 = pixel.velocity
+	var initial_alpha: float = trail.pixel_color(pixel.age).a
+	_check(pixel.size >= 2.85 and pixel.size <= 4.35, "Pixels remain small squares")
+	# Move the emitter much farther than the pixel drift. Previously emitted
+	# pixels must stay at their own world positions and get less opaque.
+	trail.global_position += Vector2(0, -150)
+	trail.advance(0.1)
+	_check(pixel.world_position.is_equal_approx(initial_position + initial_velocity * 0.1),
+		"Existing pixels remain in world space when the wave moves")
+	_check(trail.pixel_color(pixel.age).a < initial_alpha, "Older pixel fades as wave moves away")
+	var found_fresh: bool = false
+	for candidate in trail.pixels:
+		if candidate.age < 0.01 and trail.pixel_color(candidate.age).a > 0.9:
+			found_fresh = true
+	_check(found_fresh, "New pixels near the current wave are still opaque")
+	trail.emitting = false
+	trail.advance(trail.lifetime)
+	_check(trail.pixels.is_empty(), "Expired pixels are removed")
