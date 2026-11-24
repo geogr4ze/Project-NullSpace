@@ -1,5 +1,7 @@
 extends RigidBody2D
 
+const ShipGlowScript = preload("res://scripts/visuals/ship_glow.gd")
+
 # Capture weapon properties on spawn, so switching modes does not change bullets
 # already in flight. Each projectile damages each target at most once.
 var weapon_mode: int = -1
@@ -7,6 +9,8 @@ var damage: int = 1
 var pierce: int = 1
 var hit_targets: Dictionary = {}
 var previous_position: Vector2 = Vector2.ZERO
+@onready var projectile_glow: ShipGlowScript = $ProjectileGlow
+@onready var wave_trail: CPUParticles2D = $WaveTrail
 
 func configure_mode(mode: int) -> void:
 	weapon_mode = mode
@@ -21,6 +25,23 @@ func _ready() -> void:
 	# projectiles and all their collisions, damage and pierce, but hide their
 	# individual sprites so the beam has no visible gaps or repeated tips.
 	$Skin.visible = weapon_mode != Modecontrol.MODE2
+	# Reuse the ship glow's cached sprite-color sampler, but keep the original
+	# bullet artwork and its collision untouched.
+	if weapon_mode == Modecontrol.DEFAULT or weapon_mode == Modecontrol.MODE1:
+		projectile_glow.intensity = 0.62 if weapon_mode == Modecontrol.DEFAULT else 0.70
+		projectile_glow.match_sprite($Skin)
+		if weapon_mode == Modecontrol.DEFAULT:
+			projectile_glow.scale = Vector2(0.24, 0.42)
+			projectile_glow.position = Vector2.ZERO
+		else:
+			# Broad wave projectile is horizontally oriented ahead of its origin.
+			projectile_glow.scale = Vector2(1.85, 1.20)
+			projectile_glow.position = Vector2(0, 49.5)
+			# Tint the particles to the wave's existing artwork and fade them
+			# in world-space, leaving a wake rather than an attached cloud.
+			var tint: Color = projectile_glow.self_modulate
+			wave_trail.color = Color(tint.r, tint.g, tint.b, 0.86)
+	wave_trail.emitting = weapon_mode == Modecontrol.MODE1
 	var authored_shape: CollisionShape2D
 	if weapon_mode == Modecontrol.DEFAULT:
 		authored_shape = $BulletCollision
