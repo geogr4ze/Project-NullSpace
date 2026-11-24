@@ -19,7 +19,7 @@ var file_index: int = 0
 # Enemy dictionary: speed, score, reward, health, and animation.
 var enemies: Dictionary = {
 	BASIC: {"enemy_speed": 0.45, "score": 1, "reward": 1, "health": 3, "enemy_skin": "basic"}, 
-	SPEED: {"enemy_speed": 1.8, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
+	SPEED: {"enemy_speed": 1.8, "speed_multiplier": 1.5, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
 	SUPPORT: {"enemy_speed": 0.1, "score": 4, "reward": 10, "health": 20, "enemy_skin": "support"},
 	TANK: {"enemy_speed": 0.2, "score": 8, "reward": 30, "health": 75, "enemy_skin": "tank"},
 	RAILGUN: {"enemy_speed": 0.05, "score": 20, "reward": 40, "health": 100, "enemy_skin": "railgun"},

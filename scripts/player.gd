@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 # Use a local script type instead of a global class registration.
 const WeaponCooldownScript = preload("res://scripts/combat/weapon_cooldown.gd")
+const PlayerControlsScript = preload("res://scripts/combat/player_controls.gd")
 
 # Misc Variables
 var death: bool = false
@@ -21,8 +22,6 @@ const MODE1_CHARGE_TIME: float = 1.3
 # Mobility Variables
 @export var acceleration: float = 1.5
 @export var max_speed: float = 450.0
-var rotation_speed: float
-var rotation_direction: float = 0.0
 
 # Hit Point Arrays
 var shield: int = 25
@@ -73,7 +72,6 @@ func _ready():
 	delay = Modecontrol.modes[0]["delay"]
 	player_skin.animation = Modecontrol.modes[0]["skin"]
 	shield_skin.animation = Modecontrol.modes[0]["skin"]
-	rotation_speed = Modecontrol.modes[0]["player_movement"]
 	modul[0] = health_bar
 	modul[1] = shield_bar
 	for i: int in 2:
@@ -81,7 +79,6 @@ func _ready():
 		modul[i].value = bar[i]
 	_update_screen_size()
 	get_viewport().size_changed.connect(_update_screen_size)
-	rotation_degrees = 90
 	healing_timer.wait_time = healdelay
 	overheat_bar.max_value = maxoverheat
 	overheat_bar.value = laser_heat
@@ -108,7 +105,6 @@ func _change_mode(mode: int) -> void:
 	shield_skin.animation = Modecontrol.modes[mode]["skin"]
 	if bar[1] <= 0 or m2_kill or !shield_conf:
 		shield_skin.frame = 7
-	rotation_speed = Modecontrol.modes[mode]["player_movement"]
 
 func _physics_process(delta: float) -> void:
 	if death:
@@ -233,21 +229,29 @@ func _on_shield_regen_timeout() -> void:
 	hp_update(1)
 
 # Mobility functions -------------------------------------------------------------------
-func handle_rotation(delta: float) -> void:
-	rotation_direction = Input.get_axis("turn_left", "turn_right")
-	if Input.is_action_pressed("slow_turn"):
-		rotation += rotation_speed * rotation_direction * delta * 0.3
-	else:
-		rotation += rotation_speed * rotation_direction * delta
+func handle_rotation(_delta: float) -> void:
+	# Mouse aims the local-UP-facing sprite and its muzzle. Keyboard turning
+	# is disabled; switching weapons and charging the laser never limit aim.
+	global_rotation = PlayerControlsScript.aim_rotation(
+		global_position, get_global_mouse_position(), global_rotation
+	)
 
 func handle_movement(delta: float) -> void:
-	var thrust: float = Input.get_axis("move_backward", "move_forward")
-	var direction: Vector2 = Vector2.UP.rotated(rotation)
+	# W/S move forward/back relative to the cursor-facing ship; A/D strafe.
+	var input_vector: Vector2 = Input.get_vector(
+		"strafe_left", "strafe_right", "move_forward", "move_backward"
+	)
+	var movement_direction: Vector2 = PlayerControlsScript.relative_move_direction(
+		input_vector, global_rotation
+	)
 	if dashing:
-		velocity = direction * DASH_SPEED
+		# Preserve existing E dash: it boosts forward in the aim direction.
+		velocity = Vector2.UP.rotated(global_rotation) * DASH_SPEED
 	else:
-		var target_velocity: Vector2 = direction * thrust * max_speed
-		velocity = velocity.lerp(target_velocity, clampf(acceleration * delta, 0.0, 1.0))
+		var target_velocity: Vector2 = movement_direction * max_speed
+		velocity = velocity.lerp(
+			target_velocity, clampf(acceleration * delta, 0.0, 1.0)
+		)
 	move_and_slide()
 	position = position.clamp(Vector2.ZERO, screen_size)
 
@@ -285,7 +289,6 @@ func _update_laser_heat(delta: float) -> void:
 		if laser_heat >= maxoverheat:
 			m2_kill = true
 			_reset_laser_charge()
-			rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
 			if Modecontrol.mode == Modecontrol.MODE2:
 				player_skin.play("CD_mode2")
 	else:
@@ -302,14 +305,12 @@ func _update_laser_heat(delta: float) -> void:
 
 func mode2_control(delta: float) -> void:
 	if m2_kill:
-		rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
 		if player_skin.animation != "CD_mode2":
 			player_skin.play("CD_mode2")
 		return
 	if Input.is_action_pressed("Fire"):
 		if bar[1] > 0:
 			_shield_deact()
-		rotation_speed = maxf(0.1, rotation_speed - 6.0 * delta)
 		charge_time_m2 = minf(LASER_CHARGE_TIME, charge_time_m2 + delta)
 		frameindex_m2 = mini(laser_last_frame,
 			roundi(charge_time_m2 / LASER_CHARGE_TIME * float(laser_last_frame)))
@@ -321,7 +322,6 @@ func mode2_control(delta: float) -> void:
 			firing_m2 = true
 			laser_fired_this_tick = fire()
 		return
-	rotation_speed = float(Modecontrol.modes[Modecontrol.mode]["player_movement"])
 	_reset_laser_charge()
 	player_skin.animation = "mode2"
 	player_skin.frame = 0

@@ -112,6 +112,9 @@ func _apply_enemy_stats(enemy: int) -> void:
 	hpbar.max_value = health
 	hpbar.value = health
 	speed = (Wavecontrol.enemies[enemy]["enemy_speed"] + randf_range(0.01, 0.3)) * 60.0
+	# Multiplying after the random variation makes each Speed enemy precisely
+	# 1.5x as fast as the same spawn would have been previously.
+	speed *= float(Wavecontrol.enemies[enemy].get("speed_multiplier", 1.0))
 
 func _physics_process(delta: float) -> void:
 	if !alive or !is_instance_valid(player):
