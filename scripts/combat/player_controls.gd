@@ -25,6 +25,9 @@ static func relative_move_direction(
 # progressively constrained during charge and tightly capped while firing.
 const LASER_CHARGE_TURN_RADIANS: float = PI * 72.0 / 180.0
 const LASER_FIRE_TURN_RADIANS: float = PI * 18.0 / 180.0
+# Smoothly accelerate to normal mouse tracking after releasing the laser.
+const LASER_RELEASE_RAMP_SECONDS: float = 0.42
+const LASER_RELEASE_FAST_RADIANS: float = PI * 540.0 / 180.0
 
 static func laser_turn_rate(charge_fraction: float) -> float:
 	return lerpf(
@@ -35,6 +38,15 @@ static func laser_turn_rate(charge_fraction: float) -> float:
 
 # Move toward the shortest-angle cursor heading, but no further than the
 # allowed angular rate this physics tick. Handles angles crossing +/- PI.
+static func laser_release_turn_rate(seconds_since_release: float) -> float:
+	var progress: float = clampf(
+		seconds_since_release / LASER_RELEASE_RAMP_SECONDS, 0.0, 1.0
+	)
+	# Smoothstep avoids a sudden change in angular acceleration.
+	var eased: float = progress * progress * (3.0 - 2.0 * progress)
+	return lerpf(LASER_FIRE_TURN_RADIANS, LASER_RELEASE_FAST_RADIANS, eased)
+
+
 static func capped_aim_rotation(
 		current_angle: float,
 		target_angle: float,

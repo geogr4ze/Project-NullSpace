@@ -13,8 +13,10 @@ Default and wave projectile artwork and combat are unchanged.
 
 Laser aiming while holding Fire is now capped from **72 degrees/second** at
 the start of charging down to **18 degrees/second** at full charge and during
-firing. Normal and wave aiming remain immediate; releasing Fire, changing
-modes or overheating restores immediate aim. The continuous beam hides
+firing. Normal and wave aiming remain immediate. Releasing Fire or
+overheating now smoothly accelerates laser aim from 18°/s to 540°/s
+over 0.42 seconds, with no sudden large-angle snap. Weapon switching still
+restores immediate cursor aiming. The continuous beam hides
 when firing stops, on overheat, mode changes or player death.
 
 ## Automated Godot tests
@@ -23,6 +25,7 @@ when firing stops, on overheat, mode changes or player death.
 godot --headless --path . --script res://tests/player_controls_test.gd
 godot --headless --path . --script res://tests/laser_visual_test.gd
 godot --headless --path . --script res://tests/subtle_ship_glow_test.gd
+godot --headless --path . --script res://tests/projectile_effects_test.gd
 ```
 
 ## Manual playtest
@@ -31,7 +34,9 @@ godot --headless --path . --script res://tests/subtle_ship_glow_test.gd
 2. Hold Fire through charge: one stable continuous beam appears at the muzzle
    and reaches across the arena, with no visible moving bullet segments.
 3. Sweep the mouse across the player: active firing turns at only 18°/s.
-4. Release Fire, switch weapon, overheat and die: the beam disappears.
+4. Release Fire: the ship eases back to the mouse without an instant snap,
+   even if the cursor is behind it. Switching modes, overheating and dying
+   still hide the beam.
 5. Verify shield blocking, enemy hits, score, heat, energy and projectile
    prediction remain unchanged. Damage keeps its old projectile travel time.
 6. Compare default and wave bullets and ship silhouettes at 30/60/120 FPS.

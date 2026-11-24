@@ -63,6 +63,9 @@ var wave_last_frame: int = 0
 var laser_last_frame: int = 0
 var laser_heat: float = 0.0
 var laser_fired_this_tick: bool = false
+# Keep accelerating after release until the aim almost catches the cursor.
+var laser_aim_recovering: bool = false
+var laser_release_elapsed: float = 0.0
 
 func _ready():
 	Signalbus.hit.connect(_on_hit)
@@ -242,11 +245,15 @@ func handle_rotation(delta: float) -> void:
 	var cursor_heading: float = PlayerControlsScript.aim_rotation(
 		global_position, get_global_mouse_position(), global_rotation
 	)
-	# Keep ordinary mouse aim immediate. While charging/firing the laser,
-	# the ship must rotate toward the cursor at a limited angular speed.
-	# This prevents sweeping an active laser across the whole arena.
-	if (Modecontrol.mode == Modecontrol.MODE2
-			and Input.is_action_pressed("Fire") and !m2_kill):
+	if Modecontrol.mode != Modecontrol.MODE2:
+		# Default and wave weapons retain immediate cursor aiming.
+		laser_aim_recovering = false
+		laser_release_elapsed = 0.0
+		global_rotation = cursor_heading
+	elif Input.is_action_pressed("Fire") and !m2_kill:
+		# Keep the laser's deliberately heavy turning during charge and fire.
+		laser_aim_recovering = true
+		laser_release_elapsed = 0.0
 		var charge_fraction: float = charge_time_m2 / LASER_CHARGE_TIME
 		var max_turn_rate: float = PlayerControlsScript.laser_turn_rate(
 			charge_fraction
@@ -254,6 +261,20 @@ func handle_rotation(delta: float) -> void:
 		global_rotation = PlayerControlsScript.capped_aim_rotation(
 			global_rotation, cursor_heading, max_turn_rate, delta
 		)
+	elif laser_aim_recovering:
+		# Slowly accelerate out of the 18 degree/second firing limit rather
+		# than instantly snapping to the cursor when Space is released.
+		laser_release_elapsed += delta
+		var return_rate: float = PlayerControlsScript.laser_release_turn_rate(
+			laser_release_elapsed
+		)
+		global_rotation = PlayerControlsScript.capped_aim_rotation(
+			global_rotation, cursor_heading, return_rate, delta
+		)
+		# Hand off to normal aiming only after closing the angle.
+		if absf(wrapf(cursor_heading - global_rotation, -PI, PI)) <= deg_to_rad(1.0):
+			global_rotation = cursor_heading
+			laser_aim_recovering = false
 	else:
 		global_rotation = cursor_heading
 
