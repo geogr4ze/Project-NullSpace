@@ -1,3 +1,4 @@
+class_name EnemyShip
 extends Area2D
 
 const PlayerShipScript = preload("res://scripts/player.gd")
@@ -46,9 +47,9 @@ var ai_elapsed: float = 0.0
 var decision_timer: float = 0.0
 var cover_commit_until: float = 0.0
 var cover_reacquire_after: float = 0.0
-var cover_tank: Area2D
-var healing_target: Area2D
-var protection_target: Area2D
+var cover_tank: EnemyShip
+var healing_target: EnemyShip
+var protection_target: EnemyShip
 var separation: Vector2 = Vector2.ZERO
 var cover_lane: int = 0
 var strafe_direction: float = 1.0
@@ -174,17 +175,17 @@ func _physics_process(delta: float) -> void:
 		warning_RG()
 		warning_sign.global_rotation = 0
 
-func _tank_in_front(candidate: Area2D) -> bool:
+func _tank_in_front(candidate: EnemyShip) -> bool:
 	if candidate == null or !is_instance_valid(candidate):
 		return false
 	if !candidate.is_inside_tree() or candidate.is_queued_for_deletion():
 		return false
 	if !candidate.is_in_group("enemy_ai"):
 		return false
-	if !bool(candidate.get("alive")) or int(candidate.get("type")) != Wavecontrol.TANK:
+	if !candidate.alive or candidate.type != Wavecontrol.TANK:
 		return false
 	# An unshielded tank no longer provides reliable cover.
-	if int(candidate.get("tank_shield_hp")) <= 0:
+	if candidate.tank_shield_hp <= 0:
 		return false
 	if !get_viewport().get_visible_rect().has_point(
 		candidate.get_global_transform_with_canvas().origin
@@ -195,21 +196,21 @@ func _tank_in_front(candidate: Area2D) -> bool:
 	)
 
 func _update_ai_decision() -> void:
-	var new_tank: Area2D
+	var new_tank: EnemyShip
 	var closest_tank_distance: float = INF
-	var new_healing_target: Area2D
+	var new_healing_target: EnemyShip
 	var most_urgent_heal: float = INF
 	var avoidance: Vector2 = Vector2.ZERO
 
 	for node: Node in get_tree().get_nodes_in_group("enemy_ai"):
 		if node == self or !is_instance_valid(node):
 			continue
-		var ally: Area2D = node as Area2D
+		var ally: EnemyShip = node as EnemyShip
 		if ally == null or !ally.is_inside_tree() or ally.is_queued_for_deletion():
 			continue
-		if !bool(ally.get("alive")):
+		if !ally.alive:
 			continue
-		var ally_type: int = int(ally.get("type"))
+		var ally_type: int = ally.type
 		var offset: Vector2 = global_position - ally.global_position
 		var distance: float = offset.length()
 
@@ -228,7 +229,7 @@ func _update_ai_decision() -> void:
 
 		if type == Wavecontrol.SUPPORT and ally_type != Wavecontrol.SUPPORT:
 			var max_ally_health: int = int(Wavecontrol.enemies[ally_type]["health"])
-			var ally_health: int = int(ally.get("health"))
+			var ally_health: int = ally.health
 			var missing_health: int = max_ally_health - ally_health
 			if missing_health > 0 and distance < SUPPORT_TARGET_DISTANCE:
 				# Missing health outweighs slight differences in distance.
@@ -333,7 +334,7 @@ func detect_support() -> void:
 			health += 1
 			_show_health_bar()
 			hpbar.value = health
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(1.0, false).timeout
 	support_healing_active = false
 
 func _is_supported() -> bool:
@@ -350,7 +351,7 @@ func detect_player() -> void:
 	contact_damage_active = true
 	while alive and is_instance_valid(player) and overlaps_body(player):
 		Signalbus.hit.emit()
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(1.0, false).timeout
 	contact_damage_active = false
 
 func warning_RG() -> void:
@@ -435,7 +436,7 @@ func _on_mine_timer_timeout() -> void:
 	var slowdown: Tween = create_tween()
 	slowdown.tween_property(self, "speed", initial_speed * MINE_SLOW_FACTOR, 0.05)
 	await slowdown.finished
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(2.0, false).timeout
 	if !alive or !is_inside_tree():
 		return
 	var mine: RigidBody2D = mine_scene.instantiate() as RigidBody2D

@@ -17,6 +17,8 @@ func _initialize() -> void:
 		bullet.call("configure_mode", mode)
 		root.add_child(bullet)
 
+		_check(int(bullet.get("damage")) == int(Modecontrol.modes[mode]["damage"]),
+			"Projectile snapshots configured damage")
 		var glow: Sprite2D = bullet.get_node("ProjectileGlow") as Sprite2D
 		var trail: CPUParticles2D = bullet.get_node("WaveTrail") as CPUParticles2D
 		var skin: AnimatedSprite2D = bullet.get_node("Skin") as AnimatedSprite2D

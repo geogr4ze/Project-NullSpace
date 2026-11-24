@@ -24,14 +24,11 @@ const MODE1_CHARGE_TIME: float = 1.3
 @export var acceleration: float = 1.5
 @export var max_speed: float = 450.0
 
-# Hit Point Arrays
+# Live health and shield values
 var shield: int = 25
 var health: int = 50
-var hpbar: ProgressBar
-var shieldbar: ProgressBar
-var bar: Array[int] = [health, shield]
-var modul: Array[ProgressBar] = [hpbar, shieldbar] # Player Health = 0, Shield Health = 1
-var vis_time: Array[float] = [5.0, 5.0]
+var health_vis_time: float = 5.0
+var shield_vis_time: float = 5.0
 
 # HP Variables
 var healdelay: float = 1.5
@@ -74,16 +71,11 @@ func _ready():
 	Signalbus.player_shield.connect(_on_shield)
 	Signalbus.enemy_bullet_hit.connect(_on_enemy_bullet_hit)
 	Modecontrol.mode_changed.connect(_change_mode)
-	energy_cost = Modecontrol.modes[0]["energy"]
-	delay = Modecontrol.modes[0]["delay"]
-	player_skin.animation = Modecontrol.modes[0]["skin"]
-	shield_skin.animation = Modecontrol.modes[0]["skin"]
-	ship_glow.match_sprite(player_skin)
-	modul[0] = health_bar
-	modul[1] = shield_bar
-	for i: int in 2:
-		modul[i].max_value = bar[i]
-		modul[i].value = bar[i]
+	_change_mode(Modecontrol.mode)
+	health_bar.max_value = health
+	health_bar.value = health
+	shield_bar.max_value = shield
+	shield_bar.value = shield
 	_update_screen_size()
 	get_viewport().size_changed.connect(_update_screen_size)
 	healing_timer.wait_time = healdelay
@@ -110,8 +102,10 @@ func _change_mode(mode: int) -> void:
 	delay = Modecontrol.modes[mode]["delay"]
 	player_skin.animation = Modecontrol.modes[mode]["skin"]
 	shield_skin.animation = Modecontrol.modes[mode]["skin"]
+	$Default.set_deferred("polygon", Modecontrol.modes[mode]["collision"])
+	overheat_bar.visible = mode == Modecontrol.MODE2
 	ship_glow.match_sprite(player_skin)
-	if bar[1] <= 0 or m2_kill or !shield_conf:
+	if shield <= 0 or m2_kill or !shield_conf:
 		shield_skin.frame = 7
 
 func _physics_process(delta: float) -> void:
@@ -141,11 +135,15 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if death:
 		return
-	for i: int in modul.size():
-		if vis_time[i] > 0.0:
-			vis_time[i] = maxf(0.0, vis_time[i] - delta)
-		elif modul[i].modulate.a > 0.0:
-			modul[i].modulate.a = maxf(0.0, modul[i].modulate.a - delta)
+	health_vis_time = _fade_bar(health_bar, health_vis_time, delta)
+	shield_vis_time = _fade_bar(shield_bar, shield_vis_time, delta)
+
+func _fade_bar(progress: ProgressBar, remaining: float, delta: float) -> float:
+	if remaining > 0.0:
+		return maxf(0.0, remaining - delta)
+	if progress.modulate.a > 0.0:
+		progress.modulate.a = maxf(0.0, progress.modulate.a - delta)
+	return 0.0
 
 var dash_cooldown: bool = false
 var dashing: bool = false
@@ -159,7 +157,7 @@ func dash_control(delta: float) -> void:
 	dash_cooldown = dash_cooldown_remaining > 0.0
 
 	if Input.is_action_just_pressed("dash") and !dash_cooldown:
-		if energy >= 2 and Modecontrol.mode == 0:
+		if energy >= 2 and Modecontrol.mode == Modecontrol.DEFAULT:
 			energy -= 2
 			dashing = true
 			dash_cooldown = true
@@ -173,12 +171,12 @@ func _on_shield() -> void:
 		_shield_act()
 
 func _shield_deact() -> void:
-	if shield_act and bar[1] > 0:
+	if shield_act and shield > 0:
 		shield_act = false
 		shield_skin.play()
 
 func _shield_act() -> void:
-	if !shield_act and bar[1] > 0 and !m2_kill:
+	if !shield_act and shield > 0 and !m2_kill:
 		shield_act = true
 		shield_skin.play_backwards()
 
@@ -198,47 +196,52 @@ func damage_taken(type: int) -> void:
 	if death:
 		return
 	var damage: int = rdtype[type]["damage"]
-	if bar[1] > 0 and shield_act:
-		bar[1] = maxi(0, bar[1] - damage)
+	if shield > 0 and shield_act:
+		shield = maxi(0, shield - damage)
 		shield_regen_timer.start()
-		if bar[1] == 0:
+		if shield == 0:
 			shield_act = false
 			shield_skin.play()
-		hp_update(1)
+		_update_shield_bar()
 	else:
-		bar[0] = maxi(0, bar[0] - damage)
+		health = maxi(0, health - damage)
 		hit_timer = maxf(hit_timer, float(rdtype[type]["recov"]))
 		healing_timer.start()
-		hp_update(0)
+		_update_health_bar()
 
-func hp_update(bar_type: int) -> void:
-	modul[bar_type].modulate.a = 1.0
-	vis_time[bar_type] = 5.0
-	modul[bar_type].value = bar[bar_type]
-	if bar_type == 1 and bar[1] > 0:
-		_shield_act()
-	if bar[0] <= 0 and !death:
+func _update_health_bar() -> void:
+	health_bar.modulate.a = 1.0
+	health_vis_time = 5.0
+	health_bar.value = health
+	if health <= 0 and not death:
 		death = true
 		laser_beam.visible = false
 		Signalbus.player_death.emit()
 
+func _update_shield_bar() -> void:
+	shield_bar.modulate.a = 1.0
+	shield_vis_time = 5.0
+	shield_bar.value = shield
+	if shield > 0:
+		_shield_act()
+
 func _on_healing_timer_timeout() -> void:
 	if hit_timer > 0:
 		hit_timer -= 1
-	elif bar[0] < max_health:
-		bar[0] += healing_amount
-	if bar[0] >= modul[0].max_value:
-		bar[0] = int(modul[0].max_value)
+	elif health < max_health:
+		health += healing_amount
+	if health >= health_bar.max_value:
+		health = int(health_bar.max_value)
 		healing_timer.stop()
-	hp_update(0)
+	_update_health_bar()
 
 func _on_shield_regen_timeout() -> void:
-	if bar[1] < modul[1].max_value:
-		bar[1] += 5
-	if bar[1] >= modul[1].max_value:
-		bar[1] = int(modul[1].max_value)
+	if shield < shield_bar.max_value:
+		shield += 5
+	if shield >= shield_bar.max_value:
+		shield = int(shield_bar.max_value)
 		shield_regen_timer.stop()
-	hp_update(1)
+	_update_shield_bar()
 
 # Mobility functions -------------------------------------------------------------------
 func handle_rotation(delta: float) -> void:
@@ -299,20 +302,14 @@ func handle_movement(delta: float) -> void:
 
 # Mode functions -------------------------------------------------------------------
 func handle_fire_modes() -> void:
-	if !Input.is_action_pressed("Fire"): 
-		if !shield_skin.is_playing() and !dashing:
-			if Input.is_action_just_pressed("default_shooting"):
-				Modecontrol.set_mode(0)
-				$Default.polygon = Modecontrol.default_collision
-				overheat_bar.visible = false
-			if Input.is_action_just_pressed("mode1_shooting") and Shopcontrol.bought_mode1: 
-				Modecontrol.set_mode(1)
-				$Default.polygon = Modecontrol.mode1_collision
-				overheat_bar.visible = false
-			if Input.is_action_just_pressed("mode2_shooting") and Shopcontrol.bought_mode2:
-				Modecontrol.set_mode(2)
-				$Default.polygon = Modecontrol.mode2_collision
-				overheat_bar.visible = true
+	if Input.is_action_pressed("Fire") or shield_skin.is_playing() or dashing:
+		return
+	if Input.is_action_just_pressed("default_shooting"):
+		Modecontrol.set_mode(Modecontrol.DEFAULT)
+	if Input.is_action_just_pressed("mode1_shooting") and Shopcontrol.bought_mode1:
+		Modecontrol.set_mode(Modecontrol.MODE1)
+	if Input.is_action_just_pressed("mode2_shooting") and Shopcontrol.bought_mode2:
+		Modecontrol.set_mode(Modecontrol.MODE2)
 
 var frameindex_m2: int = 0
 var firing_m2: bool = false
@@ -352,7 +349,7 @@ func mode2_control(delta: float) -> void:
 			player_skin.play("CD_mode2")
 		return
 	if Input.is_action_pressed("Fire"):
-		if bar[1] > 0:
+		if shield > 0:
 			_shield_deact()
 		charge_time_m2 = minf(LASER_CHARGE_TIME, charge_time_m2 + delta)
 		frameindex_m2 = mini(laser_last_frame,
@@ -401,7 +398,7 @@ func fire() -> bool:
 		return false
 	energy -= energy_cost
 	var cooldown: float = delay
-	if Modecontrol.mode != 2:
+	if Modecontrol.mode != Modecontrol.MODE2:
 		cooldown *= Shopcontrol.firerate_multi
 	shot_timer.start(cooldown)
 	Signalbus.shot.emit()
