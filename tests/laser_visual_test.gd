@@ -3,6 +3,9 @@ extends SceneTree
 var failures: int = 0
 
 func _initialize() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var player_scene: PackedScene = load("res://scenes/player.tscn") as PackedScene
 	_check(player_scene != null, "Player scene loads")
 	if player_scene != null:

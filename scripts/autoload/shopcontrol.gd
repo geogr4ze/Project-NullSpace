@@ -16,7 +16,10 @@ var upgrade_levels: Dictionary = {}
 const UPGRADES: Dictionary = {
 	"energy": {"label": "Energy pickup", "cost": 25, "max": 3},
 	"accuracy": {"label": "Default shot accuracy", "cost": 40, "max": 3},
-	"reward": {"label": "Credit rewards", "cost": 60, "max": 3}
+	"reward": {"label": "Credit rewards", "cost": 60, "max": 3},
+	"hull": {"label": "Hull capacity +10", "cost": 45, "max": 3},
+	"shield": {"label": "Shield capacity +5", "cost": 50, "max": 3},
+	"weapon": {"label": "Default shot damage +1", "cost": 100, "max": 2}
 }
 
 func reset_run() -> void:
@@ -52,4 +55,5 @@ func buy(id: String) -> bool:
 		"accuracy": spread *= 0.8
 		"reward": money_multi += 0.25
 	Signalbus.shop_money_changed.emit()
+	Signalbus.ship_upgraded.emit(id)
 	return true

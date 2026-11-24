@@ -33,6 +33,7 @@ var shield_vis_time: float = 5.0
 # HP Variables
 var healdelay: float = 1.5
 var max_health: int = health
+var max_shield: int = shield
 var healing_amount: int = 1
 var hit_timer: float = 0.0
 enum{BASIC = 0, RAILGUN, EXPLOSIVE}
@@ -69,6 +70,7 @@ func _ready():
 	Signalbus.energy.connect(_on_energy)
 	Signalbus.mine_hit.connect(_on_mine)
 	Signalbus.player_shield.connect(_on_shield)
+	Signalbus.ship_upgraded.connect(_on_ship_upgraded)
 	Signalbus.enemy_bullet_hit.connect(_on_enemy_bullet_hit)
 	Modecontrol.mode_changed.connect(_change_mode)
 	_change_mode(Modecontrol.mode)
@@ -164,6 +166,19 @@ func dash_control(delta: float) -> void:
 			dash_time_remaining = DASH_DURATION
 			dash_cooldown_remaining = DASH_COOLDOWN
 			Signalbus.dash.emit()
+
+func _on_ship_upgraded(id: String) -> void:
+	match id:
+		"hull":
+			max_health += 10
+			health += 10
+			health_bar.max_value = max_health
+			_update_health_bar()
+		"shield":
+			max_shield += 5
+			shield += 5
+			shield_bar.max_value = max_shield
+			_update_shield_bar()
 
 func _on_shield() -> void:
 	if Shopcontrol.bought_shield and !shield_conf:

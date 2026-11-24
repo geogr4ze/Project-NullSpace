@@ -244,7 +244,9 @@ func _update_ai_decision() -> void:
 	# Losing positional cover always cancels the formation immediately.
 	# A short re-entry delay prevents border oscillation without forcing
 	# enemies that have overtaken the tank to backtrack to it.
-	if cover_tank != null and !_tank_in_front(cover_tank):
+	if not is_instance_valid(cover_tank):
+		cover_tank = null
+	elif !_tank_in_front(cover_tank):
 		cover_tank = null
 		cover_reacquire_after = ai_elapsed + AI_COMMITMENT
 	if new_tank != null:
@@ -260,7 +262,7 @@ func _movement_goal() -> Vector2:
 	# Formation is prioritized only if the tank is currently *in front* of
 	# this enemy from the player's perspective. Enemies closer than the tank
 	# always pursue their normal role, even inside the commitment window.
-	if type != Wavecontrol.TANK and _tank_in_front(cover_tank):
+	if type != Wavecontrol.TANK and is_instance_valid(cover_tank) and _tank_in_front(cover_tank):
 		return TacticsScript.formation_target(
 			player.global_position, cover_tank.global_position, cover_lane
 		)

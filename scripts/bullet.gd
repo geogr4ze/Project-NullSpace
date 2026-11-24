@@ -26,6 +26,8 @@ func _ready() -> void:
 	$Skin.animation = mode_data["bullet_skin"]
 	pierce = mode_data["pierce"]
 	damage = mode_data["damage"]
+	if weapon_mode == Modecontrol.DEFAULT:
+		damage += Shopcontrol.upgrade_level("weapon")
 	# The one continuous laser visual is on Player. Keep moving laser
 	# projectiles and all their collisions, damage and pierce, but hide their
 	# individual sprites so the beam has no visible gaps or repeated tips.

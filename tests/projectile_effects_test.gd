@@ -3,6 +3,9 @@ extends SceneTree
 var failures: int = 0
 
 func _initialize() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
 	var scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
 	_check(scene != null, "Projectile scene loads")
 	if scene == null:
