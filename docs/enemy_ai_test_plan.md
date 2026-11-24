@@ -7,7 +7,7 @@ This feature branch starts from current `main`; it does not depend on older refa
 | Enemy | Movement/decision behavior |
 |---|---|
 | Basic | Pursues player; avoids stacking with nearby ships |
-| Speed | Steers toward predicted interception normally; when at least five are visible, divides into two balanced flanks, stages at opposite horizontal screen edges, then converges toward the player for a synchronized pincer; tank cover and dodge rules still apply |
+| Speed | Steers toward predicted interception normally; when at least five are visible, divides into two balanced flanks, stages at opposite vertical screen edges, then converges toward the player for a synchronized pincer; tank cover and dodge rules still apply |
 | Support | Prioritizes damaged non-support allies inside 420 px search radius, follows them from a safer side; otherwise orbits at 290–425 px |
 | Tank | Keeps advancing on the player, while biasing its route to defend an assigned nearby support (one-to-one protection) |
 | Railgun | Tries to stay 340–535 px away, strafes within that band, leads shots using estimated flight time |
@@ -22,7 +22,7 @@ Enemy movement remains frame-rate independent; existing attack timers, projectil
 - Default and wave bullets are completely consumed by active tank shields. All shield-vs-hull projectile handling shares a single entry point, including a supplementary swept-hit ray for high-speed bullets.
 
 - A shared `EnemySquadManager` assigns tank/support pairs every 0.25 seconds. It pairs each support with **at most one tank**, and each tank with **at most one support**, favoring nearby combinations and preserving existing assignments when sensible. Its prior-partner lookup checks object validity before retrieving the ID so dead supports never cause a "Trying to cast a freed object" error.
-- **Speed pincer trigger:** When **5 or more live Speed ships are visible** in the viewport, the manager assigns them stable, balanced left/right roles (typically 3+2 for five ships). Off-screen ships do not count. With fewer than five visible, ships return to ordinary player-interception logic.
+- **Speed pincer trigger:** When **5 or more live Speed ships are visible** in the viewport, the manager assigns them stable, balanced top/bottom roles (typically 3+2 for five ships). Off-screen ships do not count. With fewer than five visible, ships return to ordinary player-interception logic.
 - **Pincer staging:** Each group moves toward its assigned horizontal screen edge, with y-offsets and individual lanes to avoid stacking. They do not teleport. The group positions are computed from current viewport size and player position, respecting the existing avoidance, turning, and tank-cover rules.
 - **Pincer launch:** When at least half of each group is near its staging edge, both groups enter an attack phase together, switching to their existing predicted-intercept movement for 3.75 seconds. After a 1.5-second regrouping break, they may stage another pincer if five or more Speed enemies remain visible. If their count drops below five, the formation cancels.
 - Defending a support alters the tank's chase direction rather than making it stop pursuing or reverse course. Tanks without a partner simply chase the player.
@@ -57,7 +57,7 @@ godot --headless --path . --script res://tests/enemy_squad_manager_test.gd
 - Test a tank while firing each weapon: default and wave shots should not trigger evasive movement; the large laser should trigger lateral evasion while aimed at the tank. Switch from the laser to default immediately after releasing Fire: the tank should stop dodging harmless fire. Other enemy types should keep dodging all three weapons.
 - Fire a basic bullet and a charged wave at an active tank shield from multiple angles: both should disappear on contact, without damaging the tank or continuing to pierce through it. Confirm the tank shield only loses HP from the large laser. Test a fast-moving or rotating tank.
 - Speed enemies should move noticeably faster (+12.5% to base speed) while still turning smoothly and preserving their intercept behavior.
-- Spawn **four** Speed enemies on-screen: they should pursue independently. Spawn a **fifth**: the two balanced wings should begin staging at the left/right edges, with ships spreading into separate lanes. After both wings have enough ships positioned, they should attack the player's position from both sides. Check moving player, different resolutions, and player dodging.
+- Spawn **four** Speed enemies on-screen: they should pursue independently. Spawn a **fifth**: the two balanced wings should begin staging at the top/bottom edges, with ships spreading into separate lanes. After both wings have enough ships positioned, they should attack the player's position from above and below. Check moving player, different resolutions, and player dodging.
 - Kill Speed enemies during staging or attack until only four are visible: the pincer must cancel and remaining ships should return to normal interception. Try repeatedly adding new Speed ships to ensure flank roles remain balanced and stable.
 - Spawn two tanks defending a support, destroy the support, and let the squad manager run for several seconds: the previous-partner reference must be checked safely, and surviving tanks must resume chasing the player without a freed-object cast error.
 

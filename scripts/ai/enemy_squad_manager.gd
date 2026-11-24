@@ -7,7 +7,7 @@ const ASSIGN_INTERVAL: float = 0.25
 const MAX_SUPPORT_DISTANCE: float = 430.0
 const REASSIGNMENT_BONUS: float = 0.8
 
-# Launch coordinated left/right strikes when at least five Speed enemies
+# Launch coordinated top/bottom strikes when at least five Speed enemies
 # are visible at once. The squad manager already runs at 4 Hz, so there
 # is no extra per-enemy group scan for flanking.
 const SPEED_PINCER_MIN_COUNT: int = 5
@@ -135,44 +135,45 @@ func _update_speed_pincer(
 		old_sides[ship_id] = int(speed_ship.get("flank_side"))
 	var sides: Dictionary = TacticsScript.assign_speed_flanks(ids, old_sides)
 
-	var left_count: int = 0
-	var right_count: int = 0
+	var top_count: int = 0
+	var bottom_count: int = 0
 	for speed_ship: Area2D in visible_speeds:
 		if int(sides[speed_ship.get_instance_id()]) < 0:
-			left_count += 1
+			top_count += 1
 		else:
-			right_count += 1
+			bottom_count += 1
 
-	var left_index: int = 0
-	var right_index: int = 0
-	var ready_left: int = 0
-	var ready_right: int = 0
+	var top_index: int = 0
+	var bottom_index: int = 0
+	var ready_top: int = 0
+	var ready_bottom: int = 0
 	var screen_size: Vector2 = get_viewport().get_visible_rect().size
 	for speed_ship: Area2D in visible_speeds:
+		# -1 means top and +1 means bottom.
 		var flank_side: int = int(sides[speed_ship.get_instance_id()])
-		var lane: int = left_index if flank_side < 0 else right_index
-		var lane_count: int = left_count if flank_side < 0 else right_count
+		var lane: int = top_index if flank_side < 0 else bottom_index
+		var lane_count: int = top_count if flank_side < 0 else bottom_count
 		speed_ship.set("flank_side", flank_side)
 		speed_ship.set("flank_lane", lane)
 		speed_ship.set("flank_group_size", lane_count)
 		if flank_side < 0:
-			left_index += 1
+			top_index += 1
 		else:
-			right_index += 1
+			bottom_index += 1
 
 		var flank_target: Vector2 = TacticsScript.speed_flank_target(
 			player.global_position, screen_size, flank_side, lane, lane_count
 		)
 		if speed_ship.global_position.distance_to(flank_target) <= SPEED_FLANK_READY_RADIUS:
 			if flank_side < 0:
-				ready_left += 1
+				ready_top += 1
 			else:
-				ready_right += 1
+				ready_bottom += 1
 
 	var attacking: bool = pincer_attack_seconds > 0.0
 	if !attacking and (
-		ready_left >= ceili(float(left_count) * 0.5)
-		and ready_right >= ceili(float(right_count) * 0.5)
+		ready_top >= ceili(float(top_count) * 0.5)
+		and ready_bottom >= ceili(float(bottom_count) * 0.5)
 	):
 		# Both wings are positioned. Launch them together toward the player.
 		pincer_attack_seconds = SPEED_PINCER_ATTACK_SECONDS
