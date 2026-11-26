@@ -69,9 +69,11 @@ var flank_side: int = 0
 var flank_lane: int = 0
 var flank_group_size: int = 1
 
+## Store the selected registered enemy type before the scene enters the tree.
 func configure_enemy(enemy_type: int) -> void:
 	type = enemy_type
 
+## Initialize the enemy's type-specific collisions, visuals, stats and behavior when it enters the scene.
 func _ready():
 	if type < 0:
 		type = Wavecontrol.selection
@@ -120,6 +122,7 @@ func _ready():
 		add_to_group("enemy_tanks")
 
 # Convert original per-frame speed values into pixels/second (at 60 FPS).
+## Load registered score, reward, health and movement values for the enemy type and update its health bar.
 func _apply_enemy_stats(enemy: int) -> void:
 	score_amount = Wavecontrol.enemies[enemy]["score"]
 	reward_amount = Wavecontrol.enemies[enemy]["reward"]
@@ -131,6 +134,7 @@ func _apply_enemy_stats(enemy: int) -> void:
 	# 1.5x as fast as the same spawn would have been previously.
 	speed *= float(Wavecontrol.enemies[enemy].get("speed_multiplier", 1.0))
 
+## Advance enemy AI and movement each physics tick while alive with a valid player; updates decision timers and movement state.
 func _physics_process(delta: float) -> void:
 	if !alive or !is_instance_valid(player):
 		return
@@ -194,6 +198,7 @@ func _physics_process(delta: float) -> void:
 		warning_RG()
 		warning_sign.global_rotation = 0
 
+## Return whether the candidate is a live registered tank positioned to cover this enemy; rejects invalid references.
 func _tank_in_front(candidate: EnemyShip) -> bool:
 	if candidate == null or !is_instance_valid(candidate):
 		return false
@@ -214,6 +219,7 @@ func _tank_in_front(candidate: EnemyShip) -> bool:
 		player.global_position, candidate.global_position, global_position
 	)
 
+## Reevaluate nearby enemies, tank cover, healing priorities and avoidance to update the AI's current decision.
 func _update_ai_decision() -> void:
 	var new_tank: EnemyShip
 	var closest_tank_distance: float = INF
@@ -277,6 +283,7 @@ func _update_ai_decision() -> void:
 				cover_tank = new_tank
 				cover_commit_until = ai_elapsed + AI_COMMITMENT
 
+## Return the role-specific world-space movement target, prioritizing railgun range or valid tank formation when applicable.
 func _movement_goal() -> Vector2:
 	# Railgunners do not follow tanks into close-quarters combat.
 	if type == Wavecontrol.RAILGUN:
@@ -334,18 +341,21 @@ func _movement_goal() -> Vector2:
 		_:
 			return player.global_position
 
+## Advance health-bar visibility timer and fade the bar after its display period.
 func _process(delta: float) -> void:
 	if hpvis_time > 0.0:
 		hpvis_time = maxf(0.0, hpvis_time - delta)
 	elif hpbar.self_modulate.a > 0.0:
 		hpbar.self_modulate.a = maxf(0.0, hpbar.self_modulate.a - delta)
 
+## Show health bar at full opacity and reset its five-second display timer.
 func _show_health_bar() -> void:
 	hpbar.self_modulate.a = 1.0
 	hpvis_time = 5.0
 
 var support_healing_active: bool = false
 
+## Run a single support-healing coroutine while alive and overlapping support, restoring health up to the maximum.
 func detect_support() -> void:
 	if support_healing_active:
 		return
@@ -358,6 +368,7 @@ func detect_support() -> void:
 		await get_tree().create_timer(1.0, false).timeout
 	support_healing_active = false
 
+## Return whether a valid overlapping area named AoeS is present.
 func _is_supported() -> bool:
 	for area: Area2D in get_overlapping_areas():
 		if is_instance_valid(area) and area.name == "AoeS":
@@ -366,6 +377,7 @@ func _is_supported() -> bool:
 
 var contact_damage_active: bool = false
 
+## Run a single contact-damage coroutine, emitting hit every second while the live enemy overlaps the player.
 func detect_player() -> void:
 	if contact_damage_active:
 		return
@@ -375,6 +387,7 @@ func detect_player() -> void:
 		await get_tree().create_timer(1.0, false).timeout
 	contact_damage_active = false
 
+## Update the railgun warning sprite based on whether the enemy has entered the arena and the shot timer is near completion.
 func warning_RG() -> void:
 	if not railgun_entered:
 		return
@@ -393,6 +406,7 @@ var shield_flash: Tween
 var mine_attack_active: bool = false
 const MINE_SLOW_FACTOR: float = 0.59049
 
+## Route player contact or incoming player-projectile collision to the appropriate handler; railgunners skip contact damage.
 func _on_body_entered(body: Node2D) -> void:
 	if body == player:
 		if type != Wavecontrol.RAILGUN:
@@ -403,6 +417,7 @@ func _on_body_entered(body: Node2D) -> void:
 # Both the tank hull and shield area report here. One shared entry point
 # prevents callback ordering from changing the result of a projectile hit.
 # Player bullets also use this for high-speed swept collision checks.
+## Route a valid incoming projectile to the tank shield or hull; register each hit only once.
 func intercept_projectile(projectile: PlayerProjectileScript) -> void:
 	if !alive or !is_instance_valid(projectile) or projectile.is_queued_for_deletion():
 		return
@@ -411,6 +426,7 @@ func intercept_projectile(projectile: PlayerProjectileScript) -> void:
 	elif projectile.register_hit(self):
 		_take_damage(projectile.damage)
 
+## Consume the registered projectile hit; only the large laser decreases shield HP, while other modes are absorbed.
 func _absorb_shield_hit(bullet: PlayerProjectileScript) -> void:
 	if !alive or tank_shield_hp <= 0 or !bullet.register_hit(self):
 		return
@@ -432,6 +448,7 @@ func _absorb_shield_hit(bullet: PlayerProjectileScript) -> void:
 	shield_flash = create_tween()
 	shield_flash.tween_property($%Shield, "self_modulate", Color(1.0, 1.0, 1.0, 0.3), 0.1)
 
+## Reduce live enemy health by nonnegative damage, update bar and hit effects, and handle lethal damage.
 func _take_damage(amount: int) -> void:
 	if !alive:
 		return
@@ -451,6 +468,7 @@ func _take_damage(amount: int) -> void:
 	hit_flash = create_tween()
 	hit_flash.tween_property(skin, "self_modulate", Color.WHITE, 0.1)
 
+## Begin a guarded mine attack for a living enemy; animate slowdown and mine deployment.
 func _on_mine_timer_timeout() -> void:
 	if mine_attack_active or !alive:
 		return
@@ -481,6 +499,7 @@ func _on_mine_timer_timeout() -> void:
 	await recovery.finished
 	mine_attack_active = false
 
+## Fire a railgun projectile toward the player's predicted position when alive and inside the arena.
 func _on_shoot_timer_timeout() -> void:
 	if not alive or not railgun_entered or not is_instance_valid(player):
 		return
@@ -498,20 +517,24 @@ func _on_shoot_timer_timeout() -> void:
 	bullet.linear_velocity = velocity_bullet.rotated(direction)
 	Signalbus.shot_RG.emit(bullet)
 
+## Route player projectiles entering the tank shield to the shared interception handler.
 func _on_tank_shield_body_entered(body: Node2D) -> void:
 	if type == Wavecontrol.TANK and body is PlayerProjectileScript:
 		intercept_projectile(body as PlayerProjectileScript)
 
+## Restore tank shield HP, reset its animation and re-enable shield collision.
 func _on_shield_regen_timeout():
 	tank_shield_hp = max_tank_shield_hp
 	$%Shield.rotation_degrees = -90.0
 	$%Shield.play_backwards("default")
 	$%ShieldCollision.set_deferred("disabled", false)
 
+## Start support healing when a non-support enemy enters a support area.
 func _on_area_entered(area: Area2D):
 	if area.name == "AoeS" and type != Wavecontrol.SUPPORT:
 		detect_support()
 
+## Compute a conservative railgun screen margin from its sprites and frame dimensions.
 func _railgun_visual_margin() -> float:
 	var margin: float = RAILGUN_SCREEN_MARGIN
 	for sprite: AnimatedSprite2D in [skin, warning_sign]:
@@ -523,6 +546,7 @@ func _railgun_visual_margin() -> float:
 					margin = maxf(margin, sprite.position.length() + radius + 8.0)
 	return margin
 
+## Return the viewport converted to world coordinates and inset by a safe visual margin.
 func _railgun_arena() -> Rect2:
 	var canvas: Transform2D = get_canvas_transform()
 	var inverse: Transform2D = canvas.affine_inverse()
@@ -533,6 +557,7 @@ func _railgun_arena() -> Rect2:
 	var margin: float = minf(railgun_margin, minf(world.size.x, world.size.y) * 0.45)
 	return world.grow(-margin)
 
+## Keep the railgun inside its arena after entry; update entry and motion state as it reaches the bounded region.
 func _update_railgun_bounds() -> void:
 	var arena: Rect2 = _railgun_arena()
 	var bounded: Vector2 = TacticsScript.clamp_to_arena(global_position, arena)

@@ -19,9 +19,11 @@ var cleanup_radius: float = 32.0
 @onready var projectile_glow: ShipGlowScript = $ProjectileGlow
 @onready var wave_trail: WavePixelTrail = $WaveTrail
 
+## Store the projectile's weapon mode before initialization.
 func configure_mode(mode: int) -> void:
 	weapon_mode = mode
 
+## Initialize damage, pierce count, skin and effects using the configured weapon mode; defaults to the current player mode.
 func _ready() -> void:
 	if weapon_mode < 0:
 		weapon_mode = Modecontrol.mode
@@ -95,12 +97,14 @@ func _ready() -> void:
 		wake_radius += (speed + 26.0) * wave_trail.lifetime + 5.0
 		cleanup_radius = maxf(cleanup_radius, wake_radius)
 
+## Return whether the entire projectile is beyond the viewport cleanup margin.
 func is_outside_playfield() -> bool:
 	return ProjectileBounds.is_outside(self, cleanup_radius)
 
 # Area2D enter events can miss a fast projectile that crosses an entire
 # tank in one physics step. Sweep its travel segment against enemy areas
 # as a fallback; the tank handles its own shield/hull precedence.
+## Remove off-screen shots and sweep the previous-to-current travel segment to catch missed fast collisions; updates position history and may damage enemies.
 func _physics_process(_delta: float) -> void:
 	if is_queued_for_deletion():
 		return
@@ -141,6 +145,7 @@ func _physics_process(_delta: float) -> void:
 		excluded.append(hit_area.get_rid())
 	previous_position = current_position
 
+## Record a unique target hit and consume one pierce; return false for repeated targets, exhausted pierce or a queued projectile.
 func register_hit(target: Node2D) -> bool:
 	if is_queued_for_deletion() or pierce <= 0:
 		return false

@@ -10,6 +10,7 @@ var primed: bool = true
 var hpbar: ProgressBar
 var hpvis_time: float = 0.0
 
+## Initialize mine skin, matching glow and health display.
 func _ready():
 	$Skin.play("default")
 	mine_glow.match_sprite($Skin)
@@ -17,6 +18,7 @@ func _ready():
 	hpbar.max_value = health
 	hpbar.value = health
 
+## Keep the health display upright and advance its visibility/fade timer.
 func _process(delta: float) -> void:
 	$Node2D.global_rotation = 0
 	if hpvis_time > 0.0:
@@ -24,10 +26,12 @@ func _process(delta: float) -> void:
 	elif hpbar.self_modulate.a > 0.0:
 		hpbar.self_modulate.a = maxf(0.0, hpbar.self_modulate.a - delta)
 
+## Show the health bar and reset its five-second visibility timer.
 func _show_health_bar() -> void:
 	hpbar.self_modulate.a = 1.0
 	hpvis_time = 5.0
 
+## Trigger a primed mine once, hide its armed glow and enable explosion collision.
 func explosion() -> void:
 	if !primed:
 		return
@@ -49,6 +53,7 @@ func explosion() -> void:
 	tween.parallel().tween_property($%ExplisionCollision, "scale", Vector2(0.001, 0.001), 0.97)
 	tween.tween_callback(fadeout)
 
+## Play fade animation, disable explosion collision and shrink the sprite before freeing the mine.
 func fadeout() -> void:
 	$Skin.play("fadeout")
 	$%ExplisionCollision.set_deferred("disabled", true)
@@ -60,10 +65,12 @@ func fadeout() -> void:
 
 var hitflag: bool = true
 
+## Remove a still-primed mine when it leaves the screen.
 func _on_visibility_screen_exited() -> void:
 	if primed:
 		queue_free()
 
+## Handle player overlap by detonating if primed and emitting at most one mine-hit event.
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body is PlayerShipScript:
 		if primed:
