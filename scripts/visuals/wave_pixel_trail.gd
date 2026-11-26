@@ -19,9 +19,11 @@ var pixels: Array[Pixel] = []
 var _previous_origin: Vector2
 var _emission_clock: float = 0.0
 
+## Disable processing until trail emission explicitly begins.
 func _ready() -> void:
 	set_process(false)
 
+## Reset existing particles and timing, seed the wake at the current position and enable updates and redraws.
 func start_emitting() -> void:
 	pixels.clear()
 	_emission_clock = 0.0
@@ -33,6 +35,7 @@ func start_emitting() -> void:
 	set_process(true)
 	queue_redraw()
 
+## Return the fixed blue palette color with opacity decreasing linearly from START_ALPHA to zero over the particle lifetime; age is in seconds.
 func pixel_color(age: float) -> Color:
 	# Calculate opacity directly; no imported Gradient resource can reverse
 	# the fade or reorder the color stops. Preserve the original blue RGB.
@@ -40,10 +43,12 @@ func pixel_color(age: float) -> Color:
 	var alpha: float = START_ALPHA * (1.0 - progress)
 	return Color(PIXEL_BLUE.r, PIXEL_BLUE.g, PIXEL_BLUE.b, alpha)
 
+## Advance the particle simulation by elapsed seconds and request redraw.
 func _process(delta: float) -> void:
 	advance(delta)
 	queue_redraw()
 
+## Age and move particles, remove expired ones, and update emission along projectile motion; ignore nonpositive elapsed time.
 func advance(delta: float) -> void:
 	if delta <= 0.0:
 		return
@@ -65,6 +70,7 @@ func advance(delta: float) -> void:
 				_spawn_pixel(_previous_origin.lerp(origin, fraction), age)
 	_previous_origin = origin
 
+## Create a particle with randomized offset across the emission region, velocity and supplied age; store position in world space.
 func _spawn_pixel(origin: Vector2, age: float) -> void:
 	var pixel: Pixel = Pixel.new()
 	var offset: Vector2 = Vector2(
@@ -79,6 +85,7 @@ func _spawn_pixel(origin: Vector2, age: float) -> void:
 	pixel.size = 3.0 * randf_range(0.95, 1.45)
 	pixels.append(pixel)
 
+## Draw all active pixels in local coordinates using size and age-dependent opacity.
 func _draw() -> void:
 	for pixel: Pixel in pixels:
 		var center: Vector2 = to_local(pixel.world_position)

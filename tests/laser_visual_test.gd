@@ -2,9 +2,11 @@ extends Node
 # Run: godot --headless --path . res://tests/test_runner.tscn -- res://tests/laser_visual_test.gd
 var failures: int = 0
 
+## Defer laser visual checks until scene-tree initialization completes.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Load the player scene and validate the continuous laser effect and associated visual properties against the expected behavior.
 func _run() -> void:
 	var player_scene: PackedScene = load("res://scenes/player.tscn") as PackedScene
 	_check(player_scene != null, "Player scene loads")
@@ -78,6 +80,7 @@ func _run() -> void:
 		push_error(str(failures) + " laser visual tests failed")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Increment failures and print the description when a visual assertion is false.
 func _check(ok: bool, description: String) -> void:
 	if !ok:
 		failures += 1

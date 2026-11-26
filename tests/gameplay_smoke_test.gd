@@ -2,9 +2,11 @@ extends Node
 
 var failures: int = 0
 
+## Defer smoke-test execution until the node is ready.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Reset shared run state and load/instantiate the main game scene to exercise basic gameplay integration; report failure if loading fails.
 func _run() -> void:
 	Wavecontrol.reset_run()
 	Modecontrol.reset_run()
@@ -44,6 +46,7 @@ func _run() -> void:
 		get_tree().paused = false
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Record and print a failed smoke-test assertion.
 func _check(ok: bool, description: String) -> void:
 	if not ok:
 		failures += 1

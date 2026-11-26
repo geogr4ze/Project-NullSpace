@@ -3,9 +3,11 @@ extends Node
 const Tactics = preload("res://scripts/ai/enemy_tactics.gd")
 var failures: int = 0
 
+## Defer the tactics tests until the scene tree is ready.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Exercise tactical positioning, interception, avoidance and related deterministic helper behavior using test fixtures.
 func _run() -> void:
 	var player: Vector2 = Vector2(0, 0)
 	var tank: Vector2 = Vector2(120, 0)
@@ -140,6 +142,7 @@ func _run() -> void:
 		push_error(str(failures) + " enemy tactics tests failed")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Increment failure count and print the supplied description when condition is false.
 func _check(condition: bool, description: String) -> void:
 	if !condition:
 		failures += 1

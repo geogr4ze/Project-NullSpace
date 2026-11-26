@@ -1,5 +1,6 @@
 extends RefCounted
 # Resolve stable text IDs once, and reject invalid campaign data before play.
+## Read and validate campaign JSON against registered enemy statistics and the expected wave count. Returns parsed wave dictionaries, or reports an error for invalid/missing input.
 static func load_campaign(path: String, enemy_stats: Dictionary, expected_count: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
@@ -56,8 +57,10 @@ static func load_campaign(path: String, enemy_stats: Dictionary, expected_count:
 		previous_threat = threat
 	return result
 
+## Return whether the variant is an integer or float with a finite numeric value.
 static func _numeric(value: Variant) -> bool:
 	return (value is int or value is float) and is_finite(float(value))
 
+## Return whether the variant is finite numeric and represents a whole number.
 static func _whole(value: Variant) -> bool:
 	return _numeric(value) and floorf(float(value)) == float(value)

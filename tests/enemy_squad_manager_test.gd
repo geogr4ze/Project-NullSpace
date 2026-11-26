@@ -2,9 +2,11 @@ extends Node
 const Tactics = preload("res://scripts/ai/enemy_tactics.gd")
 var errors: int = 0
 
+## Defer test execution until the node is ready in the scene tree.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Exercise unique tank/support assignment and squad/flank coordination fixtures; report failures and finish the test.
 func _run() -> void:
 	var single_support: Array[Dictionary] = [
 		{"tank_id": 1, "support_id": 10, "score": 70.0},
@@ -104,6 +106,7 @@ func _run() -> void:
 		Rect2(Vector2.ZERO, arena).has_point(constrained_top))
 	get_tree().quit(1 if errors > 0 else 0)
 
+## Record and print a failed assertion when ok is false; description identifies the condition.
 func _check(description: String, ok: bool) -> void:
 	if !ok:
 		errors += 1

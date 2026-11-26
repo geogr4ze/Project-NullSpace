@@ -9,6 +9,7 @@ static var cached_hues: Dictionary = {}
 
 @export_range(0.0, 1.0, 0.01) var intensity: float = 0.23
 
+## Update glow to match the supplied animated sprite's current animation, using its first frame as the visual reference. Ignores missing sprite/frame data.
 func match_sprite(skin: AnimatedSprite2D) -> void:
 	if skin == null or skin.sprite_frames == null:
 		return
@@ -32,6 +33,7 @@ func match_sprite(skin: AnimatedSprite2D) -> void:
 	visible = true
 
 
+## Sample a texture's image pixels to estimate dominant hue for glow coloring. Returns -1.0 if the image is unavailable or cannot be decompressed.
 static func _sample_dominant_hue(source: Texture2D) -> float:
 	var image: Image = source.get_image()
 	if image == null or image.is_empty():
