@@ -26,7 +26,10 @@ func _run() -> void:
 				introductions[type] = number
 		_check(total > 0 and total == Wavecontrol.total_enemy_count, "Wave %d total" % number)
 		_check(threat > previous_threat and threat == Wavecontrol.wave_threat, "Wave %d increasing threat" % number)
-		_check(threat == maxi(previous_threat + 1, roundi(10.0 * pow(1.065, number - 1))), "Wave %d follows budget curve" % number)
+		_check(
+			threat == maxi(previous_threat + 1, roundi(10.0 * pow(1.065, number - 1))),
+			"Wave %d follows budget curve" % number
+		)
 		_check(Wavecontrol.max_alive > 0 and Wavecontrol.max_alive <= total, "Wave %d valid cap" % number)
 		previous_threat = threat
 		var roster: Dictionary = Wavecontrol.enemy_per_round.duplicate()
@@ -39,7 +42,14 @@ func _run() -> void:
 			drawn[selected] = int(drawn.get(selected, 0)) + 1
 			Wavecontrol.enemy_per_round[selected] -= 1
 		_check(drawn == roster and Wavecontrol.get_next_wave_enemy() == -1, "Exact roster exhausted")
-	_check(introductions.get(Wavecontrol.SPEED) == 6 and introductions.get(Wavecontrol.SUPPORT) == 11 and introductions.get(Wavecontrol.TANK) == 16 and introductions.get(Wavecontrol.RAILGUN) == 26 and introductions.get(Wavecontrol.MINESHIP) == 31, "Enemy introductions are staged")
+	_check(
+		introductions.get(Wavecontrol.SPEED) == 6
+		and introductions.get(Wavecontrol.SUPPORT) == 11
+		and introductions.get(Wavecontrol.TANK) == 16
+		and introductions.get(Wavecontrol.RAILGUN) == 26
+		and introductions.get(Wavecontrol.MINESHIP) == 31,
+		"Enemy introductions are staged"
+	)
 	_check(previous_threat == 219, "Final wave budget")
 	# Exercise the actual asynchronous scheduler with a small test cap.
 	Wavecontrol.reset_run()
@@ -57,7 +67,12 @@ func _run() -> void:
 	await get_tree().create_timer(0.08).timeout
 	_check(Wavecontrol.spawned_enemy_count == stopped_count, "Stopping cancels queued reinforcement")
 	Wavecontrol.reset_run()
-	_check(Wavecontrol.spawned_enemy_count == 0 and Wavecontrol.total_enemy_count == 10 and Wavecontrol.max_alive == 10, "Restart restores campaign settings")
+	_check(
+		Wavecontrol.spawned_enemy_count == 0
+		and Wavecontrol.total_enemy_count == 10
+		and Wavecontrol.max_alive == 10,
+		"Restart restores campaign settings"
+	)
 	get_tree().quit(1 if failures > 0 else 0)
 
 ## Increment the observed spawn count for the given enemy type.

@@ -47,7 +47,12 @@ func upgrade_cost(id: String) -> int:
 
 ## Return whether the shop is open, ID exists, maximum level has not been reached and funds cover the cost.
 func can_buy(id: String) -> bool:
-	return shop_open and UPGRADES.has(id) and upgrade_level(id) < int(UPGRADES[id]["max"]) and shopmoney >= upgrade_cost(id)
+	return (
+		shop_open
+		and UPGRADES.has(id)
+		and upgrade_level(id) < int(UPGRADES[id]["max"])
+		and shopmoney >= upgrade_cost(id)
+	)
 
 ## Purchase an eligible upgrade, deduct money, update its level/multiplier and emit shop money change. Returns false without purchase if ineligible.
 func buy(id: String) -> bool:

@@ -36,12 +36,20 @@ func _run() -> void:
 	for child: Node in main.get_children():
 		if child is CanvasLayer and child.has_method("show_result"):
 			overlay = child as CanvasLayer
-	_check(overlay != null and overlay.process_mode == Node.PROCESS_MODE_ALWAYS, "game-over overlay can process while paused")
+	_check(
+		overlay != null
+		and overlay.process_mode == Node.PROCESS_MODE_ALWAYS,
+		"game-over overlay can process while paused"
+	)
 	if overlay != null:
 		overlay.call("_restart")
 		await get_tree().scene_changed
 		_check(not get_tree().paused and Wavecontrol.wave == 1 and not Wavecontrol.finished, "restart resumes a clean run")
-		_check(get_tree().current_scene != null and get_tree().current_scene.get_instance_id() != original_scene_id, "gameplay scene was reloaded")
+		_check(
+			get_tree().current_scene != null
+			and get_tree().current_scene.get_instance_id() != original_scene_id,
+			"gameplay scene was reloaded"
+		)
 	else:
 		get_tree().paused = false
 	get_tree().quit(1 if failures > 0 else 0)

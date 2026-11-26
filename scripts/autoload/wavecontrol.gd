@@ -19,11 +19,44 @@ var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 # Enemy dictionary: speed, score, reward, health, and animation.
 var enemies: Dictionary = {
 	BASIC: {"id": "basic", "threat": 1, "enemy_speed": 0.45, "score": 1, "reward": 1, "health": 3, "enemy_skin": "basic"}, 
-	SPEED: {"id": "speed", "threat": 2, "enemy_speed": 1.8, "speed_multiplier": 1.5, "score": 2, "reward": 3, "health": 2, "enemy_skin": "speed"},
-	SUPPORT: {"id": "support", "threat": 4, "enemy_speed": 0.1, "score": 4, "reward": 10, "health": 20, "enemy_skin": "support"},
+	SPEED: {
+		"id": "speed",
+		"threat": 2,
+		"enemy_speed": 1.8,
+		"speed_multiplier": 1.5,
+		"score": 2,
+		"reward": 3,
+		"health": 2,
+		"enemy_skin": "speed"
+	},
+	SUPPORT: {
+		"id": "support",
+		"threat": 4,
+		"enemy_speed": 0.1,
+		"score": 4,
+		"reward": 10,
+		"health": 20,
+		"enemy_skin": "support"
+	},
 	TANK: {"id": "tank", "threat": 7, "enemy_speed": 0.2, "score": 8, "reward": 30, "health": 75, "enemy_skin": "tank"},
-	RAILGUN: {"id": "railgun", "threat": 9, "enemy_speed": 0.05, "score": 20, "reward": 40, "health": 100, "enemy_skin": "railgun"},
-	MINESHIP: {"id": "mineship", "threat": 6, "enemy_speed": 0.1, "score": 25, "reward": 35, "health": 50, "enemy_skin": "mineship"}
+	RAILGUN: {
+		"id": "railgun",
+		"threat": 9,
+		"enemy_speed": 0.05,
+		"score": 20,
+		"reward": 40,
+		"health": 100,
+		"enemy_skin": "railgun"
+	},
+	MINESHIP: {
+		"id": "mineship",
+		"threat": 6,
+		"enemy_speed": 0.1,
+		"score": 25,
+		"reward": 35,
+		"health": 50,
+		"enemy_skin": "mineship"
+	}
 }
  
 ## Set the currently selected enemy type number; does not spawn an enemy.
@@ -128,7 +161,14 @@ func has_spawn_capacity() -> bool:
 
 ## Return whether a non-test, unfinished, inactive wave has a valid index and positive enemy count.
 func can_start_wave() -> bool:
-	return not finished and not test_enable and not wave_active and not spawn_in_progress and wave <= max_wave and total_enemy_count > 0
+	return (
+		not finished
+		and not test_enable
+		and not wave_active
+		and not spawn_in_progress
+		and wave <= max_wave
+		and total_enemy_count > 0
+	)
 
 ## Start an eligible wave and asynchronously emit/spawn enemies at configured intervals subject to capacity and generation cancellation. Mutates wave state.
 func spawn_enemy() -> void:

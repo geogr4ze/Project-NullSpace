@@ -49,7 +49,13 @@ static func load_campaign(path: String, enemy_stats: Dictionary, expected_count:
 			counts[type] = int(count)
 			total += int(count)
 			threat += int(count) * int(enemy_stats[type]["threat"])
-		if total == 0 or int(cap) > total or not _whole(wave.get("threat")) or int(wave["threat"]) != threat or threat <= previous_threat:
+		if (
+			total == 0
+			or int(cap) > total
+			or not _whole(wave.get("threat"))
+			or int(wave["threat"]) != threat
+			or threat <= previous_threat
+		):
 			push_error("Invalid total, cap or difficulty in wave %d" % number)
 			return []
 		result.append({"wave": number, "counts": counts, "total": total,
