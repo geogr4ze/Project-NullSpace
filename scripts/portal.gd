@@ -4,11 +4,13 @@ var energy_scene: PackedScene = preload("res://scenes/energy.tscn")
 @onready var spawn_marker: Marker2D = $Position
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+## Play the portal appearance animation and start its energy spawn timer.
 func _ready():
 	sprite.play("Appearing")
 	$EnergyTimer.start()
 
 # Summon portal on timer timeout
+## Instantiate an energy pickup at the marker with randomized rotation and velocity, emit its spawn signal and complete portal behavior.
 func _on_energy_timer_timeout() -> void:
 	$EnergyTimer.stop()
 	var energy: RigidBody2D = energy_scene.instantiate() as RigidBody2D

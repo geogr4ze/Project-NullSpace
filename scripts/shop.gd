@@ -4,6 +4,7 @@ var closing: bool = false
 var balance_label: Label
 var upgrade_buttons: Dictionary = {}
 
+## Construct the upgrade-shop interface and its controls when the shop enters the scene.
 func _ready() -> void:
 	var canvas: CanvasLayer = CanvasLayer.new()
 	canvas.layer = 20
@@ -36,12 +37,14 @@ func _ready() -> void:
 	leave.pressed.connect(_on_button_pressed)
 	content.add_child(leave)
 
+## Attempt purchase by upgrade ID and refresh the displayed shop state unless closing.
 func _purchase(id: String) -> void:
 	if closing:
 		return
 	Shopcontrol.buy(id)
 	_refresh()
 
+## Update balance, upgrade labels, levels, costs and availability from shared shop state.
 func _refresh() -> void:
 	balance_label.text = "Credits: $%d" % int(Shopcontrol.shopmoney)
 	for id: String in upgrade_buttons:
@@ -55,6 +58,7 @@ func _refresh() -> void:
 			button.text = "%s [%d/%d] - $%d" % [label, level, maximum, Shopcontrol.upgrade_cost(id)]
 		button.disabled = not Shopcontrol.can_buy(id)
 
+## Begin guarded shop closure, disable controls and animate the exit button before completing cleanup.
 func _on_button_pressed() -> void:
 	if closing:
 		return

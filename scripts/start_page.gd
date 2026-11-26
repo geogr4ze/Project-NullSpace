@@ -6,6 +6,7 @@ var loading: bool = false
 @onready var loading_bar: ProgressBar = $"Loading Bar"
 @onready var filler_text: Label = $%FillerText
 
+## Start threaded main-scene loading once; disable the start button and show progress while loading.
 func _on_button_pressed() -> void:
 	if loading:
 		return
@@ -37,6 +38,7 @@ func _on_button_pressed() -> void:
 
 	_fail_loading("Unable to load the main game scene.")
 
+## Report a loading error and restore the button and loading state for retry.
 func _fail_loading(message: String) -> void:
 	push_error(message)
 	filler_text.text = "Loading failed"

@@ -19,6 +19,7 @@ const GameOverOverlay = preload("res://scripts/game_over_overlay.gd")
 @onready var muzzle: Marker2D = $Player/Muzzle
 @onready var enemy_spawn_location: PathFollow2D = $%EnemySpawnLocation
 
+## Initialize player and HUD, load weapon speed and connect gameplay signals.
 func _ready():
 	bullet_speed = Modecontrol.modes[Modecontrol.mode]["bullet_speed"]
 	ship.start($PlayerStartPos.position)
@@ -45,10 +46,12 @@ func _ready():
 		Signalbus.test_mode.emit()
 		Wavecontrol.test_spawn()
 
+## Emit a loss result if the run has not finished.
 func _death() -> void:
 	if not run_finished:
 		Signalbus.game_over.emit(false)
 
+## Finish the run once, cancel outstanding energy spawns, stop waves, pause the tree and show the result overlay.
 func _on_game_over(won: bool) -> void:
 	if run_finished:
 		return
@@ -61,39 +64,50 @@ func _on_game_over(won: bool) -> void:
 	overlay.call("show_result", won)
 
 
+## Set projectile speed from the registered weapon mode.
 func _change_bp(mode: int) -> void:
 	bullet_speed = Modecontrol.modes[mode]["bullet_speed"]
 
+## Show the low-energy warning with the player's current energy.
 func _on_energy_low() -> void:
 	hud.update_energy_low(ship.energy)
 
+## Apply the reward multiplier, increase shared shop money and refresh HUD.
 func _on_money(reward_amount: int) -> void:
 	Shopcontrol.shopmoney += reward_amount * Shopcontrol.money_multi
 	_refresh_money()
 
+## Synchronize the HUD money label with shared shop balance.
 func _refresh_money() -> void:
 	hud.update_money(Shopcontrol.shopmoney)
 
+## Refresh the HUD energy count after a pickup.
 func _on_energy() -> void:
 	hud.update_energy(ship.energy)
 
+## Update wave HUD and initiate energy spawns for the wave.
 func _on_next_wave() -> void:
 	hud.update_wave(Wavecontrol.wave)
 	spawn_energy()
 
+## Add the supplied score increment and update HUD.
 func _on_score(score_type: int) -> void:
 	score += score_type
 	hud.update_score(score)
 
+## Add a prepared railgun projectile to the main scene.
 func _on_RGshot(bulletRG: RigidBody2D) -> void:
 	add_child(bulletRG)
 
+## Add a prepared enemy mine to the main scene.
 func _on_mine_dispense(mine: RigidBody2D) -> void:
 	add_child(mine)
 
+## Refresh the HUD energy display after dashing.
 func _on_dash() -> void:
 	hud.update_energy(ship.energy)
 
+## Instantiate and configure the player projectile for the current mode, update energy HUD and apply weapon-specific direction and motion.
 func _on_shot() -> void:
 	hud.update_energy(ship.energy)
 	var bullet: PlayerProjectileScript = bullet_scene.instantiate() as PlayerProjectileScript
@@ -110,6 +124,7 @@ func _on_shot() -> void:
 	bullet.linear_velocity = velocity_bullet.rotated(direction)
 	add_child(bullet)
 
+## Asynchronously create wave-scaled energy portals; generation changes or run completion cancel the sequence.
 func spawn_energy() -> void:
 	energy_generation += 1
 	var generation: int = energy_generation
@@ -122,6 +137,7 @@ func spawn_energy() -> void:
 		add_child(portal)
 		await get_tree().create_timer(randf_range(7, 15), false).timeout
 
+## Instantiate a registered enemy type at a randomized point on the configured spawn path; report invalid scenes.
 func spawn_enemy(enemy_type: int) -> void:
 	var enemy: EnemyShipScript = enemy_scene.instantiate() as EnemyShipScript
 	if enemy == null:
@@ -132,5 +148,6 @@ func spawn_enemy(enemy_type: int) -> void:
 	enemy.position = enemy_spawn_location.position
 	add_child(enemy)
 
+## Add a prepared energy pickup to the main scene.
 func _on_spawn_energy(energy: RigidBody2D) -> void:
 	add_child(energy)

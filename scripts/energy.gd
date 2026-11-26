@@ -4,6 +4,7 @@ const PlayerShipScript = preload("res://scripts/player.gd")
 
 var dead: bool = false
 
+## Start the lifetime timer and spawn animation; after the calculated delay, play decay if the pickup is still alive.
 func _ready():
 	$KillTimer.start()
 	$AnimatedSprite2D.play("Spawn")
@@ -13,12 +14,14 @@ func _ready():
 		$AnimatedSprite2D.play("Decay")
 
 
+## Consume an uncollected pickup on player contact, emit energy and queue deletion.
 func _on_pickup_area_body_entered(_body: Node2D) -> void:
 	if !dead and _body is PlayerShipScript:
 		dead = true
 		Signalbus.energy.emit()
 		queue_free()
 
+## Mark pickup dead, play its death animation and queue deletion after five seconds.
 func _on_kill_timer_timeout() -> void:
 	dead = true
 	$AnimatedSprite2D.play("Dead")

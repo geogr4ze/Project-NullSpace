@@ -2,10 +2,12 @@ extends CanvasLayer
 
 var restarting: bool = false
 
+## Place the overlay above the game and allow processing while the scene tree is paused.
 func _ready() -> void:
 	layer = 50
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
+## Build the result overlay for a win or loss, including the available restart and quit controls.
 func show_result(won: bool) -> void:
 	var shade: ColorRect = ColorRect.new()
 	shade.color = Color(0.015, 0.035, 0.09, 0.86)
@@ -35,6 +37,7 @@ func show_result(won: bool) -> void:
 	content.add_child(quit_button)
 	restart.grab_focus()
 
+## Guard against repeated restart clicks and defer the reload out of the input callback.
 func _restart() -> void:
 	if restarting:
 		return
@@ -42,6 +45,7 @@ func _restart() -> void:
 	# Restart is deferred out of the button's input callback.
 	_reload.call_deferred()
 
+## Reset shared run state and reload the current scene; unpause on success and report errors.
 func _reload() -> void:
 	Wavecontrol.reset_run()
 	Modecontrol.reset_run()
@@ -54,5 +58,6 @@ func _reload() -> void:
 		tree.paused = true
 		restarting = false
 
+## Request termination of the game through the scene tree.
 func _quit() -> void:
 	get_tree().quit()
