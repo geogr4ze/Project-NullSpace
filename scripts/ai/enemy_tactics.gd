@@ -9,6 +9,7 @@ const COVER_RANGE_MARGIN: float = 12.0
 const COVER_TRAIL_DISTANCE: float = 135.0
 const FORMATION_LANE_WIDTH: float = 55.0
 
+## Return whether the tank is between the player and enemy and positioned to provide cover. Inputs are world positions; no mutation.
 static func tank_is_in_front(
 		player_position: Vector2,
 		tank_position: Vector2,
@@ -28,6 +29,7 @@ static func tank_is_in_front(
 		return false
 	return absf(tank_to_enemy.cross(forward)) <= COVER_LATERAL_LIMIT
 
+## Compute a position behind the tank using a clamped lateral lane offset relative to the player. Returns a world-space target.
 static func formation_target(
 		player_position: Vector2,
 		tank_position: Vector2,
@@ -40,6 +42,7 @@ static func formation_target(
 	var lane_offset: float = float(clampi(lane, -2, 2)) * FORMATION_LANE_WIDTH
 	return tank_position + forward * COVER_TRAIL_DISTANCE + sideways * lane_offset
 
+## Estimate the player's future position using relative distance, enemy speed and bounded lead time. Returns a predicted world position.
 static func predicted_intercept(
 		enemy_position: Vector2,
 		player_position: Vector2,
@@ -50,6 +53,7 @@ static func predicted_intercept(
 	var travel_time: float = clampf(distance / maxf(enemy_speed, 1.0) * 0.35, 0.0, 0.65)
 	return player_position + player_velocity * travel_time
 
+## Compute a movement target using the requested minimum/maximum range and strafe side relative to the player.
 static func ranged_target(
 		enemy_position: Vector2,
 		player_position: Vector2,
@@ -70,6 +74,7 @@ static func ranged_target(
 
 # Smooth interpolation is proportional to angular error, independent of frame
 # rate. A larger responsiveness yields a faster turn without a single-frame snap.
+## Interpolate angles using exponential responsiveness and elapsed seconds. Returns a smoothly adjusted heading in radians.
 static func smooth_heading(
 		current_angle: float,
 		desired_angle: float,
@@ -82,6 +87,7 @@ static func smooth_heading(
 # Greedy one-to-one matching. Every candidate has stable tank_id/support_id
 # values, a score (lower is better), and optional tank/support node references.
 # The same ordered inputs always produce identical assignments.
+## Greedily match ranked tank/support candidates one-to-one using scores and stable IDs. Returns selected candidate dictionaries without reordering the input array.
 static func assign_unique_supports(
 		candidates: Array[Dictionary]
 	) -> Array[Dictionary]:
@@ -112,6 +118,7 @@ static func assign_unique_supports(
 
 # Pursuit is always the stronger component. Steering toward the ally's front
 # screen position modifies the route, but cannot reverse its playerward motion.
+## Compute a tank movement target balancing pursuit of the player and screening its assigned support.
 static func tank_defense_target(
 		tank_position: Vector2,
 		player_position: Vector2,
@@ -135,6 +142,7 @@ static func tank_defense_target(
 # only when their closest approach occurs in the future and would overlap
 # their estimated combined collision widths. The chosen side is stable when
 # a bullet is aimed directly at the center of the enemy.
+## Predict collision risk using relative projectile/enemy motion, collision radius and time horizon. Returns a dodge vector or zero when no dodge is needed.
 static func projectile_evasion(
 		bullet_position: Vector2,
 		bullet_velocity: Vector2,
@@ -175,6 +183,7 @@ static func projectile_evasion(
 # Conservative half-width of a collision shape perpendicular to a bullet's
 # path. Supports the circle, rectangle and capsule shapes used by this game,
 # including local rotations and scales of wave and laser projectiles.
+## Project the collision shape's transformed dimensions onto the supplied perpendicular axis. Returns zero for a missing shape.
 static func collision_half_width(
 		hitbox: CollisionShape2D,
 		perpendicular: Vector2
@@ -201,11 +210,13 @@ static func collision_half_width(
 # Only an actual large laser projectile warrants evasive movement for tanks.
 # Compare the in-flight projectile's captured mode, not the player's current
 # selected mode (which may have changed after firing).
+## Return whether the enemy should evade the specified projectile mode; tanks ignore modes other than MODE2.
 static func can_evade_weapon(enemy_type: int, projectile_weapon_mode: int) -> bool:
 	return enemy_type != Wavecontrol.TANK or projectile_weapon_mode == Modecontrol.MODE2
 
 # An Object can be queued/freed while a tank still holds a reference to it.
 # Check validity before accessing or casting it.
+## Return the live object's instance ID, or zero if the reference is invalid.
 static func valid_object_id(candidate: Variant) -> int:
 	if !is_instance_valid(candidate):
 		return 0
@@ -214,6 +225,7 @@ static func valid_object_id(candidate: Variant) -> int:
 # Keep surviving flank assignments stable while distributing newly visible
 # speed enemies across the top and bottom of the screen. Each wing differs
 # by at most one ship.
+## Assign speed ship IDs to balanced top/bottom wings while retaining previous sides where possible. Returns ID-to-side assignments.
 static func assign_speed_flanks(
 		speed_ids: Array[int],
 		previous_sides: Dictionary
@@ -246,6 +258,7 @@ static func assign_speed_flanks(
 # Stage at the TOP (-1) or BOTTOM (+1) edge of the arena, with
 # distinct horizontal lanes centered on the player's current x position.
 # Both groups then use their normal intercept targets during the attack.
+## Compute the viewport-relative staging position for a flank side and lane, with edge margins.
 static func speed_flank_target(
 		player_position: Vector2,
 		viewport_size: Vector2,
@@ -268,9 +281,11 @@ static func speed_flank_target(
 # Long-range enemies enter the arena, then keep their distance rather than
 # chasing. Retreat along the best available direction, including sideways
 # along an edge when a direct escape would take them outside.
+## Return the position clamped to the supplied arena rectangle.
 static func clamp_to_arena(position: Vector2, arena: Rect2) -> Vector2:
 	return position.clamp(arena.position, arena.end)
 
+## Return an arena-constrained ranged movement target; move inside the arena first, then retreat when closer than minimum range.
 static func railgun_target(position: Vector2, player_position: Vector2,
 		arena: Rect2, minimum_range: float, strafe_side: float) -> Vector2:
 	var inside: Vector2 = clamp_to_arena(position, arena)

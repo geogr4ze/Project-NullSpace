@@ -12,6 +12,7 @@ var modes: Dictionary = {
 	MODE2: {"delay": 0.005,"bullet_speed": -8000,"energy": 15,"player_movement": 1.5, "pierce": 1000000, "damage": 1, "collision": mode2_collision, "skin": "mode2", "bullet_skin": "laser"}
 }
 
+## Select a registered weapon mode and emit mode_changed only on a valid change. Unknown values are warned about and ignored.
 func set_mode(mode_number: int) -> void:
 	if mode == mode_number:
 		return
@@ -21,6 +22,7 @@ func set_mode(mode_number: int) -> void:
 	mode = mode_number
 	mode_changed.emit(mode)
 
+## Restore the default weapon mode without notifying the outgoing player.
 func reset_run() -> void:
 	# No mode-change notification to the outgoing player during a reload.
 	mode = DEFAULT

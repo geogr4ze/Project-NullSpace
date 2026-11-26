@@ -7,6 +7,7 @@ const TacticsScript = preload("res://scripts/ai/enemy_tactics.gd")
 const TIME_TO_IMPACT_LIMIT: float = 0.70
 const COLLISION_SAFETY_MARGIN: float = 14.0
 
+## Scan active enemy and projectile groups each physics tick and update enemy dodge requests. Skips invalid or dead enemies.
 func _physics_process(_delta: float) -> void:
 	var shots: Array[Node] = get_tree().get_nodes_in_group("player_projectiles")
 	for node: Node in get_tree().get_nodes_in_group("enemy_ai"):
@@ -21,6 +22,7 @@ func _physics_process(_delta: float) -> void:
 		enemy.incoming_dodge = best_dodge
 
 
+## Evaluate the supplied projectile nodes against the enemy hitbox, velocity and weapon-evasion rules. Returns a dodge direction or zero.
 func _find_incoming_threat(enemy: EnemyShip, shots: Array[Node]) -> Vector2:
 	var enemy_hitbox: CollisionShape2D = (
 		enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D

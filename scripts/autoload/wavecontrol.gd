@@ -26,6 +26,7 @@ var enemies: Dictionary = {
 	MINESHIP: {"id": "mineship", "threat": 6, "enemy_speed": 0.1, "score": 25, "reward": 35, "health": 50, "enemy_skin": "mineship"}
 }
  
+## Set the currently selected enemy type number; does not spawn an enemy.
 func set_type(type_number: int):
 	enemy = type_number
 
@@ -44,6 +45,7 @@ var wave_active: bool = false
 var finished: bool = false
 var spawn_generation: int = 0
 
+## Invalidate old spawn sequences and reset campaign state to wave one, including current enemy totals.
 func reset_run() -> void:
 	spawn_generation += 1
 	wave = 1
@@ -55,12 +57,14 @@ func reset_run() -> void:
 	finished = false
 	new_enemy_totals()
 
+## Invalidate outstanding spawn coroutines and mark the run finished/inactive.
 func stop_run() -> void:
 	spawn_generation += 1
 	wave_active = false
 	spawn_in_progress = false
 	finished = true
 
+## Initialize RNG, load campaign definitions, calculate totals and connect the kill-count signal.
 func _ready():
 	rng.randomize()
 	campaign = WaveLoader.load_campaign(WAVE_FILE_PATH, enemies, max_wave)
@@ -71,6 +75,7 @@ func _ready():
 # Wave completion is checked only when an enemy dies, not every frame.
 
 # Collects total number of enemies that are meant to spawn
+## Reset counters and load the current wave's counts, capacity and threat from its campaign definition; leave empty if outside campaign range.
 func new_enemy_totals() -> void:
 	total_enemy_count = 0
 	spawned_enemy_count = 0
@@ -86,6 +91,7 @@ func new_enemy_totals() -> void:
 	spawnrate = definition["spawn_interval"]
 	max_alive = definition["max_alive"]
 
+## Record eligible enemy deaths and advance or finish the campaign when the current wave's total is reached; ignores inactive/test runs and excess counts.
 func kill_count() -> void:
 	if test_enable or finished or not wave_active or enemy_kc >= spawned_enemy_count:
 		return
@@ -107,19 +113,24 @@ func kill_count() -> void:
 	Signalbus.wave_complete.emit(completed_wave)
 
 # Choose only from enemy types that still have spawns remaining.
+## Return a random registered enemy type using the manager RNG.
 func get_enemy() -> int:
 	var types: Array = enemies.keys()
 	return int(types[rng.randi_range(0, types.size() - 1)])
 
+## Choose a remaining enemy type from the current wave via WaveSpawner.
 func get_next_wave_enemy() -> int:
 	return WaveSpawner.choose_enemy(enemy_per_round, rng)
 
+## Return whether spawned enemies minus recorded kills leave room under max_alive.
 func has_spawn_capacity() -> bool:
 	return WaveSpawner.has_capacity(spawned_enemy_count, enemy_kc, max_alive)
 
+## Return whether a non-test, unfinished, inactive wave has a valid index and positive enemy count.
 func can_start_wave() -> bool:
 	return not finished and not test_enable and not wave_active and not spawn_in_progress and wave <= max_wave and total_enemy_count > 0
 
+## Start an eligible wave and asynchronously emit/spawn enemies at configured intervals subject to capacity and generation cancellation. Mutates wave state.
 func spawn_enemy() -> void:
 	if not can_start_wave():
 		return
@@ -148,6 +159,7 @@ func spawn_enemy() -> void:
 		spawn_in_progress = false
 
 # Test enemy spawns retain their explicitly selected type.
+## Asynchronously spawn configured test enemies, optionally randomized; stop when the spawn generation changes or run finishes.
 func test_spawn() -> void:
 	spawn_generation += 1
 	var generation: int = spawn_generation

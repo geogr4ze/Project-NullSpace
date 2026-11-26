@@ -21,6 +21,7 @@ var pincer_reform_seconds: float = 0.0
 
 var time_until_assignment: float = 0.0
 
+## Advance pincer/reform timers and periodically recalculate squad assignments. delta is elapsed physics time; mutates manager and enemy assignment state.
 func _physics_process(delta: float) -> void:
 	if pincer_attack_seconds > 0.0:
 		pincer_attack_seconds = maxf(0.0, pincer_attack_seconds - delta)
@@ -34,6 +35,7 @@ func _physics_process(delta: float) -> void:
 	time_until_assignment = ASSIGN_INTERVAL
 	_assign_protectors()
 
+## Collect live enemies and assign tank protection and speed-flank roles using current positions and visibility. Updates participating enemy AI state.
 func _assign_protectors() -> void:
 	var tanks: Array[EnemyShip] = []
 	var supports: Array[EnemyShip] = []
@@ -96,6 +98,7 @@ func _assign_protectors() -> void:
 	_update_speed_pincer(all_speeds, visible_speeds)
 
 
+## Cancel active/reforming pincers and clear flank states/sides for the supplied live speed ships.
 func _reset_speed_pincer(speeds: Array[EnemyShip]) -> void:
 	pincer_attack_seconds = 0.0
 	pincer_reform_seconds = 0.0
@@ -104,6 +107,7 @@ func _reset_speed_pincer(speeds: Array[EnemyShip]) -> void:
 		speed_ship.flank_side = 0
 
 
+## Update top/bottom flank coordination for visible speed ships; reset when the visible count is below the threshold or player is invalid. Mutates flank state and timers.
 func _update_speed_pincer(
 		all_speeds: Array[EnemyShip],
 		visible_speeds: Array[EnemyShip]
