@@ -3,9 +3,11 @@ extends Node
 var failures: int = 0
 var observed: Dictionary = {}
 
+## Defer campaign tests until the scene tree is ready.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Validate the 50-wave campaign, enemy rosters, difficulty progression and observed spawning behavior using the wave controller.
 func _run() -> void:
 	Wavecontrol.reset_run()
 	_check(Wavecontrol.campaign.size() == 50, "All 50 validated waves loaded")
@@ -58,9 +60,11 @@ func _run() -> void:
 	_check(Wavecontrol.spawned_enemy_count == 0 and Wavecontrol.total_enemy_count == 10 and Wavecontrol.max_alive == 10, "Restart restores campaign settings")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Increment the observed spawn count for the given enemy type.
 func _on_spawn(type: int) -> void:
 	observed[type] = int(observed.get(type, 0)) + 1
 
+## Record and print a failed campaign assertion.
 func _check(ok: bool, message: String) -> void:
 	if not ok:
 		failures += 1

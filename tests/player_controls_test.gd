@@ -4,9 +4,11 @@ extends Node
 const Controls = preload("res://scripts/combat/player_controls.gd")
 var failures: int = 0
 
+## Defer control tests until scene-tree initialization.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Exercise mouse-facing rotation, relative movement, laser aiming constraints and configured input mappings with deterministic fixtures.
 func _run() -> void:
 	var center: Vector2 = Vector2(500.0, 400.0)
 	_check(_same_angle(
@@ -123,6 +125,7 @@ func _run() -> void:
 		push_error(str(failures) + " player controls tests failed")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Return whether the named input action contains a physical key event matching the supplied key.
 func _mapped_to_key(action_name: String, expected: Key) -> bool:
 	if !InputMap.has_action(action_name):
 		return false
@@ -131,9 +134,11 @@ func _mapped_to_key(action_name: String, expected: Key) -> bool:
 			return true
 	return false
 
+## Compare angles in radians modulo a full revolution using a small tolerance.
 func _same_angle(first: float, second: float) -> bool:
 	return absf(wrapf(first - second, -PI, PI)) < 0.0001
 
+## Record and print a failing control assertion.
 func _check(ok: bool, label: String) -> void:
 	if !ok:
 		failures += 1

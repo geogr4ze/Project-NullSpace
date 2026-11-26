@@ -2,9 +2,11 @@ extends Node
 
 # A normal project scene initializes the autoloads before loading each test.
 # Using --script with a custom SceneTree compiles scripts too early.
+## Defer selection and startup of the requested test script.
 func _ready() -> void:
 	call_deferred("_start_test")
 
+## Validate the single command-line test path, load and instantiate the test script; exit with failure for an invalid argument or script.
 func _start_test() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.size() != 1 or not args[0].begins_with("res://tests/") or not args[0].ends_with("_test.gd"):

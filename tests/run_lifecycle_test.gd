@@ -4,9 +4,11 @@ var failures: int = 0
 var victory_count: int = 0
 var completion_count: int = 0
 
+## Defer run lifecycle tests until the scene tree is ready.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Reset shared state and exercise wave progression, completion and game-over lifecycle behavior.
 func _run() -> void:
 	Wavecontrol.reset_run()
 	Shopcontrol.reset_run()
@@ -43,13 +45,16 @@ func _run() -> void:
 	_check(Modecontrol.mode == Modecontrol.DEFAULT, "weapon resets")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Count victory signals only when won is true.
 func _on_game_over(won: bool) -> void:
 	if won:
 		victory_count += 1
 
+## Increment the observed wave-completion signal count.
 func _on_wave_complete(_wave: int) -> void:
 	completion_count += 1
 
+## Record and print a failed lifecycle assertion.
 func _check(ok: bool, description: String) -> void:
 	if not ok:
 		failures += 1

@@ -3,9 +3,11 @@ extends Node
 const GlowScript = preload("res://scripts/visuals/ship_glow.gd")
 var failures: int = 0
 
+## Defer glow tests until the scene tree is ready.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Create synthetic sprite color fixtures and exercise the glow's palette-matching and visual behavior.
 func _run() -> void:
 	var halo: GlowScript = GlowScript.new()
 	var skin: AnimatedSprite2D = AnimatedSprite2D.new()
@@ -96,6 +98,7 @@ func _run() -> void:
 		push_error(str(failures) + " ship glow checks failed")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Record and print a failed glow assertion.
 func _check(ok: bool, description: String) -> void:
 	if !ok:
 		failures += 1

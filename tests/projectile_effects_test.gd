@@ -3,9 +3,11 @@ extends Node
 const WavePixelTrail = preload("res://scripts/visuals/wave_pixel_trail.gd")
 var failures: int = 0
 
+## Defer projectile tests until scene-tree initialization.
 func _ready() -> void:
 	call_deferred("_run")
 
+## Instantiate projectile scenes for each weapon mode and verify effects and cleanup behavior; fail early if the scene cannot load.
 func _run() -> void:
 	var scene: PackedScene = load("res://scenes/bullet.tscn") as PackedScene
 	_check(scene != null, "Projectile scene loads")
@@ -94,11 +96,13 @@ func _run() -> void:
 		push_error(str(failures) + " projectile effects tests failed")
 	get_tree().quit(1 if failures > 0 else 0)
 
+## Record and print a failed projectile assertion.
 func _check(ok: bool, description: String) -> void:
 	if !ok:
 		failures += 1
 		printerr("FAIL: " + description)
 
+## Exercise the trail's actual color and motion logic over particle ages; record failures for missing pixels or incorrect opacity/movement.
 func _check_pixel_motion_and_fade(trail: WavePixelTrail) -> void:
 	if trail.pixels.is_empty():
 		_check(false, "Wave creates fresh pixels immediately")
@@ -144,6 +148,7 @@ func _check_pixel_motion_and_fade(trail: WavePixelTrail) -> void:
 	trail.advance(trail.lifetime)
 	_check(trail.pixels.is_empty(), "Expired pixels are removed")
 
+## Exercise projectile cleanup near and beyond viewport edges using the projectile's actual radius and restore its test position.
 func _check_offscreen_cleanup(bullet: RigidBody2D) -> void:
 	var original: Vector2 = bullet.global_position
 	var viewport: Rect2 = bullet.get_viewport_rect()
